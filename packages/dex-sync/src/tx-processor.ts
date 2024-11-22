@@ -5,9 +5,9 @@ import { Logger } from "winston";
 import { tonNode_blockIdExt } from "ton-lite-client/dist/schema";
 import { Transaction } from "@ton/core";
 import { BlockID } from "ton-lite-client";
-import { OpCallbackCreatePool, OpMintPosition } from "./constants";
-import { DuckDbNode } from "./db";
 import { TableName } from "./utils";
+import PoolRepository from "./apis/repositories/pool.repository";
+import PositionRepository from "./apis/repositories/position.repository";
 
 export type StringHex = string;
 export type TransactionWithBlockId = {
@@ -194,12 +194,12 @@ export default class TonTxProcessor {
               fee: fee.toString(),
               tickSpacing: tickSpacing.toString(),
             });
-            await DuckDbNode.instances.insert(TableName.Pool, {
+            await PoolRepository.create({
               poolAddress: poolAddress.toString(),
-              jetton0Address: jetton0Address.toString(),
-              jetton1Address: jetton1Address.toString(),
-              fee: fee.toString(),
-              tickSpacing: tickSpacing.toString(),
+              jetton0WalletAddress: jetton0Address.toString(),
+              jetton1WalletAddress: jetton1Address.toString(),
+              fee: Number(fee.toString()),
+              tickSpacing: Number(tickSpacing.toString()),
             });
           }
           break;
@@ -216,28 +216,19 @@ export default class TonTxProcessor {
             let tokenOwed0 = secondRef.loadUint(128);
             let tokenOwed1 = secondRef.loadUint(128);
             let ownerAddress = secondRef.loadAddress();
-            console.log("Positon:", {
-              positionAddress,
-              tickLower,
-              tickUpper,
-              liquidity,
-              feeGrowthInside0LastX128,
-              feeGrowthInside1LastX128,
-              tokenOwed0,
-              tokenOwed1,
-              ownerAddress,
-            });
-            await DuckDbNode.instances.insert(TableName.Position, {
-              poolAddress: watchContract,
-              positionAddress,
-              tickLower,
-              tickUpper,
-              liquidity,
-              feeGrowthInside0LastX128,
-              feeGrowthInside1LastX128,
-              tokenOwed0,
-              tokenOwed1,
-              ownerAddress,
+            const poolData =
+              await PoolRepository.getByPoolAddress(watchContract);
+            await PositionRepository.create({
+              poolId: poolData._id.toString(),
+              positionAddress: positionAddress.toString(),
+              tickLower: Number(tickLower.toString()),
+              tickUpper: Number(tickUpper.toString()),
+              liquidity: liquidity.toString(),
+              feeGrowthInside0LastX128: feeGrowthInside0LastX128.toString(),
+              feeGrowthInside1LastX128: feeGrowthInside1LastX128.toString(),
+              tokenOwed0: tokenOwed0.toString(),
+              tokenOwed1: tokenOwed1.toString(),
+              ownerAddress: ownerAddress.toString(),
             });
           }
           break;

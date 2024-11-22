@@ -1,13 +1,12 @@
-import { DuckDbNode } from "src/db";
-import { catchAsync, TableName } from "../../utils";
+import { catchAsync } from "../../utils";
 import { Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
+import PoolRepository from "../repositories/pool.repository";
 
 namespace PoolController {
   export const getAll = catchAsync(async (req: Request, res: Response) => {
-    const data = await DuckDbNode.instances.select(TableName.Pool, {
-      where: {},
-    });
-    res.status(200).json({
+    const data = await PoolRepository.getAll();
+    res.status(StatusCodes.OK).json({
       message: "Get pool successfully",
       data,
     });

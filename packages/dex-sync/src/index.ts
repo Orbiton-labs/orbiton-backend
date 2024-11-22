@@ -11,7 +11,6 @@ import dotenv from "dotenv";
 import { intToIP } from "./constants";
 import { createLogger, format, transports } from "winston";
 import { setTimeout } from "timers/promises";
-import { DuckDbNode } from "./db";
 import compression from "compression";
 import cors from "cors";
 import express from "express";
@@ -20,6 +19,7 @@ import http from "http";
 import xss from "xss-clean";
 import morgan from "./configs/morgan";
 import env from "./configs/env";
+import "./configs/db";
 import poolRoute from "./apis/routes/pool.route";
 import positionRoute from "./apis/routes/position.route";
 
@@ -55,10 +55,6 @@ app.use("/api/position", positionRoute);
 const PORT = env.server.port;
 
 server.listen(PORT, async () => {
-  let duckDb: DuckDbNode;
-  duckDb = await DuckDbNode.create("db.duckdb");
-  await duckDb.createTable();
-
   const logger = createLogger({
     level: "info",
     format: format.combine(format.timestamp(), format.json()),

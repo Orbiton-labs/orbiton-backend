@@ -1,18 +1,16 @@
-import { DuckDbNode } from "src/db";
-import { catchAsync, TableName } from "../../utils";
+import { catchAsync } from "../../utils";
 import { Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
+import PositionRepository from "../repositories/position.repository";
 
 namespace PositionController {
   export const getAll = catchAsync(async (req: Request, res: Response) => {
-    const { poolAddress, userAddress } = req.query;
-    if (!poolAddress || !userAddress) {
-      throw new Error("Missing required fields");
-    }
-
-    const data = await DuckDbNode.instances.select(TableName.Position, {
-      where: {},
+    const { poolId, userAddress } = req.query;
+    const data = await PositionRepository.getAll({
+      poolId: poolId as string,
+      userAddress: userAddress as string,
     });
-    res.status(200).json({
+    res.status(StatusCodes.OK).json({
       message: "Get position successfully",
       data,
     });
