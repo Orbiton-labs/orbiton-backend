@@ -13,6 +13,12 @@ namespace PoolRepository {
   };
 
   export const create = async (data: IPool) => {
+    const item = await PoolModel.findOne({
+      poolAddress: data.poolAddress,
+    });
+    if (item) {
+      return;
+    }
     return PoolModel.create({
       ...data,
     });

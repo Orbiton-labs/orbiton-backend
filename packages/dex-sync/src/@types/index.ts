@@ -25,3 +25,8 @@ export interface IPosition {
   createdAt?: Date; // Automatically added by Mongoose with timestamps
   updatedAt?: Date; // Automatically added by Mongoose with timestamps
 }
+
+export interface IProcessedTransaction {
+  transactionHash: string;
+  messageIndex: number;
+}

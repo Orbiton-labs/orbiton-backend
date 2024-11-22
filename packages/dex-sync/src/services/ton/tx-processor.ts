@@ -5,9 +5,10 @@ import { Logger } from "winston";
 import { tonNode_blockIdExt } from "ton-lite-client/dist/schema";
 import { Transaction } from "@ton/core";
 import { BlockID } from "ton-lite-client";
-import { TableName } from "./utils";
-import PoolRepository from "./apis/repositories/pool.repository";
-import PositionRepository from "./apis/repositories/position.repository";
+import { TableName } from "../../utils";
+import PoolRepository from "../../apis/repositories/pool.repository";
+import PositionRepository from "../../apis/repositories/position.repository";
+import ProcessedTransactionRepository from "../../apis/repositories/processed_transaction.repository";
 
 export type StringHex = string;
 export type TransactionWithBlockId = {
@@ -122,7 +123,6 @@ export default class TonTxProcessor {
           break;
         }
       }
-      console.log(watchContract, transactions.length);
       results[watchContract] = transactions;
     }
     return results;
@@ -167,7 +167,18 @@ export default class TonTxProcessor {
     // TODO: process transaction here
     const transaction = tx.tx;
     const messages = transaction.outMessages.values();
-    for (const message of messages) {
+    for (let i = 0; i < messages.length; i++) {
+      const processedTx = await ProcessedTransactionRepository.get(
+        transaction.hash().toString("hex"),
+        i
+      );
+      if (processedTx) {
+        this.logger.info(
+          `Already processed tx: ${transaction.hash().toString("hex")} message index: ${i}`
+        );
+        continue;
+      }
+      const message = messages[i];
       if (message.info.src.toString() !== watchContract) {
         continue;
       }
@@ -233,6 +244,10 @@ export default class TonTxProcessor {
           }
           break;
       }
+      await ProcessedTransactionRepository.create({
+        transactionHash: transaction.hash().toString("hex"),
+        messageIndex: i,
+      });
     }
   }
 }

@@ -5,8 +5,8 @@ import {
   LiteSingleEngine,
 } from "ton-lite-client";
 import TonWeb from "tonweb";
-import TonBlockProcessor from "./block-processor";
-import TonTxProcessor from "./tx-processor";
+import TonBlockProcessor from "./services/ton/block-processor";
+import TonTxProcessor from "./services/ton/tx-processor";
 import dotenv from "dotenv";
 import { intToIP } from "./constants";
 import { createLogger, format, transports } from "winston";
@@ -22,6 +22,7 @@ import env from "./configs/env";
 import "./configs/db";
 import poolRoute from "./apis/routes/pool.route";
 import positionRoute from "./apis/routes/position.route";
+import { logger } from "./configs/logger";
 
 dotenv.config();
 
@@ -55,11 +56,6 @@ app.use("/api/position", positionRoute);
 const PORT = env.server.port;
 
 server.listen(PORT, async () => {
-  const logger = createLogger({
-    level: "info",
-    format: format.combine(format.timestamp(), format.json()),
-    transports: [new transports.Console()],
-  });
   // setup lite engine server
   const { liteservers } = await fetch(
     "https://ton.org/testnet-global.config.json"
@@ -83,10 +79,14 @@ server.listen(PORT, async () => {
     new TonWeb.HttpProvider(process.env.TON_HTTP_API_URL)
   );
 
-  const blockProcessor = new TonBlockProcessor(liteClient, tonWeb, logger);
+  const blockProcessor = new TonBlockProcessor(
+    liteClient,
+    tonWeb,
+    logger("BlockProcessor")
+  );
   const txProcessor = new TonTxProcessor(
     liteClient,
-    logger,
+    logger("TxProcessor"),
     [routerContractAddress],
     [""],
     routerContractAddress
@@ -99,11 +99,11 @@ server.listen(PORT, async () => {
       const { parsedBlock } = await blockProcessor.queryKeyBlock(
         latestMasterchainBlock.last.seqno
       );
-      logger.info("Masterchain: " + latestMasterchainBlock.last.seqno);
-      logger.info("Keyblock: " + parsedBlock.info.seq_no);
+      console.log("Masterchain: " + latestMasterchainBlock.last.seqno);
+      console.log("Keyblock: " + parsedBlock.info.seq_no);
       await txProcessor.processTransactions(latestMasterchainBlock.last);
     } catch (error) {
-      logger.error("error processing block and tx: " + error);
+      console.error("error processing block and tx: " + error);
     }
     await setTimeout(processInterval);
   }
