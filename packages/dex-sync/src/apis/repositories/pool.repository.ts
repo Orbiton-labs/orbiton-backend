@@ -23,6 +23,17 @@ namespace PoolRepository {
       ...data,
     });
   };
+
+  export const update = async (poolAddress: string, data: IPool) => {
+    return PoolModel.updateOne(
+      {
+        poolAddress,
+      },
+      {
+        ...data,
+      }
+    );
+  };
 }
 
 export default PoolRepository;

@@ -23,6 +23,7 @@ import "./configs/db";
 import poolRoute from "./apis/routes/pool.route";
 import positionRoute from "./apis/routes/position.route";
 import { logger } from "./configs/logger";
+import { syncPools } from "./services/ton/sync-processor";
 
 dotenv.config();
 
@@ -56,6 +57,8 @@ app.use("/api/position", positionRoute);
 const PORT = env.server.port;
 
 server.listen(PORT, async () => {
+  syncPools();
+
   // setup lite engine server
   const { liteservers } = await fetch(
     "https://ton.org/testnet-global.config.json"

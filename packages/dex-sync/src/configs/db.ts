@@ -12,7 +12,7 @@ class Database {
     mongoose.set("strictQuery", true);
     mongoose
       .connect(
-        env.server.env == "development"
+        env.server.network == "testnet"
           ? `${env.server.mongoUrl}-testnet?retryWrites=true&w=majority`
           : `${env.server.mongoUrl}?retryWrites=true&w=majority`
       )

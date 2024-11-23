@@ -1,9 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
-export enum TableName {
-  Pool = "Pool",
-  Position = "Position",
-}
+export * from "./dex.util";
 
 export const catchAsync =
   (func: any) => async (req: Request, res: Response, next: NextFunction) => {

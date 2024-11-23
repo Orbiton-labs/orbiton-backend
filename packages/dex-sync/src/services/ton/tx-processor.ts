@@ -5,7 +5,6 @@ import { Logger } from "winston";
 import { tonNode_blockIdExt } from "ton-lite-client/dist/schema";
 import { Transaction } from "@ton/core";
 import { BlockID } from "ton-lite-client";
-import { TableName } from "../../utils";
 import PoolRepository from "../../apis/repositories/pool.repository";
 import PositionRepository from "../../apis/repositories/position.repository";
 import ProcessedTransactionRepository from "../../apis/repositories/processed_transaction.repository";
