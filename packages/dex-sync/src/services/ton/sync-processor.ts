@@ -16,13 +16,13 @@ import {
 } from "@ton/sandbox";
 import { TonClient4 } from "@ton/ton";
 import { getHttpV4Endpoint } from "@orbs-network/ton-access";
-import { IPosition } from "../../@types";
+import { IPool, IPosition } from "../../@types";
 import env from "../../configs/env";
 import { setTimeout } from "timers/promises";
 import { FeeGrowthMath } from "../../utils/math/feegrowth.util";
 import { SqrtPriceMath } from "../../utils/math/sqrtpricemath.util";
 import { TickMath } from "../../utils/math/tickmath.util";
-import { getPriceByTokenMaster } from "../pricing";
+import { getTokenInfoByTokenMaster } from "../pricing";
 
 export const syncPools = async () => {
   console.log("Syncing pools started...!");
@@ -49,11 +49,6 @@ export const syncPools = async () => {
         );
         const [jetton0Address, jetton1Address] =
           await poolContract.getJettonsWallet();
-        const [jetton0Price, jetton1Price] = await getJettonsPrice(
-          jetton0Address,
-          jetton1Address,
-          blockchain
-        );
         const poolInfo = await poolContract.getPoolInfo();
         const positions = await PositionRepository.getAll({
           poolId: pool._id.toString(),
@@ -79,23 +74,24 @@ export const syncPools = async () => {
               }),
               poolInfo.tick
             );
-          const totalFee =
-            feeAmount0 * jetton0Price + feeAmount1 * jetton1Price;
-          const tvl = tokenAmount0 * jetton0Price + tokenAmount1 * jetton1Price;
-          const totalVolume = (totalFee / BigInt(pool.fee)) * BigInt(1000000);
           const poolData = await PoolRepository.getByPoolAddress(
             pool.poolAddress
           );
-          console.log({
-            tvl,
-            totalVolume,
-            totalFee,
-          });
+          const { tvl, totalVolume, totalFee } = await getAnalystData(
+            tokenAmount0,
+            tokenAmount1,
+            feeAmount0,
+            feeAmount1,
+            poolData.toJSON(),
+            jetton0Address,
+            jetton1Address,
+            blockchain
+          );
           await PoolRepository.update(poolData.poolAddress, {
             ...poolData.toJSON(),
-            liquidity: tvl.toString(),
-            totalVolume: totalVolume.toString(),
-            totalFee: totalFee.toString(),
+            liquidity: tvl,
+            totalVolume,
+            totalFee,
           });
         }
       }
@@ -106,7 +102,12 @@ export const syncPools = async () => {
   }
 };
 
-const getJettonsPrice = async (
+const getAnalystData = async (
+  token0Amount: bigint,
+  token1Amount: bigint,
+  feeAmount0: bigint,
+  feeAmount1: bigint,
+  pool: IPool,
   jetton0Address: Address,
   jetton1Address: Address,
   blockchain: Blockchain
@@ -125,11 +126,26 @@ const getJettonsPrice = async (
     jetton0Data.jettonMasterAddress,
     jetton1Data.jettonMasterAddress,
   ];
-  const [jetton0Price, jetton1Price] = [
-    getPriceByTokenMaster(jetton0Master.toString()),
-    getPriceByTokenMaster(jetton1Master.toString()),
+  const [jetton0Info, jetton1Info] = [
+    getTokenInfoByTokenMaster(jetton0Master.toString()),
+    getTokenInfoByTokenMaster(jetton1Master.toString()),
   ];
-  return [BigInt(jetton0Price), BigInt(jetton1Price)];
+  const totalFee =
+    Number(feeAmount0 / BigInt(10 ** jetton0Info.decimals)) *
+      Number(jetton0Info.price) +
+    Number(feeAmount1 / BigInt(10 ** jetton1Info.decimals)) *
+      Number(jetton1Info.price);
+  const tvl =
+    Number(token0Amount / BigInt(10 ** jetton0Info.decimals)) *
+      Number(jetton0Info.price) +
+    Number(token1Amount / BigInt(10 ** jetton1Info.decimals)) *
+      Number(jetton1Info.price);
+  const totalVolume = (BigInt(totalFee) / BigInt(pool.fee)) * BigInt(1000000);
+  return {
+    tvl: tvl.toString(),
+    totalVolume: totalVolume.toString(),
+    totalFee: totalFee.toString(),
+  };
 };
 
 const calculateFeeAmountsInPool = async (

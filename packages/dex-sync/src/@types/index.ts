@@ -30,3 +30,17 @@ export interface IProcessedTransaction {
   transactionHash: string;
   messageIndex: number;
 }
+
+export interface IToken {
+  _id: string;
+  type: string;
+  address: string;
+  name: string;
+  symbol: string;
+  description: string | null;
+  image: string;
+  decimals: number;
+  aliased: boolean;
+  price: string;
+  source: string | null;
+}

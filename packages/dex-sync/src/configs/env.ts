@@ -7,6 +7,7 @@ const envVarsSchema = Joi.object()
     NODE_ENV: Joi.string().error(new Error("NODE_ENV is required")),
     PORT: Joi.number().default(8000),
     NETWORK: Joi.string().required(),
+    PRICE_API: Joi.string().required(),
     MONGO_URL: Joi.string().required(),
     WEBHOOK_URL: Joi.string().optional(),
     TRIGGER_BLOCK_INTERVAL: Joi.number().default(5 * 60 * 1000),
@@ -28,5 +29,6 @@ export default {
     port: envVars.PORT,
     storageDirName: envVars.STORAGE_DIR_NAME,
     mongoUrl: envVars.MONGO_URL,
+    priceApi: envVars.PRICE_API,
   },
 };

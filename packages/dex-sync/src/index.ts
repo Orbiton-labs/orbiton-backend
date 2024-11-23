@@ -9,7 +9,6 @@ import TonBlockProcessor from "./services/ton/block-processor";
 import TonTxProcessor from "./services/ton/tx-processor";
 import dotenv from "dotenv";
 import { intToIP } from "./constants";
-import { createLogger, format, transports } from "winston";
 import { setTimeout } from "timers/promises";
 import compression from "compression";
 import cors from "cors";
@@ -24,6 +23,7 @@ import poolRoute from "./apis/routes/pool.route";
 import positionRoute from "./apis/routes/position.route";
 import { logger } from "./configs/logger";
 import { syncPools } from "./services/ton/sync-processor";
+// import { syncTokens } from "./services/pricing";
 
 dotenv.config();
 
@@ -58,6 +58,7 @@ const PORT = env.server.port;
 
 server.listen(PORT, async () => {
   syncPools();
+  // syncTokens();
 
   // setup lite engine server
   const { liteservers } = await fetch(
