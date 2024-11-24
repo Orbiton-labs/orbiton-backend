@@ -175,6 +175,7 @@ export default class TonTxProcessor {
         continue;
       }
       const cellSlice = message.body.beginParse();
+
       let exist = false;
       switch (watchContract) {
         case this.routerContract:
@@ -191,15 +192,10 @@ export default class TonTxProcessor {
             ];
             this.sync(
               this.watchContracts,
-              this.watchContracts.map((item) => "")
+              Object.keys(
+                this.mapLatestProcessedHashOnContract[watchContract]
+              ).map((key) => this.mapLatestProcessedHashOnContract[key])
             );
-            console.log({
-              poolAddress: poolAddress.toString(),
-              jetton0Address: jetton0Address.toString(),
-              jetton1Address: jetton1Address.toString(),
-              fee: fee.toString(),
-              tickSpacing: tickSpacing.toString(),
-            });
             await PoolRepository.create({
               poolAddress: poolAddress.toString(),
               jetton0WalletAddress: jetton0Address.toString(),

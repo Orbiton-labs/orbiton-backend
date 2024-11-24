@@ -55,6 +55,17 @@ app.use((err: any, req: any, res: any, next: any) => {
 });
 app.use("/api/pool", poolRoute);
 app.use("/api/position", positionRoute);
+app.use((err, req, res, next) => {
+  console.log(err);
+  const status = err.status || 500;
+  const message = err.message || "Something went wrong";
+  return res.status(status).json({
+    status,
+    message,
+    success: false,
+    stack: env.server.env == "development" ? err.stack : null,
+  });
+});
 
 const PORT = env.server.port;
 
