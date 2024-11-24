@@ -24,7 +24,6 @@ import {
   MIN_SQRT_RATIO,
   PoolWrapper,
 } from "orbiton-contracts";
-import PositionRepository from "../repositories/position.repository";
 
 namespace PoolController {
   export const getAll = catchAsync(async (req: Request, res: Response) => {
@@ -146,6 +145,7 @@ namespace PoolController {
             executeGasConsumed: (
               afterSenderBalance - beforeSenderBalance
             ).toString(),
+            zeroForOne,
             pool,
           };
         }
