@@ -7,14 +7,14 @@ import {
   JettonWalletWrapper,
 } from "orbiton-contracts";
 import { loadInfo, Info as TickInfo } from "orbiton-contracts/build/tlb/tick";
-import { Address } from "@ton/core";
+import { Address, OpenedContract } from "@ton/core";
 import {
   Blockchain,
   RemoteBlockchainStorage,
   SandboxContract,
   wrapTonClient4ForRemote,
 } from "@ton/sandbox";
-import { TonClient4 } from "@ton/ton";
+import { TonClient, TonClient4 } from "@ton/ton";
 import { getHttpV4Endpoint } from "@orbs-network/ton-access";
 import { IPool, IPosition } from "../../@types";
 import env from "../../configs/env";
@@ -23,28 +23,16 @@ import { FeeGrowthMath } from "../../utils/math/feegrowth.util";
 import { SqrtPriceMath } from "../../utils/math/sqrtpricemath.util";
 import { TickMath } from "../../utils/math/tickmath.util";
 import { getTokenInfoByTokenMaster } from "../pricing";
+import { createTonWallet } from "../../utils";
 
 export const syncPools = async () => {
   console.log("Syncing pools started...!");
-  let blockchain = await Blockchain.create({
-    storage: new RemoteBlockchainStorage(
-      wrapTonClient4ForRemote(
-        new TonClient4({
-          endpoint: await getHttpV4Endpoint({
-            network: env.server.network,
-          }),
-        })
-      )
-    ),
-  });
-  blockchain.verbosity = {
-    ...blockchain.verbosity,
-  };
+  let { client } = await createTonWallet();
   while (true) {
     try {
-      const pools = await PoolRepository.getAll();
+      const pools = await PoolRepository.getAll({});
       for (const pool of pools) {
-        const poolContract = blockchain.openContract(
+        const poolContract = client.open(
           new PoolWrapper.PoolTest(Address.parse(pool.poolAddress))
         );
         const [jetton0Address, jetton1Address] =
@@ -62,7 +50,7 @@ export const syncPools = async () => {
               };
             }),
             poolContract,
-            blockchain
+            client
           );
           const [tokenAmount0, tokenAmount1] =
             await calculateTokenAmountsInPool(
@@ -85,7 +73,7 @@ export const syncPools = async () => {
             poolData.toJSON(),
             jetton0Address,
             jetton1Address,
-            blockchain
+            client
           );
           await PoolRepository.update(poolData.poolAddress, {
             ...poolData.toJSON(),
@@ -95,9 +83,7 @@ export const syncPools = async () => {
           });
         }
       }
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) {}
     await setTimeout(3000);
   }
 };
@@ -110,12 +96,12 @@ const getAnalystData = async (
   pool: IPool,
   jetton0Address: Address,
   jetton1Address: Address,
-  blockchain: Blockchain
+  client: TonClient
 ) => {
-  const jetton0Contract = blockchain.openContract(
+  const jetton0Contract = client.open(
     new JettonWalletWrapper.JettonWallet(jetton0Address)
   );
-  const jetton1Contract = blockchain.openContract(
+  const jetton1Contract = client.open(
     new JettonWalletWrapper.JettonWallet(jetton1Address)
   );
   const [jetton0Data, jetton1Data] = await Promise.all([
@@ -150,8 +136,8 @@ const getAnalystData = async (
 
 const calculateFeeAmountsInPool = async (
   positions: IPosition[],
-  poolContract: SandboxContract<PoolWrapper.PoolTest>,
-  blockchain: Blockchain
+  poolContract: OpenedContract<PoolWrapper.PoolTest>,
+  blockchain: TonClient
 ) => {
   const feesTokenOnPositions = await Promise.all(
     positions.map((position) => {
@@ -193,8 +179,8 @@ const calculateTokenAmountsInPool = async (
 
 const syncFeeAmountPositions = async (
   position: IPosition,
-  poolContract: SandboxContract<PoolWrapper.PoolTest>,
-  blockchain: Blockchain
+  poolContract: OpenedContract<PoolWrapper.PoolTest>,
+  blockchain: TonClient
 ) => {
   const [feeGrowthGlobal0X128, feeGrowthGlobal1X128] =
     await poolContract.getFeesGrowthGlobal();
@@ -211,12 +197,8 @@ const syncFeeAmountPositions = async (
     poolContract.getBatchTickAddress(batchTickUpper),
   ]);
   const [batchTickLowerContract, batchTickUpperContract] = await Promise.all([
-    blockchain.openContract(
-      new BatchTickWrapper.BatchTickTest(batchTickLowerAddress)
-    ),
-    blockchain.openContract(
-      new BatchTickWrapper.BatchTickTest(batchTickUpperAddress)
-    ),
+    blockchain.open(new BatchTickWrapper.BatchTickTest(batchTickLowerAddress)),
+    blockchain.open(new BatchTickWrapper.BatchTickTest(batchTickUpperAddress)),
   ]);
   const [tickDataLower, tickDataUpper] = await Promise.all([
     batchTickLowerContract.getTick(BigInt(positionTickLower)),

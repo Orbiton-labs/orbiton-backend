@@ -19,6 +19,14 @@ const Schema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    jetton0MasterAddress: {
+      type: String,
+      required: false,
+    },
+    jetton1MasterAddress: {
+      type: String,
+      required: false,
+    },
     fee: {
       type: Number,
       required: true,

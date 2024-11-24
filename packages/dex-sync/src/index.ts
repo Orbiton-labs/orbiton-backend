@@ -23,6 +23,7 @@ import poolRoute from "./apis/routes/pool.route";
 import positionRoute from "./apis/routes/position.route";
 import { logger } from "./configs/logger";
 import { syncPools } from "./services/ton/sync-processor";
+import { syncJettonsMasterPool } from "./services/ton/pool-processor";
 // import { syncTokens } from "./services/pricing";
 
 dotenv.config();
@@ -57,12 +58,13 @@ app.use("/api/position", positionRoute);
 const PORT = env.server.port;
 
 server.listen(PORT, async () => {
+  syncJettonsMasterPool();
   syncPools();
   // syncTokens();
 
   // setup lite engine server
   const { liteservers } = await fetch(
-    "https://ton.org/testnet-global.config.json"
+    `https://ton.org/${env.server.network == "mainnet" ? "" : "testnet-"}global.config.json`
   ).then((data) => data.json());
   const engines: LiteEngine[] = [];
   engines.push(

@@ -2,6 +2,8 @@ export interface IPool {
   poolAddress: string; // Must pass Address.isFriendly validation
   jetton0WalletAddress: string;
   jetton1WalletAddress: string;
+  jetton0MasterAddress?: string;
+  jetton1MasterAddress?: string;
   fee: number;
   tickSpacing: number;
   liquidity?: string; // Default: "0"

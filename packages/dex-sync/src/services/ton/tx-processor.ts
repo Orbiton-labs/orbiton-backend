@@ -139,14 +139,7 @@ export default class TonTxProcessor {
         // since we query our transactions from latest to earliest -> process the latest txs first
         let i = 0;
         for (const tx of transactions) {
-          try {
-            await this.processTransaction(tx, watchContract);
-          } catch (error) {
-            this.logger.error(
-              "TonTxProcessor:Error processing transaction: ",
-              error
-            );
-          }
+          await this.processTransaction(tx, watchContract);
           i++;
         }
       } catch (error) {
@@ -182,6 +175,7 @@ export default class TonTxProcessor {
         continue;
       }
       const cellSlice = message.body.beginParse();
+      let exist = false;
       switch (watchContract) {
         case this.routerContract:
           // sync pool
@@ -195,8 +189,10 @@ export default class TonTxProcessor {
               ...this.watchContracts,
               poolAddress.toString(),
             ];
-            this.latestProcessedTxHash = [...this.latestProcessedTxHash, ""];
-            this.sync(this.watchContracts, this.latestProcessedTxHash);
+            this.sync(
+              this.watchContracts,
+              this.watchContracts.map((item) => "")
+            );
             console.log({
               poolAddress: poolAddress.toString(),
               jetton0Address: jetton0Address.toString(),
@@ -211,6 +207,7 @@ export default class TonTxProcessor {
               fee: Number(fee.toString()),
               tickSpacing: Number(tickSpacing.toString()),
             });
+            exist = true;
           }
           break;
         default:
@@ -240,13 +237,16 @@ export default class TonTxProcessor {
               tokenOwed1: tokenOwed1.toString(),
               ownerAddress: ownerAddress.toString(),
             });
+            exist = true;
           }
           break;
       }
-      await ProcessedTransactionRepository.create({
-        transactionHash: transaction.hash().toString("hex"),
-        messageIndex: i,
-      });
+      if (exist) {
+        await ProcessedTransactionRepository.create({
+          transactionHash: transaction.hash().toString("hex"),
+          messageIndex: i,
+        });
+      }
     }
   }
 }

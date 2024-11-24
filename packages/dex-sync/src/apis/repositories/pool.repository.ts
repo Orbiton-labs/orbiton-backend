@@ -2,8 +2,8 @@ import { IPool } from "../../@types";
 import PoolModel from "../models/pool.model";
 
 namespace PoolRepository {
-  export const getAll = async () => {
-    return PoolModel.find();
+  export const getAll = async (condition: Object) => {
+    return PoolModel.find(condition);
   };
 
   export const getByPoolAddress = async (poolAddress: string) => {
@@ -25,13 +25,11 @@ namespace PoolRepository {
   };
 
   export const update = async (poolAddress: string, data: IPool) => {
-    return PoolModel.updateOne(
+    return PoolModel.findOneAndUpdate(
       {
         poolAddress,
       },
-      {
-        ...data,
-      }
+      { ...data }
     );
   };
 }

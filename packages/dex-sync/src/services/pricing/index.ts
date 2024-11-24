@@ -1,22 +1,42 @@
 import { IToken } from "../../@types";
 
 const tokenPriceConfig = {
-  ["EQAJmXoHKPsbrriLEfElP6N9mGDlsSHMZI0ZbTtq_NyJTQ43"]: {
+  ["EQAPO1zvTf0QNVIJH-jYod2CX-UbsbsM7dhg5i4g-TcjhulI"]: {
     type: "jetton",
-    address: "EQAJmXoHKPsbrriLEfElP6N9mGDlsSHMZI0ZbTtq_NyJTQ43",
-    name: "DeDust",
-    symbol: "DUST",
+    address: "EQAPO1zvTf0QNVIJH-jYod2CX-UbsbsM7dhg5i4g-TcjhulI",
+    name: "TestToken1",
+    symbol: "TT1",
     image: "https://assets.dedust.io/images/dust.gif",
     decimals: 9,
     price: "3.7803",
     alias: true,
   },
-  ["EQB1AmBvXCeHrUh9-N7yASBPxVfKD5NJg9AB0cbakt_fDZ5P"]: {
+  ["EQBepgOjNIH7wBKDB3Lcfz3UkOuB_tCs8t1LGNvLmlxZ4BJ6"]: {
     type: "jetton",
-    address: "EQB1AmBvXCeHrUh9-N7yASBPxVfKD5NJg9AB0cbakt_fDZ5P",
-    name: "Tether USD",
-    symbol: "USDT",
+    address: "EQBepgOjNIH7wBKDB3Lcfz3UkOuB_tCs8t1LGNvLmlxZ4BJ6",
+    name: "TestToken2",
+    symbol: "TT2",
     image: "https://assets.dedust.io/images/usdt.webp",
+    decimals: 9,
+    price: "0.9983",
+    alias: true,
+  },
+  ["EQAQerKEJLraVBUoGJSmTe9cVoM4Ap0vuM5DOQ7NLFTZmM3w"]: {
+    type: "jetton",
+    address: "EQAQerKEJLraVBUoGJSmTe9cVoM4Ap0vuM5DOQ7NLFTZmM3w",
+    name: "TestToken3",
+    symbol: "TT3",
+    image: "https://assets.dedust.io/images/usdc.webp",
+    decimals: 9,
+    price: "0.9983",
+    alias: true,
+  },
+  ["EQArEawk3NXkPjZLkeTDHLW8eE7wqmo8JvVPKUZe6wSHSC6_"]: {
+    type: "jetton",
+    address: "EQArEawk3NXkPjZLkeTDHLW8eE7wqmo8JvVPKUZe6wSHSC6_",
+    name: "TestToken4",
+    symbol: "TT4",
+    image: "https://assets.dedust.io/images/wbtc.webp",
     decimals: 9,
     price: "0.9983",
     alias: true,
