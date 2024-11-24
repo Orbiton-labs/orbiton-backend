@@ -27,6 +27,26 @@ const Schema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    token0Amount: {
+      type: String,
+      required: true,
+      default: "0",
+    },
+    token0USD: {
+      type: String,
+      required: true,
+      default: "0",
+    },
+    token1Amount: {
+      type: String,
+      required: true,
+      default: "0",
+    },
+    token1USD: {
+      type: String,
+      required: true,
+      default: "0",
+    },
     fee: {
       type: Number,
       required: true,

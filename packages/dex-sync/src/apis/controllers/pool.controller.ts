@@ -66,9 +66,7 @@ namespace PoolController {
         storage: new RemoteBlockchainStorage(
           wrapTonClient4ForRemote(
             new TonClient4({
-              endpoint: await getHttpV4Endpoint({
-                network: env.server.network,
-              }),
+              endpoint: "https://mainnet-v4.tonhubapi.com",
             })
           )
         ),
@@ -117,6 +115,28 @@ namespace PoolController {
           })(),
         ]);
 
+        console.log({
+          kind: "OpJettonTransferSwap",
+          query_id: 0,
+          jetton_amount: BigInt(jettonInAmount as string),
+          to_address: Address.parse(env.ton.router),
+          response_address: Address.parse(senderAddress as string),
+          custom_payload: beginCell().storeDict(Dictionary.empty()).endCell(),
+          forward_ton_amount: toNano(2.0),
+          either_payload: true,
+          swap: {
+            kind: "SwapParams",
+            forward_opcode: PoolWrapper.Opcodes.Swap,
+            fee: pool.fee,
+            jetton1_wallet: zeroForOne
+              ? Address.parse(pool.jetton1WalletAddress)
+              : Address.parse(pool.jetton0WalletAddress),
+            sqrt_price_limit: MIN_SQRT_RATIO,
+            tick_spacing: pool.tickSpacing,
+            zero_for_one: zeroForOne,
+          },
+        });
+
         let swapTx = await jettonWalletInContract!.sendTransferSwap(
           sender,
           {
@@ -157,15 +177,6 @@ namespace PoolController {
           })(),
         ]);
         printTransactionFees(swapTx.transactions);
-
-        console.log(
-          "Swap in:",
-          jettonWalletInContract.address,
-          "Swap out:",
-          zeroForOne
-            ? Address.parse(pool.jetton1WalletAddress)
-            : Address.parse(pool.jetton0WalletAddress)
-        );
 
         if (returnedAmount < afterJettonReceived - beforeJettonReceived) {
           returnedAmount = afterJettonReceived - beforeJettonReceived;

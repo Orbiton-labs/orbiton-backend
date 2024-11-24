@@ -35,8 +35,6 @@ export const syncPools = async () => {
         const poolContract = client.open(
           new PoolWrapper.PoolTest(Address.parse(pool.poolAddress))
         );
-        const [jetton0Address, jetton1Address] =
-          await poolContract.getJettonsWallet();
         const poolInfo = await poolContract.getPoolInfo();
         const positions = await PositionRepository.getAll({
           poolId: pool._id.toString(),
@@ -65,25 +63,31 @@ export const syncPools = async () => {
           const poolData = await PoolRepository.getByPoolAddress(
             pool.poolAddress
           );
-          const { tvl, totalVolume, totalFee } = await getAnalystData(
-            tokenAmount0,
-            tokenAmount1,
-            feeAmount0,
-            feeAmount1,
-            poolData.toJSON(),
-            jetton0Address,
-            jetton1Address,
-            client
-          );
+          const { tvl, totalVolume, totalFee, token0USD, token1USD } =
+            await getAnalystData(
+              tokenAmount0,
+              tokenAmount1,
+              feeAmount0,
+              feeAmount1,
+              poolData.toJSON(),
+              client
+            );
+
           await PoolRepository.update(poolData.poolAddress, {
             ...poolData.toJSON(),
             liquidity: tvl,
             totalVolume,
             totalFee,
+            token0Amount: tokenAmount0.toString(),
+            token1Amount: tokenAmount1.toString(),
+            token0USD,
+            token1USD,
           });
         }
       }
-    } catch (err) {}
+    } catch (err) {
+      console.log(err?.message);
+    }
     await setTimeout(3000);
   }
 };
@@ -94,15 +98,17 @@ const getAnalystData = async (
   feeAmount0: bigint,
   feeAmount1: bigint,
   pool: IPool,
-  jetton0Address: Address,
-  jetton1Address: Address,
   client: TonClient
 ) => {
   const jetton0Contract = client.open(
-    new JettonWalletWrapper.JettonWallet(jetton0Address)
+    new JettonWalletWrapper.JettonWallet(
+      Address.parse(pool.jetton0WalletAddress)
+    )
   );
   const jetton1Contract = client.open(
-    new JettonWalletWrapper.JettonWallet(jetton1Address)
+    new JettonWalletWrapper.JettonWallet(
+      Address.parse(pool.jetton1WalletAddress)
+    )
   );
   const [jetton0Data, jetton1Data] = await Promise.all([
     jetton0Contract.getWalletData(),
@@ -116,6 +122,12 @@ const getAnalystData = async (
     getTokenInfoByTokenMaster(jetton0Master.toString()),
     getTokenInfoByTokenMaster(jetton1Master.toString()),
   ];
+  const token0USD =
+    Number(token0Amount / BigInt(10 ** jetton0Info.decimals)) *
+    Number(jetton0Info.price);
+  const token1USD =
+    Number(token1Amount / BigInt(10 ** jetton1Info.decimals)) *
+    Number(jetton1Info.price);
   const totalFee =
     Number(feeAmount0 / BigInt(10 ** jetton0Info.decimals)) *
       Number(jetton0Info.price) +
@@ -128,6 +140,8 @@ const getAnalystData = async (
       Number(jetton1Info.price);
   const totalVolume = (BigInt(totalFee) / BigInt(pool.fee)) * BigInt(1000000);
   return {
+    token0USD: token0USD.toString(),
+    token1USD: token1USD.toString(),
     tvl: tvl.toString(),
     totalVolume: totalVolume.toString(),
     totalFee: totalFee.toString(),

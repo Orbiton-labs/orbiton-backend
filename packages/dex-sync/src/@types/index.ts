@@ -4,6 +4,10 @@ export interface IPool {
   jetton1WalletAddress: string;
   jetton0MasterAddress?: string;
   jetton1MasterAddress?: string;
+  token0Amount?: string; // Default: "0"
+  token1Amount?: string; // Default: "0"
+  token0USD?: string;
+  token1USD?: string;
   fee: number;
   tickSpacing: number;
   liquidity?: string; // Default: "0"
