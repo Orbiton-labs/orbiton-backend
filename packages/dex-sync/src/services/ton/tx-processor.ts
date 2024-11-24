@@ -88,9 +88,9 @@ export default class TonTxProcessor {
 
         if (!latestProcessedTxHash) {
           transactions.push(...txs);
-          if (transactions.length > 0)
-            this.mapLatestProcessedHashOnContract[watchContract] =
-              transactions[0].tx.hash().toString("hex");
+          // if (transactions.length > 0)
+          //   this.mapLatestProcessedHashOnContract[watchContract] =
+          //     transactions[0].tx.hash().toString("hex");
           break;
         }
 

@@ -26,9 +26,7 @@ export const syncJettonsMasterPool = async () => {
           const jetton0Info = await jetton0Contract.getWalletData();
           jetton0MasterAddress = jetton0Info.jettonMasterAddress.toString();
         }
-      } catch (err) {
-        console.log(err?.message);
-      }
+      } catch (err) {}
 
       try {
         if (!pool?.jetton1MasterAddress) {
