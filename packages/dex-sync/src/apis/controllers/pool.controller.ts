@@ -43,27 +43,6 @@ namespace PoolController {
         jettonOutAddress,
         senderAddress,
       } = req.query;
-      console.log({
-        jettonInAddress,
-        jettonInAmount,
-        jettonOutAddress,
-        senderAddress,
-      });
-      let zeroForOne =
-        BigInt(
-          `0x${beginCell()
-            .storeAddress(Address.parse(jettonInAddress as string))
-            .endCell()
-            .hash()
-            .toString("hex")}`
-        ) <
-        BigInt(
-          `0x${beginCell()
-            .storeAddress(Address.parse(jettonOutAddress as string))
-            .endCell()
-            .hash()
-            .toString("hex")}`
-        );
       let blockchain = await Blockchain.create({
         storage: new RemoteBlockchainStorage(
           wrapTonClient4ForRemote(
@@ -86,104 +65,73 @@ namespace PoolController {
       });
       const allPools = [...allPoolsOne, ...allPoolsTwo];
 
-      console.log({
-        allPools,
-      });
+      const jettonMasterInContract = blockchain.openContract(
+        JettonMinterWrapper.JettonMinter.createFromAddress(
+          Address.parse(jettonInAddress as string)
+        )
+      );
+      const jettonWalletInAddress =
+        await jettonMasterInContract.getWalletAddress(sender.address);
+      const jettonWalletInContract = blockchain.openContract(
+        JettonWalletWrapper.JettonWallet.createFromAddress(
+          jettonWalletInAddress
+        )
+      );
+
+      const jettonMasterOutContract = blockchain.openContract(
+        JettonMinterWrapper.JettonMinter.createFromAddress(
+          Address.parse(jettonOutAddress as string)
+        )
+      );
+      const jettonWalletOutAddress =
+        await jettonMasterOutContract.getWalletAddress(sender.address);
+      const jettonWalletOutContract = blockchain.openContract(
+        JettonWalletWrapper.JettonWallet.createFromAddress(
+          jettonWalletOutAddress
+        )
+      );
 
       // find best returned simulate
       let returnedAmount = 0n;
-      let data: any = [];
+      let data: any = null;
       for (const pool of allPools) {
         const zeroForOne =
           jettonInAddress === pool.jetton0MasterAddress ? -1 : 0;
-
-        console.log(
-          (
-            await blockchain.getContract(
-              Address.parse(pool.jetton0WalletAddress)
-            )
-          ).get("get_wallet_data")
-        );
-        const swapToken0Wallet = blockchain.openContract(
-          JettonWalletWrapper.JettonWallet.createFromAddress(
-            Address.parse(pool.jetton0WalletAddress)
-          )
-        );
-
-        console.log(pool.jetton1WalletAddress);
-        const swapToken1Wallet = blockchain.openContract(
-          JettonWalletWrapper.JettonWallet.createFromAddress(
-            Address.parse(pool.jetton1WalletAddress)
-          )
-        );
 
         let beforeJettonReceived = 0n;
         let afterJettonReceived = 0n;
         let beforeSenderBalance = (
           await blockchain.getContract(Address.parse(senderAddress as string))
         ).balance;
-        let swapTx;
-        if (zeroForOne) {
-          beforeJettonReceived = (await swapToken1Wallet!.getBalance()).amount;
-          swapTx = await swapToken0Wallet!.sendTransferSwap(
-            sender,
-            {
-              kind: "OpJettonTransferSwap",
-              query_id: 0,
-              jetton_amount: BigInt(jettonInAmount as string),
-              to_address: Address.parse(env.ton.router),
-              response_address: Address.parse(senderAddress as string),
-              custom_payload: beginCell()
-                .storeDict(Dictionary.empty())
-                .endCell(),
-              forward_ton_amount: toNano(2.0),
-              either_payload: true,
-              swap: {
-                kind: "SwapParams",
-                forward_opcode: PoolWrapper.Opcodes.Swap,
-                fee: pool.fee,
-                jetton1_wallet: Address.parse(pool.jetton1WalletAddress),
-                sqrt_price_limit: MIN_SQRT_RATIO,
-                tick_spacing: pool.tickSpacing,
-                zero_for_one: zeroForOne,
-              },
+        beforeJettonReceived = (await jettonWalletOutContract!.getBalance())
+          .amount;
+        let swapTx = await jettonWalletInContract!.sendTransferSwap(
+          sender,
+          {
+            kind: "OpJettonTransferSwap",
+            query_id: 0,
+            jetton_amount: BigInt(jettonInAmount as string),
+            to_address: Address.parse(env.ton.router),
+            response_address: Address.parse(senderAddress as string),
+            custom_payload: beginCell().storeDict(Dictionary.empty()).endCell(),
+            forward_ton_amount: toNano(2.0),
+            either_payload: true,
+            swap: {
+              kind: "SwapParams",
+              forward_opcode: PoolWrapper.Opcodes.Swap,
+              fee: pool.fee,
+              jetton1_wallet: Address.parse(pool.jetton1WalletAddress),
+              sqrt_price_limit: MIN_SQRT_RATIO,
+              tick_spacing: pool.tickSpacing,
+              zero_for_one: zeroForOne,
             },
-            {
-              value: toNano(2.5),
-            }
-          );
-          afterJettonReceived = (await swapToken1Wallet!.getBalance()).amount;
-        } else {
-          beforeJettonReceived = (await swapToken0Wallet!.getBalance()).amount;
-          swapTx = await swapToken1Wallet!.sendTransferSwap(
-            sender,
-            {
-              kind: "OpJettonTransferSwap",
-              query_id: 0,
-              jetton_amount: BigInt(jettonInAmount as string),
-              to_address: Address.parse(env.ton.router),
-              response_address: Address.parse(senderAddress as string),
-              custom_payload: beginCell()
-                .storeDict(Dictionary.empty())
-                .endCell(),
-              forward_ton_amount: toNano(2.0),
-              either_payload: true,
-              swap: {
-                kind: "SwapParams",
-                forward_opcode: PoolWrapper.Opcodes.Swap,
-                fee: pool.fee,
-                jetton1_wallet: Address.parse(pool.jetton0WalletAddress),
-                sqrt_price_limit: MIN_SQRT_RATIO,
-                tick_spacing: pool.tickSpacing,
-                zero_for_one: zeroForOne,
-              },
-            },
-            {
-              value: toNano(2.5),
-            }
-          );
-          afterJettonReceived = (await swapToken0Wallet!.getBalance()).amount;
-        }
+          },
+          {
+            value: toNano(2.5),
+          }
+        );
+        afterJettonReceived = (await jettonWalletOutContract!.getBalance())
+          .amount;
         printTransactionFees(swapTx.transactions);
         let afterSenderBalance = (
           await blockchain.getContract(Address.parse(senderAddress as string))
@@ -192,8 +140,12 @@ namespace PoolController {
         if (returnedAmount < afterJettonReceived - beforeJettonReceived) {
           returnedAmount = afterJettonReceived - beforeJettonReceived;
           data = {
-            receivedAmount: afterJettonReceived - beforeJettonReceived,
-            senderBalance: afterSenderBalance - beforeSenderBalance,
+            receivedAmount: (
+              afterJettonReceived - beforeJettonReceived
+            ).toString(),
+            executeGasConsumed: (
+              afterSenderBalance - beforeSenderBalance
+            ).toString(),
             pool,
           };
         }

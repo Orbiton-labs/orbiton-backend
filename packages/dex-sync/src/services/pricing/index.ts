@@ -21,26 +21,6 @@ const tokenPriceConfig = {
     price: "0.9983",
     alias: true,
   },
-  ["EQAQerKEJLraVBUoGJSmTe9cVoM4Ap0vuM5DOQ7NLFTZmM3w"]: {
-    type: "jetton",
-    address: "EQAQerKEJLraVBUoGJSmTe9cVoM4Ap0vuM5DOQ7NLFTZmM3w",
-    name: "TestToken3",
-    symbol: "TT3",
-    image: "https://assets.dedust.io/images/usdc.webp",
-    decimals: 9,
-    price: "0.9983",
-    alias: true,
-  },
-  ["EQArEawk3NXkPjZLkeTDHLW8eE7wqmo8JvVPKUZe6wSHSC6_"]: {
-    type: "jetton",
-    address: "EQArEawk3NXkPjZLkeTDHLW8eE7wqmo8JvVPKUZe6wSHSC6_",
-    name: "TestToken4",
-    symbol: "TT4",
-    image: "https://assets.dedust.io/images/wbtc.webp",
-    decimals: 9,
-    price: "0.9983",
-    alias: true,
-  },
 };
 
 export const getTokenInfoByTokenMaster = (tokenMaster: string): IToken => {

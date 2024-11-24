@@ -24,6 +24,7 @@ import positionRoute from "./apis/routes/position.route";
 import { logger } from "./configs/logger";
 import { syncPools } from "./services/ton/sync-processor";
 import { syncJettonsMasterPool } from "./services/ton/pool-processor";
+import PoolRepository from "./apis/repositories/pool.repository";
 // import { syncTokens } from "./services/pricing";
 
 dotenv.config();
@@ -90,11 +91,16 @@ server.listen(PORT, async () => {
     tonWeb,
     logger("BlockProcessor")
   );
+  const allPools = await PoolRepository.getAll({});
+  const allContracts = [
+    routerContractAddress,
+    ...allPools.map((pool) => pool.poolAddress),
+  ];
   const txProcessor = new TonTxProcessor(
     liteClient,
     logger("TxProcessor"),
-    [routerContractAddress],
-    [""],
+    allContracts,
+    allContracts.map((_) => ""),
     routerContractAddress
   );
 
