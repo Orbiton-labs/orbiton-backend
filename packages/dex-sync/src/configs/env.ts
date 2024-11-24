@@ -13,6 +13,8 @@ const envVarsSchema = Joi.object()
     WEBHOOK_URL: Joi.string().optional(),
     ROUTER_ADDRESS: Joi.string().required(),
     TRIGGER_BLOCK_INTERVAL: Joi.number().default(5 * 60 * 1000),
+    TONCENTER_URL: Joi.string().required(),
+    TONCENTER_API_KEY: Joi.string().required(),
   })
   .unknown();
 
@@ -34,6 +36,8 @@ export default {
     priceApi: envVars.PRICE_API,
   },
   ton: {
+    tonCenterUrl: envVars.TONCENTER_URL,
+    tonApiKey: envVars.TONCENTER_API_KEY,
     router: envVars.ROUTER_ADDRESS,
     mnemonic: envVars.TON_MNEMONIC,
   },

@@ -25,8 +25,10 @@ export async function waitSeqno(
 }
 ``;
 export async function createTonWallet() {
-  const endpoint = await getHttpEndpoint({ network: env.server.network });
-  const client = new TonClient({ endpoint });
+  const client = new TonClient({
+    endpoint: env.ton.tonCenterUrl,
+    apiKey: env.ton.tonApiKey,
+  });
   const mnemonic = env.ton.mnemonic.split(" ");
   if (!mnemonic) {
     throw new Error("Mnemonic is not set");
