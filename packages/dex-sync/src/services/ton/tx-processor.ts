@@ -143,6 +143,7 @@ export default class TonTxProcessor {
           i++;
         }
       } catch (error) {
+        console.log(error);
         // reset latestProcessedTxHash so we can start over to prevent missed txs in case of having errors
         this.logger.error(
           "TonTxProcessor:Error querying unprocessed transactions: ",
@@ -194,7 +195,7 @@ export default class TonTxProcessor {
               this.watchContracts,
               Object.keys(
                 this.mapLatestProcessedHashOnContract[watchContract]
-              ).map((key) => this.mapLatestProcessedHashOnContract[key])
+              ).map((key) => this.mapLatestProcessedHashOnContract?.[key] || "")
             );
             await PoolRepository.create({
               poolAddress: poolAddress.toString(),
