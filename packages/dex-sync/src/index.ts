@@ -71,7 +71,7 @@ const PORT = env.server.port;
 
 server.listen(PORT, async () => {
   syncJettonsMasterPool();
-  syncPools();
+  // syncPools();
   // syncTokens();
 
   // setup lite engine server

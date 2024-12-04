@@ -27,20 +27,12 @@ import { createTonWallet } from "../../utils";
 
 export const syncPools = async () => {
   console.log("Syncing pools started...!");
-  let blockchain = await Blockchain.create({
-    storage: new RemoteBlockchainStorage(
-      wrapTonClient4ForRemote(
-        new TonClient4({
-          endpoint: "https://mainnet-v4.tonhubapi.com",
-        })
-      )
-    ),
-  });
+  const { client } = await createTonWallet();
   while (true) {
     try {
       const pools = await PoolRepository.getAll({});
       for (const pool of pools) {
-        const poolContract = blockchain.openContract(
+        const poolContract = client.open(
           new PoolWrapper.PoolTest(Address.parse(pool.poolAddress))
         );
         const poolInfo = await poolContract.getPoolInfo();
@@ -55,8 +47,8 @@ export const syncPools = async () => {
                 poolId: item.poolId.toString(),
               };
             }),
-            poolContract,
-            blockchain
+            poolContract as any,
+            client
           );
           const [tokenAmount0, tokenAmount1] =
             await calculateTokenAmountsInPool(
@@ -78,7 +70,7 @@ export const syncPools = async () => {
               feeAmount0,
               feeAmount1,
               poolData.toJSON(),
-              blockchain
+              client
             );
 
           await PoolRepository.update(poolData.poolAddress, {
@@ -106,18 +98,20 @@ const getAnalystData = async (
   feeAmount0: bigint,
   feeAmount1: bigint,
   pool: IPool,
-  blockchain: Blockchain
+  blockchain: TonClient
 ) => {
-  const jetton0Contract = blockchain.openContract(
+  const jetton0Contract = blockchain.open(
     new JettonWalletWrapper.JettonWallet(
       Address.parse(pool.jetton0WalletAddress)
     )
   );
-  const jetton1Contract = blockchain.openContract(
+  const jetton1Contract = blockchain.open(
     new JettonWalletWrapper.JettonWallet(
       Address.parse(pool.jetton1WalletAddress)
     )
   );
+  console.log("jetton0Contract", jetton0Contract.address.toString());
+  console.log("jetton1Contract", jetton1Contract.address.toString());
   const [jetton0Data, jetton1Data] = await Promise.all([
     jetton0Contract.getWalletData(),
     jetton1Contract.getWalletData(),
@@ -159,7 +153,7 @@ const getAnalystData = async (
 const calculateFeeAmountsInPool = async (
   positions: IPosition[],
   poolContract: SandboxContract<PoolWrapper.PoolTest>,
-  blockchain: Blockchain
+  blockchain: TonClient
 ) => {
   const feesTokenOnPositions = await Promise.all(
     positions.map((position) => {
@@ -202,7 +196,7 @@ const calculateTokenAmountsInPool = async (
 const syncFeeAmountPositions = async (
   position: IPosition,
   poolContract: SandboxContract<PoolWrapper.PoolTest>,
-  blockchain: Blockchain
+  blockchain: TonClient
 ) => {
   const [feeGrowthGlobal0X128, feeGrowthGlobal1X128] =
     await poolContract.getFeesGrowthGlobal();
@@ -219,12 +213,8 @@ const syncFeeAmountPositions = async (
     poolContract.getBatchTickAddress(batchTickUpper),
   ]);
   const [batchTickLowerContract, batchTickUpperContract] = await Promise.all([
-    blockchain.openContract(
-      new BatchTickWrapper.BatchTickTest(batchTickLowerAddress)
-    ),
-    blockchain.openContract(
-      new BatchTickWrapper.BatchTickTest(batchTickUpperAddress)
-    ),
+    blockchain.open(new BatchTickWrapper.BatchTickTest(batchTickLowerAddress)),
+    blockchain.open(new BatchTickWrapper.BatchTickTest(batchTickUpperAddress)),
   ]);
   const [tickDataLower, tickDataUpper] = await Promise.all([
     batchTickLowerContract.getTick(BigInt(positionTickLower)),
