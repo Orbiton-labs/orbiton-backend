@@ -191,11 +191,12 @@ export default class TonTxProcessor {
               ...this.watchContracts,
               poolAddress.toString(),
             ];
+            console.log(this.mapLatestProcessedHashOnContract);
             this.sync(
               this.watchContracts,
-              Object.keys(
-                this.mapLatestProcessedHashOnContract[watchContract]
-              ).map((key) => this.mapLatestProcessedHashOnContract?.[key] || "")
+              Object.keys(this.mapLatestProcessedHashOnContract).map(
+                (key) => this.mapLatestProcessedHashOnContract?.[key] || ""
+              )
             );
             await PoolRepository.create({
               poolAddress: poolAddress.toString(),
