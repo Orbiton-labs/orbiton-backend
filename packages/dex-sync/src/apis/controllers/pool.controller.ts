@@ -91,7 +91,7 @@ namespace PoolController {
       // find best returned simulate
       // let returnedAmount = 0n;
       let data: any = null;
-      const pool = allPools[0];
+      const pool = allPools.filter((item) => item.tickSpacing === 1)[0];
       const zeroForOne = jettonInAddress === pool.jetton0MasterAddress ? -1 : 0;
       // for (const pool of allPools) {
       //   const zeroForOne =
