@@ -1,25 +1,35 @@
 import { IToken } from "../../@types";
 
 const tokenPriceConfig = {
-  ["EQAPO1zvTf0QNVIJH-jYod2CX-UbsbsM7dhg5i4g-TcjhulI"]: {
+  ["EQBlqsm144Dq6SjbPI4jjZvA1hqTIP3CvHovbIfW_t-SCALE"]: {
+    id: 1,
     type: "jetton",
-    address: "EQAPO1zvTf0QNVIJH-jYod2CX-UbsbsM7dhg5i4g-TcjhulI",
-    name: "TestToken1",
-    symbol: "TT1",
+    address: "EQBlqsm144Dq6SjbPI4jjZvA1hqTIP3CvHovbIfW_t-SCALE",
+    name: "DeDust",
+    symbol: "DUST",
     image: "https://assets.dedust.io/images/dust.gif",
     decimals: 9,
-    price: "3.7803",
-    alias: true,
+    aliased: true,
+    price: "3.4708",
+    source: null,
   },
-  ["EQBepgOjNIH7wBKDB3Lcfz3UkOuB_tCs8t1LGNvLmlxZ4BJ6"]: {
+  ["EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs"]: {
+    id: 2,
     type: "jetton",
-    address: "EQBepgOjNIH7wBKDB3Lcfz3UkOuB_tCs8t1LGNvLmlxZ4BJ6",
-    name: "TestToken2",
-    symbol: "TT2",
+    address: "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs",
+    name: "Tether USD",
+    symbol: "USDT",
     image: "https://assets.dedust.io/images/usdt.webp",
-    decimals: 9,
-    price: "0.9983",
-    alias: true,
+    decimals: 6,
+    aliased: true,
+    price: "1.001",
+    source: {
+      chain: "eip155:1",
+      address: "",
+      bridge: "",
+      symbol: "USDT",
+      name: "Tether USD",
+    },
   },
 };
 
