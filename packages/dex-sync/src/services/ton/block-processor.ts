@@ -9,7 +9,6 @@ import TonWeb from "tonweb";
 import { Logger } from "winston";
 
 export default class TonBlockProcessor {
-  // cache validator set so we don't have to call the contract every few seconds
   private keyBlockCacheData: {
     parsedBlock: ParsedBlock;
     rawBlockData: liteServer_BlockData;

@@ -14,7 +14,7 @@ const envVarsSchema = Joi.object()
     ROUTER_ADDRESS: Joi.string().required(),
     TRIGGER_BLOCK_INTERVAL: Joi.number().default(5 * 60 * 1000),
     TONCENTER_URL: Joi.string().required(),
-    TONCENTER_API_KEY: Joi.string().required(),
+    TONCENTER_API_KEY: Joi.string().allow("").required(),
   })
   .unknown();
 
