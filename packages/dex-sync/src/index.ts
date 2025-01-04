@@ -22,10 +22,7 @@ import "./configs/db";
 import poolRoute from "./apis/routes/pool.route";
 import positionRoute from "./apis/routes/position.route";
 import { logger } from "./configs/logger";
-import { syncPools } from "./services/ton/sync-processor";
-import { syncJettonsMasterPool } from "./services/ton/pool-processor";
-import PoolRepository from "./apis/repositories/pool.repository";
-// import { syncTokens } from "./services/pricing";
+import BlockScanner from "./block-scanner.service";
 
 dotenv.config();
 
@@ -70,10 +67,6 @@ app.use((err, req, res, next) => {
 const PORT = env.server.port;
 
 server.listen(PORT, async () => {
-  syncJettonsMasterPool();
-  syncPools();
-  // syncTokens();
-
   // setup lite engine server
   const { liteservers } = await fetch(
     `https://ton.org/${env.server.network == "mainnet" ? "" : "testnet-"}global.config.json`
@@ -90,44 +83,34 @@ server.listen(PORT, async () => {
   );
   const liteEngine = new LiteRoundRobinEngine(engines);
   const liteClient = new LiteClient({ engine: liteEngine });
-  const routerContractAddress = process.env.ROUTER_ADDRESS;
+  const blockScanner = new BlockScanner(liteClient);
+  await blockScanner.run();
+
+  // const routerContractAddress = process.env.ROUTER_ADDRESS;
 
   // should host a private ton http api in production: https://github.com/toncenter/ton-http-api
-  const tonWeb = new TonWeb(
-    new TonWeb.HttpProvider(process.env.TON_HTTP_API_URL)
-  );
+  // const tonWeb = new TonWeb(
+  //   new TonWeb.HttpProvider(process.env.TON_HTTP_API_URL)
+  // );
 
-  const blockProcessor = new TonBlockProcessor(
-    liteClient,
-    tonWeb,
-    logger("BlockProcessor")
-  );
-  const allPools = await PoolRepository.getAll({});
-  const allContracts = [
-    routerContractAddress,
-    ...allPools.map((pool) => pool.poolAddress),
-  ];
-  const txProcessor = new TonTxProcessor(
-    liteClient,
-    logger("TxProcessor"),
-    allContracts,
-    allContracts.map((_) => ""),
-    routerContractAddress
-  );
+  // const blockProcessor = new TonBlockProcessor(
+  //   liteClient,
+  //   tonWeb,
+  //   logger("BlockProcessor")
+  // );
 
-  const processInterval = 3000; // 3s
-  while (true) {
-    try {
-      const latestMasterchainBlock = await blockProcessor.getMasterchainInfo();
-      const { parsedBlock } = await blockProcessor.queryKeyBlock(
-        latestMasterchainBlock.last.seqno
-      );
-      console.log("Masterchain: " + latestMasterchainBlock.last.seqno);
-      console.log("Keyblock: " + parsedBlock.info.seq_no);
-      await txProcessor.processTransactions(latestMasterchainBlock.last);
-    } catch (error) {
-      console.error("error processing block and tx: " + error);
-    }
-    await setTimeout(processInterval);
-  }
+  // const processInterval = 3000; // 3s
+  // while (true) {
+  //   try {
+  //     const latestMasterchainBlock = await blockProcessor.getMasterchainInfo();
+  //     const { parsedBlock } = await blockProcessor.queryKeyBlock(
+  //       latestMasterchainBlock.last.seqno
+  //     );
+  //     console.log("Masterchain: " + latestMasterchainBlock.last.seqno);
+  //     console.log("Keyblock: " + parsedBlock.info.seq_no);
+  //   } catch (error) {
+  //     console.error("error processing block and tx: " + error);
+  //   }
+  //   await setTimeout(processInterval);
+  // }
 });
