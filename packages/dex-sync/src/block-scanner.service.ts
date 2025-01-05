@@ -7,6 +7,8 @@ import {
 } from "ton-lite-client/dist/schema";
 import { Mutex } from "async-mutex";
 import TonRocks, { ParsedBlock } from "@oraichain/tonbridge-utils";
+import BaseBlockHandler from "./base-block-handler.service";
+import { EventEmitter } from "stream";
 
 const MASTERCHAIN_SHARD = "-9223372036854775808";
 
@@ -14,12 +16,17 @@ interface ShardStorage {
   [key: string]: number;
 }
 
-class BlockScanner {
+class BlockScanner extends EventEmitter {
   blockMutex: Mutex = new Mutex();
   blockStorage: tonNode_blockIdExt[] = [];
   shardStorage: ShardStorage = {};
 
-  constructor(protected readonly client: LiteClient) {}
+  constructor(
+    protected readonly client: LiteClient,
+    protected blockHandler: BaseBlockHandler
+  ) {
+    super();
+  }
 
   async getNotSeenShards(shard: {
     workchain: string;
@@ -108,7 +115,7 @@ class BlockScanner {
       let block = this.blockStorage.shift();
       this.blockMutex.release();
       if (block) {
-        console.log(block);
+        await this.blockHandler.execBlock(block);
       }
       await setTimeout(100);
     }
