@@ -23,7 +23,7 @@ import poolRoute from "./apis/routes/pool.route";
 import positionRoute from "./apis/routes/position.route";
 import { logger } from "./configs/logger";
 import BlockScanner from "./block-scanner.service";
-import BlockHandler from "./block-handler.service";
+import BlockTransactionHandler from "./block-transaction-handler.service";
 
 dotenv.config();
 
@@ -84,7 +84,7 @@ server.listen(PORT, async () => {
   );
   const liteEngine = new LiteRoundRobinEngine(engines);
   const liteClient = new LiteClient({ engine: liteEngine });
-  const blockHandler = new BlockHandler(liteClient);
+  const blockHandler = new BlockTransactionHandler(liteClient);
   const blockScanner = new BlockScanner(liteClient, blockHandler);
   await blockScanner.run();
 
