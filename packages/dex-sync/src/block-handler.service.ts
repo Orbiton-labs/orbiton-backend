@@ -8,7 +8,10 @@ class BlockHandler extends BaseBlockHandler {
   }
 
   async execBlock(block: tonNode_blockIdExt) {
+    console.log(block);
     let transactions = await this.client.listBlockTransactions(block);
+    for (const transaction of transactions.ids) {
+    }
   }
 }
 

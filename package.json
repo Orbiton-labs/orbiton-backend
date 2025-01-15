@@ -20,18 +20,10 @@
     "node": ">=18.18.0"
   },
   "dependencies": {
-    "@cosmjs/amino": "0.32.4",
-    "@cosmjs/cosmwasm-stargate": "0.32.4",
-    "@cosmjs/crypto": "0.32.4",
-    "@cosmjs/proto-signing": "0.32.4",
-    "@cosmjs/stargate": "0.32.4",
-    "@cosmjs/tendermint-rpc": "0.32.4",
-    "@cosmjs/encoding": "0.32.4",
     "buffer": "^6.0.3"
   },
   "devDependencies": {
     "@babel/traverse": "7.24.1",
-    "@oraichain/cw-simulate": "^2.8.104",
     "@swc/core": "^1.4.11",
     "@swc/jest": "^0.2.36",
     "@types/jest": "^29.5.12",
@@ -39,7 +31,6 @@
     "@types/node": "^20.11.30",
     "@typescript-eslint/eslint-plugin": "^7.3.1",
     "@typescript-eslint/parser": "^7.3.1",
-    "cosmjs-types": "0.8.0",
     "cz-conventional-changelog": "^3.3.0",
     "dotenv": "^16.4.5",
     "eslint": "^8.57.0",
