@@ -18,6 +18,7 @@ class BlockTransactionHandler extends BaseBlockHandler {
         block
       );
       let txDetail = await this.parseTransaction(txInfo.transaction);
+      console.log("Transaction Detail:");
       console.dir(txDetail, { depth: null });
     }
   }

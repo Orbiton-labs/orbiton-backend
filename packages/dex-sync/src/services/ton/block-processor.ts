@@ -1,4 +1,4 @@
-import TonRocks, { ParsedBlock } from "@orbiton/ton-sdk";
+import TonRocks, { Block } from "@orbiton/ton-sdk";
 import { LiteClient } from "ton-lite-client";
 import {
   Functions,
@@ -10,7 +10,7 @@ import { Logger } from "winston";
 
 export default class TonBlockProcessor {
   private keyBlockCacheData: {
-    parsedBlock: ParsedBlock;
+    parsedBlock: Block;
     rawBlockData: liteServer_BlockData;
     initialKeyBlockInformation: tonNode_blockIdExt;
   } = {
@@ -45,7 +45,7 @@ export default class TonBlockProcessor {
         }
       );
 
-      const parsedBlock: ParsedBlock = await this.parseBlock(block);
+      const parsedBlock: Block = await this.parseBlock(block);
       this.logger.info(
         "is parsed block a keyblock? " + parsedBlock.info.key_block
       );
@@ -80,7 +80,7 @@ export default class TonBlockProcessor {
     return this.liteClient.getMasterchainInfo();
   }
 
-  async parseBlock(block: liteServer_BlockData): Promise<ParsedBlock> {
+  async parseBlock(block: liteServer_BlockData): Promise<Block> {
     const [rootCell] = await TonRocks.types.Cell.fromBoc(
       block.data.toString("hex")
     );

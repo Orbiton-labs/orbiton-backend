@@ -6,7 +6,7 @@ import {
   tonNode_blockIdExt,
 } from "ton-lite-client/dist/schema";
 import { Mutex } from "async-mutex";
-import TonRocks, { ParsedBlock } from "@orbiton/ton-sdk";
+import TonRocks, { Block } from "@orbiton/ton-sdk";
 import BaseBlockHandler from "./base-block-handler.service";
 import { EventEmitter } from "stream";
 
@@ -90,7 +90,7 @@ class BlockScanner extends EventEmitter {
     });
   }
 
-  async parseBlock(block: liteServer_BlockData): Promise<ParsedBlock> {
+  async parseBlock(block: liteServer_BlockData): Promise<Block> {
     try {
       const [rootCell] = await TonRocks.types.Cell.fromBoc(
         block.data.toString("hex")
