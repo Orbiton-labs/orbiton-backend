@@ -6,7 +6,7 @@ import {
   tonNode_blockIdExt,
 } from "ton-lite-client/dist/schema";
 import { Mutex } from "async-mutex";
-import TonRocks, { ParsedBlock } from "@oraichain/tonbridge-utils";
+import TonRocks, { ParsedBlock } from "@orbiton/ton-sdk";
 import BaseBlockHandler from "./base-block-handler.service";
 import { EventEmitter } from "stream";
 

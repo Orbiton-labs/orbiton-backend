@@ -2,7 +2,7 @@ import { tonNode_blockIdExt } from "ton-lite-client/dist/schema";
 import BaseBlockHandler from "./base-block-handler.service";
 import { LiteClient } from "ton-lite-client";
 import { Address } from "@ton/core";
-import TonRocks from "@oraichain/tonbridge-utils";
+import TonRocks from "@orbiton/ton-sdk";
 
 class BlockTransactionHandler extends BaseBlockHandler {
   constructor(protected client: LiteClient) {

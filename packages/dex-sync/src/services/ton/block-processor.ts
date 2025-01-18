@@ -1,4 +1,4 @@
-import TonRocks, { ParsedBlock } from "@oraichain/tonbridge-utils";
+import TonRocks, { ParsedBlock } from "@orbiton/ton-sdk";
 import { LiteClient } from "ton-lite-client";
 import {
   Functions,
