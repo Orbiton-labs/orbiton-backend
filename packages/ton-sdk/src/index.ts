@@ -25,18 +25,9 @@ export namespace TonRocks {
     export const Address = itypes.Address;
     export const BitString = itypes.BitString;
     export const Cell = itypes.Cell;
-    export const Hashmap = itypes.Hashmap;
-    export const HashmapE = itypes.HashmapE;
-    export const HashmapAug = itypes.HashmapAug;
-    export const HashmapAugE = itypes.HashmapAugE;
-
     export type Address = typeof itypes.Address;
     export type BitString = typeof itypes.BitString;
     export type Cell = any; // typeof itypes.Cell;
-    export type Hashmap = typeof itypes.Hashmap;
-    export type HashmapE = typeof itypes.HashmapE;
-    export type HashmapAug = typeof itypes.HashmapAug;
-    export type HashmapAugE = typeof itypes.HashmapAugE;
   }
 }
 

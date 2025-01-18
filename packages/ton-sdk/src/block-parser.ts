@@ -1,5 +1,5 @@
 import { BlockParser } from "./blockchain/BlockParser";
-import { Cell, ParsedBlock } from "./types";
+import { Cell, Block } from "./types";
 
 (async () => {
   const [rootCell] = await Cell.fromBoc(
@@ -7,8 +7,12 @@ import { Cell, ParsedBlock } from "./types";
   );
   const hash = rootCell.hashes[0];
   console.log("hash: ", Buffer.from(hash).toString("hex"));
-  const parsedFixedBlock: ParsedBlock = BlockParser.parseBlock(rootCell);
+  const parsedFixedBlock: Block = BlockParser.parseBlock(rootCell);
   const validatorMap: Map<string, any> =
-    parsedFixedBlock.extra.custom.config.config.map.get("22").cur_validators.list.map;
-  console.log(Buffer.from(validatorMap.get("0").public_key.pubkey).toString("hex"));
+    //@ts-ignore
+    parsedFixedBlock.extra.custom.config.config.map.get("22").cur_validators
+      .list.map;
+  console.log(
+    Buffer.from(validatorMap.get("0").public_key.pubkey).toString("hex")
+  );
 })();
