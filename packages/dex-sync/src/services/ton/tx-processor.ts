@@ -1,10 +1,10 @@
 import { Cell, address, loadTransaction } from "@ton/core";
-import { LiteClient } from "ton-lite-client";
+import { LiteClient } from "@orbiton/ton-lite-client";
 import { setTimeout } from "timers/promises";
 import { Logger } from "winston";
-import { tonNode_blockIdExt } from "ton-lite-client/dist/schema";
+import { tonNode_blockIdExt } from "@orbiton/ton-lite-client/dist/schema";
 import { Transaction } from "@ton/core";
-import { BlockID } from "ton-lite-client";
+import { BlockID } from "@orbiton/ton-lite-client";
 import PoolRepository from "../../apis/repositories/pool.repository";
 import PositionRepository from "../../apis/repositories/position.repository";
 import ProcessedTransactionRepository from "../../apis/repositories/processed_transaction.repository";

@@ -3,7 +3,7 @@ import {
   LiteEngine,
   LiteRoundRobinEngine,
   LiteSingleEngine,
-} from "ton-lite-client";
+} from "@orbiton/ton-lite-client";
 import dotenv from "dotenv";
 import { intToIP } from "./constants";
 import compression from "compression";
