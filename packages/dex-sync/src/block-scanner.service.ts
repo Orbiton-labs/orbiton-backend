@@ -117,7 +117,7 @@ class BlockScanner extends EventEmitter {
       if (block) {
         await this.blockHandler.execBlock(block);
       }
-      await setTimeout(100);
+      await setTimeout(50);
     }
   }
 
@@ -190,14 +190,13 @@ class BlockScanner extends EventEmitter {
         seqno: mcBlock.seqno - 1,
       })
     ).id;
-    await this.processShards(mcblockPrev, false);
     this.processBlock();
+    await this.processShards(mcblockPrev, false);
     while (true) {
-      this.blockMutex.acquire().then(() => {
-        this.blockStorage.push(mcBlock);
-        this.blockMutex.release();
-      });
-      this.processShards(mcBlock);
+      await this.blockMutex.acquire();
+      this.blockStorage.push(mcBlock);
+      this.blockMutex.release();
+      await this.processShards(mcBlock);
       mcBlock = await this.processMasterchainBlock(mcBlock);
     }
   }
