@@ -1,7 +1,6 @@
 import { tonNode_blockIdExt } from "@orbiton/ton-lite-client/dist/schema";
 import BaseBlockHandler from "./base-block-handler.service";
 import { LiteClient } from "@orbiton/ton-lite-client";
-import { Address, Cell, loadTransaction } from "@ton/core";
 const fs = require("fs");
 
 class BlockTransactionHandler extends BaseBlockHandler {

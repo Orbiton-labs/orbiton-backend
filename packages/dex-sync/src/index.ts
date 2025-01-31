@@ -15,8 +15,6 @@ import xss from "xss-clean";
 import morgan from "./configs/morgan";
 import env from "./configs/env";
 import "./configs/db";
-import poolRoute from "./apis/routes/pool.route";
-import positionRoute from "./apis/routes/position.route";
 import BlockScanner from "./block-scanner.service";
 import BlockTransactionHandler from "./block-transaction-handler.service";
 
@@ -46,8 +44,6 @@ app.use((err: any, req: any, res: any, next: any) => {
     stack: env.server.env == "development" ? err.stack : null,
   });
 });
-app.use("/api/pool", poolRoute);
-app.use("/api/position", positionRoute);
 app.use((err, req, res, next) => {
   console.log(err);
   const status = err.status || 500;
