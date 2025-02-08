@@ -11,10 +11,8 @@ import cors from "cors";
 import express from "express";
 import helmet from "helmet";
 import http from "http";
-import xss from "xss-clean";
 import morgan from "./configs/morgan";
 import env from "./configs/env";
-import "./configs/db";
 import BlockScanner from "./block-scanner.service";
 import BlockTransactionHandler from "./block-transaction-handler.service";
 
@@ -22,7 +20,6 @@ dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
-// SET UP DEFAULTS APPS
 app.use(morgan.successHandler);
 app.use(morgan.errorHandler);
 app.use(helmet());
@@ -32,7 +29,6 @@ app.use(
   })
 );
 app.use(express.json());
-app.use(xss());
 app.use(compression());
 app.use((err: any, req: any, res: any, next: any) => {
   const status = err.status || 500;

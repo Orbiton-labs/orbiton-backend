@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 
-export * from "./dex.util";
 export * from "./wallet.util";
 
 export const catchAsync =

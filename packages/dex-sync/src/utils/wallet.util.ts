@@ -23,7 +23,7 @@ export async function waitSeqno(
   }
   console.log("transaction confirmed!");
 }
-``;
+
 export async function createTonWallet() {
   const client = new TonClient({
     endpoint: env.ton.tonCenterUrl,
