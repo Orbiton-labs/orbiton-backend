@@ -3,18 +3,18 @@ import {
   LiteEngine,
   LiteRoundRobinEngine,
   LiteSingleEngine,
-} from "@orbiton/ton-lite-client";
-import dotenv from "dotenv";
-import { intToIP } from "./constants";
-import compression from "compression";
-import cors from "cors";
-import express from "express";
-import helmet from "helmet";
-import http from "http";
-import morgan from "./configs/morgan";
-import env from "./configs/env";
-import BlockScanner from "./block-scanner.service";
-import BlockTransactionHandler from "./block-transaction-handler.service";
+} from '@orbiton/ton-lite-client';
+import dotenv from 'dotenv';
+import { intToIP } from './constants';
+import compression from 'compression';
+import cors from 'cors';
+import express from 'express';
+import helmet from 'helmet';
+import http from 'http';
+import morgan from './configs/morgan';
+import env from './configs/env';
+import BlockScanner from '@services/block-scanner';
+import BlockTransactionHandler from '@services/block-handler';
 
 dotenv.config();
 
@@ -25,30 +25,29 @@ app.use(morgan.errorHandler);
 app.use(helmet());
 app.use(
   cors({
-    origin: "*",
-  })
+    origin: '*',
+  }),
 );
 app.use(express.json());
 app.use(compression());
 app.use((err: any, req: any, res: any, next: any) => {
   const status = err.status || 500;
-  const message = err.message || "Something went wrong";
+  const message = err.message || 'Something went wrong';
   return res.status(status).json({
     status,
     message,
     success: false,
-    stack: env.server.env == "development" ? err.stack : null,
+    stack: env.server.env == 'development' ? err.stack : null,
   });
 });
-app.use((err, req, res, next) => {
-  console.log(err);
+app.use((err: any, req: any, res: any, next: any) => {
   const status = err.status || 500;
-  const message = err.message || "Something went wrong";
+  const message = err.message || 'Something went wrong';
   return res.status(status).json({
     status,
     message,
     success: false,
-    stack: env.server.env == "development" ? err.stack : null,
+    stack: env.server.env == 'development' ? err.stack : null,
   });
 });
 
@@ -57,7 +56,7 @@ const PORT = env.server.port;
 server.listen(PORT, async () => {
   // setup lite engine server
   const { liteservers } = await fetch(
-    `https://ton.org/${env.server.network == "mainnet" ? "" : "testnet-"}global.config.json`
+    `https://ton.org/${env.server.network == 'mainnet' ? '' : 'testnet-'}global.config.json`,
   ).then((data) => data.json());
   const engines: LiteEngine[] = [];
   engines.push(
@@ -65,9 +64,9 @@ server.listen(PORT, async () => {
       (server: any) =>
         new LiteSingleEngine({
           host: `tcp://${intToIP(server.ip)}:${server.port}`,
-          publicKey: Buffer.from(server.id.key, "base64"),
-        })
-    )
+          publicKey: Buffer.from(server.id.key, 'base64'),
+        }),
+    ),
   );
   const liteEngine = new LiteRoundRobinEngine(engines);
   const liteClient = new LiteClient({ engine: liteEngine });

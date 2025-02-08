@@ -1,16 +1,16 @@
-import { setTimeout } from "timers/promises";
-import { LiteClient } from "@orbiton/ton-lite-client";
+import { setTimeout } from 'timers/promises';
+import { LiteClient } from '@orbiton/ton-lite-client';
 import {
   Functions,
   liteServer_BlockData,
   tonNode_blockIdExt,
-} from "@orbiton/ton-lite-client/dist/schema";
-import { Mutex } from "async-mutex";
-import TonRocks, { Block } from "@orbiton/ton-sdk";
-import BaseBlockHandler from "./base-block-handler.service";
-import { EventEmitter } from "stream";
+} from '@orbiton/ton-lite-client/dist/schema';
+import { Mutex } from 'async-mutex';
+import TonRocks, { Block } from '@orbiton/ton-sdk';
+import BaseBlockHandler from '@src/services/block-handler/base-block-handler.service';
+import { EventEmitter } from 'stream';
 
-const MASTERCHAIN_SHARD = "-9223372036854775808";
+const MASTERCHAIN_SHARD = '-9223372036854775808';
 
 interface ShardStorage {
   [key: string]: number;
@@ -23,20 +23,13 @@ class BlockScanner extends EventEmitter {
 
   constructor(
     protected readonly client: LiteClient,
-    protected blockHandler: BaseBlockHandler
+    protected blockHandler: BaseBlockHandler,
   ) {
     super();
   }
 
-  async getNotSeenShards(shard: {
-    workchain: string;
-    shard: string;
-    seqno: number;
-  }) {
-    if (
-      this.shardStorage[this.getShardId(shard.workchain, shard.shard)] ==
-      shard.seqno
-    ) {
+  async getNotSeenShards(shard: { workchain: string; shard: string; seqno: number }) {
+    if (this.shardStorage[this.getShardId(shard.workchain, shard.shard)] == shard.seqno) {
       return;
     }
 
@@ -45,22 +38,19 @@ class BlockScanner extends EventEmitter {
       shard: shard.shard,
       seqno: shard.seqno,
     });
-    const block = await this.client.engine.query(
-      Functions.liteServer_getBlock,
-      {
-        kind: "liteServer.getBlock",
-        id: {
-          kind: "tonNode.blockIdExt",
-          ...shardBlockId.id,
-        },
-      }
-    );
+    const block = await this.client.engine.query(Functions.liteServer_getBlock, {
+      kind: 'liteServer.getBlock',
+      id: {
+        kind: 'tonNode.blockIdExt',
+        ...shardBlockId.id,
+      },
+    });
     let parsedBlock = await this.parseBlock(block);
     let prevRef = (parsedBlock.info as any)?.prev_ref;
     if (!prevRef) {
       return;
     }
-    if (prevRef.type == "prev_blk_info") {
+    if (prevRef.type == 'prev_blk_info') {
       let { seq_no } = prevRef.prev;
       let prevShard = parsedBlock.info.after_split
         ? this.getParentShard(BigInt(shard.shard)).toString()
@@ -92,14 +82,12 @@ class BlockScanner extends EventEmitter {
 
   async parseBlock(block: liteServer_BlockData): Promise<Block> {
     try {
-      const [rootCell] = await TonRocks.types.Cell.fromBoc(
-        block.data.toString("hex")
-      );
+      const [rootCell] = await TonRocks.types.Cell.fromBoc(block.data.toString('hex'));
 
       // Additional check for rootHash
-      const rootHash = Buffer.from(rootCell.hashes[0]).toString("hex");
-      if (rootHash !== block.id.rootHash.toString("hex")) {
-        throw Error("got wrong block or here was a wrong root_hash format");
+      const rootHash = Buffer.from(rootCell.hashes[0]).toString('hex');
+      if (rootHash !== block.id.rootHash.toString('hex')) {
+        throw Error('got wrong block or here was a wrong root_hash format');
       }
 
       const parsedBlock = TonRocks.bc.BlockParser.parseBlock(rootCell);
@@ -121,9 +109,7 @@ class BlockScanner extends EventEmitter {
     }
   }
 
-  async processMasterchainBlock(
-    mcBlock: tonNode_blockIdExt
-  ): Promise<tonNode_blockIdExt> {
+  async processMasterchainBlock(mcBlock: tonNode_blockIdExt): Promise<tonNode_blockIdExt> {
     while (true) {
       let latestMcBlock = (await this.client.getMasterchainInfo()).last;
       if (mcBlock.seqno + 1 === latestMcBlock.seqno) {

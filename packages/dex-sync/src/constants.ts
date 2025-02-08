@@ -1,7 +1,7 @@
-import { crc32 } from "./crc32";
+import { crc32 } from '@utils/crc32.util';
 
-export const OpCallbackCreatePool = crc32("op::cb_create_pool");
-export const OpMintPosition = crc32("op::mint_position");
+export const OpCallbackCreatePool = crc32('op::cb_create_pool');
+export const OpMintPosition = crc32('op::mint_position');
 export const OP_CODES = [OpCallbackCreatePool, OpMintPosition];
 
 export function intToIP(int: number) {
@@ -10,5 +10,5 @@ export function intToIP(int: number) {
   const part3 = (int >> 16) & 255;
   const part4 = (int >> 24) & 255;
 
-  return part4 + "." + part3 + "." + part2 + "." + part1;
+  return part4 + '.' + part3 + '.' + part2 + '.' + part1;
 }

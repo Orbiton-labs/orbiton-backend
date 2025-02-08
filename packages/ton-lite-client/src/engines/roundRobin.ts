@@ -8,9 +8,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import EventEmitter from "events";
-import { TLFunction } from "ton-tl";
-import { LiteEngine } from "./engine";
+import EventEmitter from 'events';
+import { TLFunction } from 'ton-tl';
+import { LiteEngine } from './engine';
 
 export class LiteRoundRobinEngine extends EventEmitter implements LiteEngine {
   private allEngines: LiteEngine[] = [];
@@ -30,20 +30,20 @@ export class LiteRoundRobinEngine extends EventEmitter implements LiteEngine {
   addSingleEngine(engine: LiteEngine) {
     const existing = this.allEngines.find((e) => e === engine);
     if (existing) {
-      throw new Error("Engine already exists");
+      throw new Error('Engine already exists');
     }
 
     this.allEngines.push(engine);
 
-    engine.on("ready", () => {
+    engine.on('ready', () => {
       this.readyEngines.push(engine);
     });
 
-    engine.on("close", () => {
+    engine.on('close', () => {
       this.readyEngines = this.readyEngines.filter((e) => e !== engine);
     });
 
-    engine.on("error", () => {
+    engine.on('error', () => {
       this.readyEngines = this.readyEngines.filter((e) => e !== engine);
     });
 
@@ -55,10 +55,10 @@ export class LiteRoundRobinEngine extends EventEmitter implements LiteEngine {
   async query<REQ, RES>(
     f: TLFunction<REQ, RES>,
     req: REQ,
-    args?: { timeout?: number; awaitSeqno?: number }
+    args?: { timeout?: number; awaitSeqno?: number },
   ): Promise<RES> {
     if (this.#closed) {
-      throw new Error("Engine is closed");
+      throw new Error('Engine is closed');
     }
 
     let attempts = 0;
@@ -73,7 +73,7 @@ export class LiteRoundRobinEngine extends EventEmitter implements LiteEngine {
           await delay(100);
         }
         if (attempts > 200) {
-          throw new Error("No engines are available");
+          throw new Error('No engines are available');
         }
         continue;
       }
@@ -83,7 +83,7 @@ export class LiteRoundRobinEngine extends EventEmitter implements LiteEngine {
         return res;
       } catch (e) {
         id = (id + 1) % this.readyEngines.length || 0;
-        if (e instanceof Error && e.message === "Timeout") {
+        if (e instanceof Error && e.message === 'Timeout') {
           continue;
         }
         errorsCount++;

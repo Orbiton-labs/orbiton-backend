@@ -6,9 +6,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import fs from "fs";
-import { generate } from "ton-tl/dist/gen";
+import fs from 'fs';
+import { generate } from 'ton-tl/dist/gen';
 
-let source = fs.readFileSync(__dirname + "/schema.tl", "utf-8");
+let source = fs.readFileSync(__dirname + '/schema.tl', 'utf-8');
 let generated = generate(source);
-fs.writeFileSync(__dirname + "/schema.ts", generated);
+fs.writeFileSync(__dirname + '/schema.ts', generated);

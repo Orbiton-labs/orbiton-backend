@@ -8,14 +8,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Slice } from "@ton/core";
-import { parseDict } from "@ton/core/dist/dict/parseDict";
-import { TLReadBuffer } from "ton-tl";
+import { Slice } from '@ton/core';
+import { parseDict } from '@ton/core/dist/dict/parseDict';
+import { TLReadBuffer } from 'ton-tl';
 
 // Source: https://github.com/ton-foundation/ton/blob/ae5c0720143e231c32c3d2034cfe4e533a16d969/crypto/block/mc-config.cpp#L1232
 export function parseShards(cs: Slice) {
   if (!cs.loadBit()) {
-    throw Error("Invalid slice");
+    throw Error('Invalid slice');
   }
   return parseDict(cs.loadRef().asSlice(), 32, (cs2) => {
     let stack: { slice: Slice; shard: bigint }[] = [

@@ -1,0 +1,12 @@
+services:
+  postgres:
+    image: postgres:17.1
+    container_name: postgres_local
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345678
+      POSTGRES_DB: orbiton
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./data:/var/lib/postgresql/data

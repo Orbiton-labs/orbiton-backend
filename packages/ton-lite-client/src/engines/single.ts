@@ -8,12 +8,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { randomBytes } from "tweetnacl";
-import { TLFunction, TLReadBuffer, TLWriteBuffer } from "ton-tl";
-import { ADNLClient, ADNLClientTCP, ADNLClientWS } from "adnl";
-import { Codecs, Functions } from "../schema";
-import { LiteEngine } from "./engine";
-import EventEmitter from "events";
+import { randomBytes } from 'tweetnacl';
+import { TLFunction, TLReadBuffer, TLWriteBuffer } from 'ton-tl';
+import { ADNLClient, ADNLClientTCP, ADNLClientWS } from 'adnl';
+import { Codecs, Functions } from '../schema';
+import { LiteEngine } from './engine';
+import EventEmitter from 'events';
 
 type QueryReference = {
   f: TLFunction<any, any>;
@@ -32,20 +32,20 @@ export class LiteSingleEngine extends EventEmitter implements LiteEngine {
   #ready = false;
   #closed = true;
   #queries: Map<string, QueryReference> = new Map();
-  #clientType: "tcp" | "ws";
+  #clientType: 'tcp' | 'ws';
   #reconnectTimeout: number;
 
   constructor(args: {
     host: string;
     publicKey: Buffer;
-    client?: "tcp" | "ws";
+    client?: 'tcp' | 'ws';
     reconnectTimeout?: number;
   }) {
     super();
 
     this.host = args.host;
     this.publicKey = args.publicKey;
-    this.#clientType = args.client || "tcp";
+    this.#clientType = args.client || 'tcp';
     this.#reconnectTimeout = args.reconnectTimeout || 10000;
     this.connect();
   }
@@ -61,10 +61,10 @@ export class LiteSingleEngine extends EventEmitter implements LiteEngine {
   async query<REQ, RES>(
     f: TLFunction<REQ, RES>,
     req: REQ,
-    queryArgs?: { timeout?: number; awaitSeqno?: number }
+    queryArgs?: { timeout?: number; awaitSeqno?: number },
   ): Promise<RES> {
     if (this.#closed) {
-      throw new Error("Engine is closed");
+      throw new Error('Engine is closed');
     }
 
     const args = { ...defaultArgs, ...queryArgs };
@@ -76,11 +76,11 @@ export class LiteSingleEngine extends EventEmitter implements LiteEngine {
     if (args.awaitSeqno !== undefined) {
       Functions.liteServer_waitMasterchainSeqno.encodeRequest(
         {
-          kind: "liteServer.waitMasterchainSeqno",
+          kind: 'liteServer.waitMasterchainSeqno',
           seqno: args.awaitSeqno,
           timeoutMs: args.timeout,
         },
-        writer
+        writer,
       );
     }
     f.encodeRequest(req, writer);
@@ -88,17 +88,14 @@ export class LiteSingleEngine extends EventEmitter implements LiteEngine {
 
     // Lite server query
     let lsQuery = new TLWriteBuffer();
-    Functions.liteServer_query.encodeRequest(
-      { kind: "liteServer.query", data: body },
-      lsQuery
-    );
+    Functions.liteServer_query.encodeRequest({ kind: 'liteServer.query', data: body }, lsQuery);
     let lsbody = lsQuery.build();
 
     // ADNL body
     let adnlWriter = new TLWriteBuffer();
     Codecs.adnl_Message.encode(
-      { kind: "adnl.message.query", queryId: id, query: lsbody },
-      adnlWriter
+      { kind: 'adnl.message.query', queryId: id, query: lsbody },
+      adnlWriter,
     );
     const packet = adnlWriter.build();
 
@@ -109,7 +106,7 @@ export class LiteSingleEngine extends EventEmitter implements LiteEngine {
       }
 
       // Register query
-      this.#queries.set(id.toString("hex"), {
+      this.#queries.set(id.toString('hex'), {
         resolver: resolve,
         reject,
         f,
@@ -119,10 +116,10 @@ export class LiteSingleEngine extends EventEmitter implements LiteEngine {
 
       // Query timeout
       setTimeout(() => {
-        let ex = this.#queries.get(id.toString("hex"));
+        let ex = this.#queries.get(id.toString('hex'));
         if (ex) {
-          this.#queries.delete(id.toString("hex"));
-          ex.reject(new Error("Timeout"));
+          this.#queries.delete(id.toString('hex'));
+          ex.reject(new Error('Timeout'));
         }
       }, args.timeout);
     });
@@ -141,36 +138,36 @@ export class LiteSingleEngine extends EventEmitter implements LiteEngine {
   private connect() {
     // Configure new client
     const client =
-      this.#clientType === "ws"
+      this.#clientType === 'ws'
         ? new ADNLClientWS(this.host, new Uint8Array(this.publicKey))
         : new ADNLClientTCP(this.host, new Uint8Array(this.publicKey));
     client.connect();
-    client.on("connect", () => {
+    client.on('connect', () => {
       if (this.#currentClient === client) {
         this.onConencted();
-        this.emit("connect");
+        this.emit('connect');
       }
     });
-    client.on("close", () => {
+    client.on('close', () => {
       if (this.#currentClient === client) {
         this.onClosed();
-        this.emit("close");
+        this.emit('close');
       }
     });
-    client.on("data", (data) => {
+    client.on('data', (data) => {
       if (this.#currentClient === client) {
         this.onData(data);
       }
     });
-    client.on("ready", async () => {
+    client.on('ready', async () => {
       if (this.#currentClient === client) {
         this.onReady();
-        this.emit("ready");
+        this.emit('ready');
       }
     });
-    client.on("error", (err) => {
+    client.on('error', (err) => {
       this.close();
-      this.emit("error");
+      this.emit('error');
 
       setTimeout(() => {
         this.#closed = false;
@@ -197,8 +194,8 @@ export class LiteSingleEngine extends EventEmitter implements LiteEngine {
 
   private onData = (data: Buffer) => {
     let answer = Codecs.adnl_Message.decode(new TLReadBuffer(data));
-    if (answer.kind === "adnl.message.answer") {
-      let id = answer.queryId.toString("hex");
+    if (answer.kind === 'adnl.message.answer') {
+      let id = answer.queryId.toString('hex');
       let q = this.#queries.get(id);
       if (q) {
         this.#queries.delete(id);
@@ -206,11 +203,7 @@ export class LiteSingleEngine extends EventEmitter implements LiteEngine {
         // Decode response
         if (answer.answer.readInt32LE(0) === -1146494648) {
           q.reject(
-            new Error(
-              Codecs.liteServer_Error.decode(
-                new TLReadBuffer(answer.answer)
-              ).message
-            )
+            new Error(Codecs.liteServer_Error.decode(new TLReadBuffer(answer.answer)).message),
           );
         } else {
           try {

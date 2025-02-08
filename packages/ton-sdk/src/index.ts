@@ -1,12 +1,12 @@
-import * as ibc from "./blockchain/index";
-import * as iStorages from "./providers/Storage";
-import * as itypes from "./types/index.js";
-import iutils from "./utils/index.js";
-export * from "./types/Block.js";
-export * from "./types/Validator.js";
+import * as ibc from './blockchain/index';
+import * as iStorages from './providers/Storage';
+import * as itypes from './types/index.js';
+import iutils from './utils/index.js';
+export * from './types/Block.js';
+export * from './types/Validator.js';
 
 export namespace TonRocks {
-  export const version = "0.1.0";
+  export const version = '0.1.0';
 
   export const bc = ibc;
   export const Storages = iStorages;

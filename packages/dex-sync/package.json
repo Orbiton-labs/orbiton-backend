@@ -7,8 +7,12 @@
     "@types"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "start": "tsx src/start.ts"
+    "build": "tsc -p tsconfig.json && tsc-alias",
+    "start:dev": "tsx src/index.ts",
+    "start:prod": "npm run build && node dist/index.js",
+    "push:dev": "npm run db:exec push --config=drizzle-dev.drizzle.config",
+    "push:prod": "npm run db:exec push --config=drizzle-prod.drizzle.config",
+    "db:exec": "drizzle-kit"
   },
   "dependencies": {
     "@oraichain/oraidex-common": "1.1.29",
@@ -28,6 +32,7 @@
     "compression": "^1.7.5",
     "cors": "^2.8.5",
     "cosmjs-types": "0.8.0",
+    "drizzle-orm": "^0.39.2",
     "express": "^4.21.1",
     "express-validator": "^7.2.0",
     "helmet": "^8.0.0",
@@ -37,6 +42,7 @@
     "mongoose": "^8.8.2",
     "morgan": "^1.10.0",
     "orbiton-contracts": "^0.0.10",
+    "pg": "^8.13.1",
     "tonweb": "^0.0.66",
     "winston": "^3.14.2",
     "xss-clean": "^0.1.4"
@@ -46,6 +52,8 @@
     "@types/compression": "^1.7.5",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
-    "@types/http-status": "^1.1.2"
+    "@types/http-status": "^1.1.2",
+    "drizzle-kit": "^0.30.4",
+    "tsc-alias": "^1.8.10"
   }
 }

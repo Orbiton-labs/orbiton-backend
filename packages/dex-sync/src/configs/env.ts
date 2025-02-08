@@ -1,10 +1,10 @@
-import Joi from "joi";
-import dotenv from "dotenv";
+import Joi from 'joi';
+import dotenv from 'dotenv';
 dotenv.config();
 
 const envVarsSchema = Joi.object()
   .keys({
-    NODE_ENV: Joi.string().error(new Error("NODE_ENV is required")),
+    NODE_ENV: Joi.string().error(new Error('NODE_ENV is required')),
     PORT: Joi.number().default(8000),
     NETWORK: Joi.string().required(),
     TON_MNEMONIC: Joi.string().required(),
@@ -14,12 +14,12 @@ const envVarsSchema = Joi.object()
     ROUTER_ADDRESS: Joi.string().required(),
     TRIGGER_BLOCK_INTERVAL: Joi.number().default(5 * 60 * 1000),
     TONCENTER_URL: Joi.string().required(),
-    TONCENTER_API_KEY: Joi.string().allow("").required(),
+    TONCENTER_API_KEY: Joi.string().allow('').required(),
   })
   .unknown();
 
 const { value: envVars, error } = envVarsSchema
-  .prefs({ errors: { label: "key" } })
+  .prefs({ errors: { label: 'key' } })
   .validate(process.env);
 
 if (error) {

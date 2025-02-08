@@ -1,5 +1,5 @@
 // const {Cell} = require("../types/Cell");
-import { Cell } from "../types/Cell.js";
+import { Cell } from '../types/Cell.js';
 
 /**
  * Loads Uint
@@ -10,7 +10,7 @@ import { Cell } from "../types/Cell.js";
  * @returns {BN}
  */
 export function loadUint(cell, t, n) {
-  if (t.cs + n > cell.bits.cursor) throw Error("cannot load uint");
+  if (t.cs + n > cell.bits.cursor) throw Error('cannot load uint');
   const i = cell.bits.readUint(t.cs, n);
   t.cs += n;
   return i;
@@ -73,7 +73,7 @@ export function loadUint64(cell, t) {
  * @returns {number}
  */
 export function loadInt8(cell, t) {
-  if (t.cs + 8 > cell.bits.cursor) throw Error("cannot load int8");
+  if (t.cs + 8 > cell.bits.cursor) throw Error('cannot load int8');
   const i = cell.bits.readInt8(t.cs);
   t.cs += 8;
   return i;
@@ -88,7 +88,7 @@ export function loadInt8(cell, t) {
  * @returns {number}
  */
 export function loadInt16(cell, t) {
-  if (t.cs + 16 > cell.bits.cursor) throw Error("cannot load int16");
+  if (t.cs + 16 > cell.bits.cursor) throw Error('cannot load int16');
   const i = cell.bits.readInt16(t.cs);
   t.cs += 16;
   return i;
@@ -103,7 +103,7 @@ export function loadInt16(cell, t) {
  * @returns {number}
  */
 export function loadInt32(cell, t) {
-  if (t.cs + 32 > cell.bits.cursor) throw Error("cannot load int32");
+  if (t.cs + 32 > cell.bits.cursor) throw Error('cannot load int32');
   const i = cell.bits.readInt32(t.cs);
   t.cs += 32;
   return i;
@@ -118,7 +118,7 @@ export function loadInt32(cell, t) {
  * @returns {number}
  */
 export function loadBit(cell, t) {
-  if (t.cs + 1 > cell.bits.cursor) throw Error("cannot load bit");
+  if (t.cs + 1 > cell.bits.cursor) throw Error('cannot load bit');
   return cell.bits.get(t.cs++) ? 1 : 0;
 }
 
@@ -149,7 +149,7 @@ export function loadBits(cell, t, n) {
  * @returns {boolean}
  */
 export function loadBool(cell, t) {
-  if (t.cs + 1 > cell.bits.cursor) throw Error("cannot load Bool");
+  if (t.cs + 1 > cell.bits.cursor) throw Error('cannot load Bool');
   return cell.bits.get(t.cs++) ? true : false;
 }
 
@@ -170,7 +170,7 @@ export function loadUintLeq(cell, t, n) {
     }
     l = l << 1;
   }
-  if (last_one === -1) throw Error("not a UintLe");
+  if (last_one === -1) throw Error('not a UintLe');
   last_one++;
   let data = loadUint(cell, t, last_one).toNumber();
   return data;
@@ -200,7 +200,7 @@ export function loadUintLess(cell, t, n) {
  * @returns {Object}
  */
 export function loadVarUInteger(cell, t, n) {
-  let data = { _: "VarUInteger" };
+  let data = { _: 'VarUInteger' };
   data.len = loadUintLess(cell, t, n);
   if (data.len === 0) data.value = 0;
   else data.value = loadUint(cell, t, data.len * 8);
@@ -218,7 +218,7 @@ export function loadVarUInteger(cell, t, n) {
  * @returns {Object}
  */
 export function loadGrams(cell, t) {
-  let data = { _: "Grams" };
+  let data = { _: 'Grams' };
   data.amount = loadVarUInteger(cell, t, 16);
   return data;
 }

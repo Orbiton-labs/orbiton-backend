@@ -1,7 +1,7 @@
-import { tonNode_blockIdExt } from "@orbiton/ton-lite-client/dist/schema";
-import BaseBlockHandler from "./base-block-handler.service";
-import { LiteClient } from "@orbiton/ton-lite-client";
-const fs = require("fs");
+import { tonNode_blockIdExt } from '@orbiton/ton-lite-client/dist/schema';
+import BaseBlockHandler from './base-block-handler.service';
+import { LiteClient } from '@orbiton/ton-lite-client';
+const fs = require('fs');
 
 class BlockTransactionHandler extends BaseBlockHandler {
   mappedTxs = {};
@@ -13,8 +13,10 @@ class BlockTransactionHandler extends BaseBlockHandler {
     let transactions = await this.client.listBlockTransactions(block);
     for (const transaction of transactions.ids) {
       if (block.workchain == -1) {
-        if (!!this.mappedTxs[transaction.hash.toString("hex")]) {
-          console.log(`Duplicate transaction with masterchain ${transaction.hash.toString("hex")}, writed on workchain ${this.mappedTxs[transaction.hash.toString("hex")]}`);
+        if (!!this.mappedTxs[transaction.hash.toString('hex')]) {
+          console.log(
+            `Duplicate transaction with masterchain ${transaction.hash.toString('hex')}, writed on workchain ${this.mappedTxs[transaction.hash.toString('hex')]}`,
+          );
         }
         // console.log(transaction.hash.toString("hex"));
         // fs.appendFileSync(
@@ -34,8 +36,8 @@ class BlockTransactionHandler extends BaseBlockHandler {
         // console.log(txDetail.hash().toString("hex"));
         // console.log(txDetail);
       }
-      console.log(`Transaction ${transaction.hash.toString("hex")} from block ${block.workchain}`);
-      this.mappedTxs[transaction.hash.toString("hex")] = block.workchain;
+      console.log(`Transaction ${transaction.hash.toString('hex')} from block ${block.workchain}`);
+      this.mappedTxs[transaction.hash.toString('hex')] = block.workchain;
     }
   }
 }

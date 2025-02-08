@@ -1,19 +1,17 @@
-import { Request, Response } from "express";
-import morgan from "morgan";
-import { logger } from "./logger";
+import { Request, Response } from 'express';
+import morgan from 'morgan';
+import { logger } from './logger';
 
-const morganLogger = logger("morgan");
+const morganLogger = logger('morgan');
 morgan.token(
-  "message",
+  'message',
   (req: Request, res: Response) =>
-    `${res.locals.errorMessage || ""} - Body: ${JSON.stringify(
-      req?.body || {}
-    )} - Param: ${JSON.stringify(req?.params || {})} - Query: ${JSON.stringify(
-      req?.query || {}
-    )}`
+    `${res.locals.errorMessage || ''} - Body: ${JSON.stringify(
+      req?.body || {},
+    )} - Param: ${JSON.stringify(req?.params || {})} - Query: ${JSON.stringify(req?.query || {})}`,
 );
 
-const getIpFormat = () => "address -";
+const getIpFormat = () => 'address -';
 const successResponseFormat = `${getIpFormat()}:method :url :status - :response-time ms`;
 const errorResponseFormat = `${getIpFormat()}:method :url :status - :response-time ms - message: :message`;
 

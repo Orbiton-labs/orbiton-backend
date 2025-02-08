@@ -19,20 +19,20 @@ import {
   AccountState,
   loadShardStateUnsplit,
   StateInit,
-} from "@ton/core";
-import { LiteEngine } from "./engines/engine";
-import { parseShards } from "./parser/parseShards";
+} from '@ton/core';
+import { LiteEngine } from './engines/engine';
+import { parseShards } from './parser/parseShards';
 import {
   Functions,
   liteServer_blockHeader,
   liteServer_transactionId,
   liteServer_transactionId3,
   tonNode_blockIdExt,
-} from "./schema";
-import DataLoader from "dataloader";
-import { crc16 } from "./utils/crc16";
-import { createLiteClientProvider } from "./liteClientProvider";
-import { LRUMap } from "lru_map";
+} from './schema';
+import DataLoader from 'dataloader';
+import { crc16 } from './utils/crc16';
+import { createLiteClientProvider } from './liteClientProvider';
+import { LRUMap } from 'lru_map';
 import {
   AccountsDataLoaderKey,
   AllShardsResponse,
@@ -43,8 +43,8 @@ import {
   CacheMap,
   ClientAccountState,
   QueryArgs,
-} from "./types";
-import { findIntersection, findOnlyOnFirst } from "./utils/arrays";
+} from './types';
+import { findIntersection, findOnlyOnFirst } from './utils/arrays';
 
 const ZERO = 0n;
 
@@ -55,15 +55,15 @@ const ZERO = 0n;
 const lookupBlockByID = async (
   engine: LiteEngine,
   props: { seqno: number; shard: string; workchain: number },
-  queryArgs?: QueryArgs
+  queryArgs?: QueryArgs,
 ) => {
   return await engine.query(
     Functions.liteServer_lookupBlock,
     {
-      kind: "liteServer.lookupBlock",
+      kind: 'liteServer.lookupBlock',
       mode: 1,
       id: {
-        kind: "tonNode.blockId",
+        kind: 'tonNode.blockId',
         seqno: props.seqno,
         shard: props.shard,
         workchain: props.workchain,
@@ -71,22 +71,22 @@ const lookupBlockByID = async (
       lt: null,
       utime: null,
     },
-    queryArgs
+    queryArgs,
   );
 };
 
 const lookupBlockByUtime = async (
   engine: LiteEngine,
   props: { shard: string; workchain: number; utime: number },
-  queryArgs?: QueryArgs
+  queryArgs?: QueryArgs,
 ) => {
   return await engine.query(
     Functions.liteServer_lookupBlock,
     {
-      kind: "liteServer.lookupBlock",
+      kind: 'liteServer.lookupBlock',
       mode: 4,
       id: {
-        kind: "tonNode.blockId",
+        kind: 'tonNode.blockId',
         seqno: 0,
         shard: props.shard,
         workchain: props.workchain,
@@ -94,22 +94,22 @@ const lookupBlockByUtime = async (
       lt: null,
       utime: props.utime,
     },
-    queryArgs
+    queryArgs,
   );
 };
 
 const lookupBlockByLt = async (
   engine: LiteEngine,
   props: { shard: string; workchain: number; lt: bigint },
-  queryArgs?: QueryArgs
+  queryArgs?: QueryArgs,
 ) => {
   return await engine.query(
     Functions.liteServer_lookupBlock,
     {
-      kind: "liteServer.lookupBlock",
+      kind: 'liteServer.lookupBlock',
       mode: 2,
       id: {
-        kind: "tonNode.blockId",
+        kind: 'tonNode.blockId',
         seqno: 0,
         shard: props.shard,
         workchain: props.workchain,
@@ -117,19 +117,15 @@ const lookupBlockByLt = async (
       lt: props.lt.toString(),
       utime: null,
     },
-    queryArgs
+    queryArgs,
   );
 };
 
-const getAllShardsInfo = async (
-  engine: LiteEngine,
-  props: BlockID,
-  queryArgs?: QueryArgs
-) => {
+const getAllShardsInfo = async (engine: LiteEngine, props: BlockID, queryArgs?: QueryArgs) => {
   let res = await engine.query(
     Functions.liteServer_getAllShardsInfo,
-    { kind: "liteServer.getAllShardsInfo", id: props },
-    queryArgs
+    { kind: 'liteServer.getAllShardsInfo', id: props },
+    queryArgs,
   );
   let parsed = parseShards(Cell.fromBoc(res.data)[0].beginParse());
   let shards: { [key: string]: { [key: string]: number } } = {};
@@ -147,18 +143,14 @@ const getAllShardsInfo = async (
   };
 };
 
-const getBlockHeader = async (
-  engine: LiteEngine,
-  props: BlockID,
-  queryArgs?: QueryArgs
-) => {
+const getBlockHeader = async (engine: LiteEngine, props: BlockID, queryArgs?: QueryArgs) => {
   return await engine.query(
     Functions.liteServer_getBlockHeader,
     {
-      kind: "liteServer.getBlockHeader",
+      kind: 'liteServer.getBlockHeader',
       mode: 1,
       id: {
-        kind: "tonNode.blockIdExt",
+        kind: 'tonNode.blockIdExt',
         seqno: props.seqno,
         shard: props.shard,
         workchain: props.workchain,
@@ -166,20 +158,20 @@ const getBlockHeader = async (
         fileHash: props.fileHash,
       },
     },
-    queryArgs
+    queryArgs,
   );
 };
 
-type MapKind = "block" | "header" | "shard" | "account";
+type MapKind = 'block' | 'header' | 'shard' | 'account';
 function getCacheMap(
   mapKind: MapKind,
-  mapOptions?: number | ((mapKind: MapKind) => CacheMap)
+  mapOptions?: number | ((mapKind: MapKind) => CacheMap),
 ): CacheMap {
-  if (typeof mapOptions === "function") {
+  if (typeof mapOptions === 'function') {
     return mapOptions(mapKind);
   }
 
-  if (typeof mapOptions === "number") {
+  if (typeof mapOptions === 'number') {
     return new LRUMap(mapOptions);
   }
 
@@ -199,35 +191,35 @@ export class LiteClient {
     cacheMap?: number | ((mapKind: MapKind) => CacheMap);
   }) {
     this.engine = opts.engine;
-    let batchSize = typeof opts.batchSize === "number" ? opts.batchSize : 100;
+    let batchSize = typeof opts.batchSize === 'number' ? opts.batchSize : 100;
 
     this.#blockLockup = new DataLoader(
       async (s) => {
         return await Promise.all(
           s.map((v) => {
-            if (v.mode === "utime") {
+            if (v.mode === 'utime') {
               return lookupBlockByUtime(this.engine, v);
             }
-            if (v.mode === "lt") {
+            if (v.mode === 'lt') {
               return lookupBlockByLt(this.engine, v);
             }
             return lookupBlockByID(this.engine, v);
-          })
+          }),
         );
       },
       {
         maxBatchSize: batchSize,
         cacheKeyFn: (s) => {
-          if (s.mode === "id") {
+          if (s.mode === 'id') {
             return `block::${s.workchain}::${s.shard}::${s.seqno}`;
-          } else if (s.mode === "lt") {
+          } else if (s.mode === 'lt') {
             return `block::${s.workchain}::${s.shard}::lt-${s.lt}`;
           } else {
             return `block::${s.workchain}::${s.shard}::utime-${s.utime}`;
           }
         },
-        cacheMap: getCacheMap("block", opts.cacheMap),
-      }
+        cacheMap: getCacheMap('block', opts.cacheMap),
+      },
     );
 
     this.#blockHeader = new DataLoader(
@@ -237,28 +229,22 @@ export class LiteClient {
       {
         maxBatchSize: batchSize,
         cacheKeyFn: (s) => `header::${s.workchain}::${s.shard}::${s.seqno}`,
-        cacheMap: getCacheMap("header", opts.cacheMap),
-      }
+        cacheMap: getCacheMap('header', opts.cacheMap),
+      },
     );
 
     this.#shardsLockup = new DataLoader<BlockID, AllShardsResponse, string>(
       async (s) => {
-        return await Promise.all(
-          s.map((v) => getAllShardsInfo(this.engine, v))
-        );
+        return await Promise.all(s.map((v) => getAllShardsInfo(this.engine, v)));
       },
       {
         maxBatchSize: batchSize,
         cacheKeyFn: (s) => `shard::${s.workchain}::${s.shard}::${s.seqno}`,
-        cacheMap: getCacheMap("shard", opts.cacheMap),
-      }
+        cacheMap: getCacheMap('shard', opts.cacheMap),
+      },
     );
 
-    this.#accounts = new DataLoader<
-      AccountsDataLoaderKey,
-      ClientAccountState,
-      string
-    >(
+    this.#accounts = new DataLoader<AccountsDataLoaderKey, ClientAccountState, string>(
       async (s) => {
         return await Promise.all(
           s.map((v) =>
@@ -268,16 +254,16 @@ export class LiteClient {
               seqno: v.seqno,
               shard: v.shard,
               workchain: v.workchain,
-            })
-          )
+            }),
+          ),
         );
       },
       {
         maxBatchSize: batchSize,
         cacheKeyFn: (s) =>
           `account::${s.workchain}::${s.shard}::${s.seqno}::${s.address.toRawString()}`,
-        cacheMap: getCacheMap("account", opts.cacheMap),
-      }
+        cacheMap: getCacheMap('account', opts.cacheMap),
+      },
     );
   }
 
@@ -287,7 +273,7 @@ export class LiteClient {
    */
   open<T extends Contract>(contract: T) {
     return openContract<T>(contract, (args) =>
-      createLiteClientProvider(this, null, args.address, args.init)
+      createLiteClientProvider(this, null, args.address, args.init),
     );
   }
 
@@ -307,8 +293,8 @@ export class LiteClient {
   sendMessage = async (src: Buffer) => {
     let res = await this.engine.query(
       Functions.liteServer_sendMessage,
-      { kind: "liteServer.sendMessage", body: src },
-      { timeout: 5000 }
+      { kind: 'liteServer.sendMessage', body: src },
+      { timeout: 5000 },
     );
     return {
       status: res.status,
@@ -322,16 +308,16 @@ export class LiteClient {
   getMasterchainInfo = async (queryArgs?: QueryArgs) => {
     return this.engine.query(
       Functions.liteServer_getMasterchainInfo,
-      { kind: "liteServer.masterchainInfo" },
-      queryArgs
+      { kind: 'liteServer.masterchainInfo' },
+      queryArgs,
     );
   };
 
   getMasterchainInfoExt = async (queryArgs?: QueryArgs) => {
     return this.engine.query(
       Functions.liteServer_getMasterchainInfoExt,
-      { kind: "liteServer.masterchainInfoExt", mode: 0 },
-      queryArgs
+      { kind: 'liteServer.masterchainInfoExt', mode: 0 },
+      queryArgs,
     );
   };
 
@@ -339,8 +325,8 @@ export class LiteClient {
     return (
       await this.engine.query(
         Functions.liteServer_getTime,
-        { kind: "liteServer.getTime" },
-        queryArgs
+        { kind: 'liteServer.getTime' },
+        queryArgs,
       )
     ).now;
   };
@@ -348,8 +334,8 @@ export class LiteClient {
   getVersion = async (queryArgs?: QueryArgs) => {
     return await this.engine.query(
       Functions.liteServer_getVersion,
-      { kind: "liteServer.getVersion" },
-      queryArgs
+      { kind: 'liteServer.getVersion' },
+      queryArgs,
     );
   };
 
@@ -357,9 +343,9 @@ export class LiteClient {
     let res = await this.engine.query(
       Functions.liteServer_getConfigAll,
       {
-        kind: "liteServer.getConfigAll",
+        kind: 'liteServer.getConfigAll',
         id: {
-          kind: "tonNode.blockIdExt",
+          kind: 'tonNode.blockIdExt',
           seqno: block.seqno,
           shard: block.shard,
           workchain: block.workchain,
@@ -368,7 +354,7 @@ export class LiteClient {
         },
         mode: 0,
       },
-      queryArgs
+      queryArgs,
     );
 
     const configProof = Cell.fromBoc(res.configProof)[0];
@@ -376,7 +362,7 @@ export class LiteClient {
     const cs = configCell.beginParse();
     let shardState = loadShardStateUnsplit(cs);
     if (!shardState.extras) {
-      throw Error("Invalid response");
+      throw Error('Invalid response');
     }
     return shardState.extras;
   };
@@ -385,10 +371,7 @@ export class LiteClient {
   // Account
   //
 
-  getAccountState = async (
-    src: Address,
-    block: BlockID
-  ): Promise<ClientAccountState> => {
+  getAccountState = async (src: Address, block: BlockID): Promise<ClientAccountState> => {
     return this.#accounts.load({
       address: src,
       seqno: block.seqno,
@@ -402,14 +385,14 @@ export class LiteClient {
   getAccountStateRaw = async (
     src: Address,
     block: BlockID,
-    queryArgs?: QueryArgs
+    queryArgs?: QueryArgs,
   ): Promise<ClientAccountState> => {
     let res = await this.engine.query(
       Functions.liteServer_getAccountState,
       {
-        kind: "liteServer.getAccountState",
+        kind: 'liteServer.getAccountState',
         id: {
-          kind: "tonNode.blockIdExt",
+          kind: 'tonNode.blockIdExt',
           seqno: block.seqno,
           shard: block.shard,
           workchain: block.workchain,
@@ -417,12 +400,12 @@ export class LiteClient {
           rootHash: block.rootHash,
         },
         account: {
-          kind: "liteServer.accountId",
+          kind: 'liteServer.accountId',
           workchain: src.workChain,
           id: src.hash,
         },
       },
-      queryArgs
+      queryArgs,
     );
 
     let account: Account | null = null;
@@ -434,10 +417,8 @@ export class LiteClient {
         account = loadAccount(accountSlice);
         if (account) {
           balance = account.storage.balance;
-          let shardState = loadShardStateUnsplit(
-            Cell.fromBoc(res.proof)[1].refs[0].beginParse()
-          );
-          let hashId = BigInt("0x" + src.hash.toString("hex"));
+          let shardState = loadShardStateUnsplit(Cell.fromBoc(res.proof)[1].refs[0].beginParse());
+          let hashId = BigInt('0x' + src.hash.toString('hex'));
           if (shardState.accounts) {
             let pstate = shardState.accounts.get(hashId);
             if (pstate) {
@@ -463,17 +444,13 @@ export class LiteClient {
     };
   };
 
-  getAccountStatePrunned = async (
-    src: Address,
-    block: BlockID,
-    queryArgs?: QueryArgs
-  ) => {
+  getAccountStatePrunned = async (src: Address, block: BlockID, queryArgs?: QueryArgs) => {
     let res = await this.engine.query(
       Functions.liteServer_getAccountStatePrunned,
       {
-        kind: "liteServer.getAccountStatePrunned",
+        kind: 'liteServer.getAccountStatePrunned',
         id: {
-          kind: "tonNode.blockIdExt",
+          kind: 'tonNode.blockIdExt',
           seqno: block.seqno,
           shard: block.shard,
           workchain: block.workchain,
@@ -481,19 +458,19 @@ export class LiteClient {
           rootHash: block.rootHash,
         },
         account: {
-          kind: "liteServer.accountId",
+          kind: 'liteServer.accountId',
           workchain: src.workChain,
           id: src.hash,
         },
       },
-      queryArgs
+      queryArgs,
     );
 
     let stateHash: Buffer | null = null;
     if (res.state.length > 0) {
       let stateCell = Cell.fromBoc(res.state)[0];
       if (!stateCell.isExotic) {
-        throw new Error("Prunned state is not exotic");
+        throw new Error('Prunned state is not exotic');
       }
       stateHash = Cell.fromBoc(res.state)[0].bits.subbuffer(8, 256);
     }
@@ -512,21 +489,21 @@ export class LiteClient {
     src: Address,
     lt: string,
     block: BlockID,
-    queryArgs?: QueryArgs
+    queryArgs?: QueryArgs,
   ) => {
     return await this.engine.query(
       Functions.liteServer_getOneTransaction,
       {
-        kind: "liteServer.getOneTransaction",
+        kind: 'liteServer.getOneTransaction',
         id: block,
         account: {
-          kind: "liteServer.accountId",
+          kind: 'liteServer.accountId',
           workchain: src.workChain,
           id: src.hash,
         },
         lt: lt,
       },
-      queryArgs
+      queryArgs,
     );
   };
 
@@ -535,22 +512,22 @@ export class LiteClient {
     lt: string,
     hash: Buffer,
     count: number,
-    queryArgs?: QueryArgs
+    queryArgs?: QueryArgs,
   ) => {
     let loaded = await this.engine.query(
       Functions.liteServer_getTransactions,
       {
-        kind: "liteServer.getTransactions",
+        kind: 'liteServer.getTransactions',
         count,
         account: {
-          kind: "liteServer.accountId",
+          kind: 'liteServer.accountId',
           workchain: src.workChain,
           id: src.hash,
         },
         lt: lt,
         hash: hash,
       },
-      queryArgs
+      queryArgs,
     );
     return {
       ids: loaded.ids,
@@ -563,15 +540,15 @@ export class LiteClient {
     method: string,
     params: Buffer,
     block: BlockID,
-    queryArgs?: QueryArgs
+    queryArgs?: QueryArgs,
   ) => {
     let res = await this.engine.query(
       Functions.liteServer_runSmcMethod,
       {
-        kind: "liteServer.runSmcMethod",
+        kind: 'liteServer.runSmcMethod',
         mode: 4,
         id: {
-          kind: "tonNode.blockIdExt",
+          kind: 'tonNode.blockIdExt',
           seqno: block.seqno,
           shard: block.shard,
           workchain: block.workchain,
@@ -579,18 +556,18 @@ export class LiteClient {
           fileHash: block.fileHash,
         },
         account: {
-          kind: "liteServer.accountId",
+          kind: 'liteServer.accountId',
           workchain: src.workChain,
           id: src.hash,
         },
-        methodId: ((crc16(method) & 0xffff) | 0x10000) + "",
+        methodId: ((crc16(method) & 0xffff) | 0x10000) + '',
         params,
       },
-      queryArgs
+      queryArgs,
     );
     return {
       exitCode: res.exitCode,
-      result: res.result ? res.result.toString("base64") : null,
+      result: res.result ? res.result.toString('base64') : null,
       block: {
         seqno: res.id.seqno,
         shard: res.id.shard,
@@ -612,28 +589,16 @@ export class LiteClient {
   // Block
   //
 
-  lookupBlockByID = async (block: {
-    seqno: number;
-    shard: string;
-    workchain: number;
-  }) => {
-    return await this.#blockLockup.load({ ...block, mode: "id" });
+  lookupBlockByID = async (block: { seqno: number; shard: string; workchain: number }) => {
+    return await this.#blockLockup.load({ ...block, mode: 'id' });
   };
 
-  lookupBlockByUtime = async (block: {
-    shard: string;
-    workchain: number;
-    utime: number;
-  }) => {
-    return await this.#blockLockup.load({ ...block, mode: "utime" });
+  lookupBlockByUtime = async (block: { shard: string; workchain: number; utime: number }) => {
+    return await this.#blockLockup.load({ ...block, mode: 'utime' });
   };
 
-  lookupBlockByLt = async (block: {
-    shard: string;
-    workchain: number;
-    lt: bigint;
-  }) => {
-    return await this.#blockLockup.load({ ...block, mode: "lt" });
+  lookupBlockByLt = async (block: { shard: string; workchain: number; lt: bigint }) => {
+    return await this.#blockLockup.load({ ...block, mode: 'lt' });
   };
 
   getBlockHeader = async (block: BlockID) => {
@@ -652,19 +617,18 @@ export class LiteClient {
       after?: liteServer_transactionId3 | null | undefined;
       wantProof?: boolean;
     },
-    queryArgs?: QueryArgs
+    queryArgs?: QueryArgs,
   ) => {
     let mode = args?.mode || 1 + 2 + 4;
     let count = args?.count || 100;
-    let after: liteServer_transactionId3 | null =
-      args && args.after ? args.after : null;
+    let after: liteServer_transactionId3 | null = args && args.after ? args.after : null;
 
     return await this.engine.query(
       Functions.liteServer_listBlockTransactions,
       {
-        kind: "liteServer.listBlockTransactions",
+        kind: 'liteServer.listBlockTransactions',
         id: {
-          kind: "tonNode.blockIdExt",
+          kind: 'tonNode.blockIdExt',
           seqno: block.seqno,
           shard: block.shard,
           workchain: block.workchain,
@@ -677,7 +641,7 @@ export class LiteClient {
         after,
         wantProof: null,
       },
-      queryArgs
+      queryArgs,
     );
   };
 
@@ -686,12 +650,12 @@ export class LiteClient {
     let [mcBlockId, mcBlockPrevId] = await Promise.all([
       this.lookupBlockByID({
         workchain: -1,
-        shard: "-9223372036854775808",
+        shard: '-9223372036854775808',
         seqno: seqno,
       }),
       this.lookupBlockByID({
         workchain: -1,
-        shard: "-9223372036854775808",
+        shard: '-9223372036854775808',
         seqno: seqno - 1,
       }),
     ]);
@@ -708,7 +672,7 @@ export class LiteClient {
       seqno: number;
       shard: string;
     }[] = [];
-    shards.push({ seqno, workchain: -1, shard: "-9223372036854775808" });
+    shards.push({ seqno, workchain: -1, shard: '-9223372036854775808' });
 
     // Extract shards
     for (let wcs in mcShards.shards) {
@@ -764,7 +728,7 @@ export class LiteClient {
             break;
           }
           after = {
-            kind: "liteServer.transactionId3",
+            kind: 'liteServer.transactionId3',
             account: tr.ids[tr.ids.length - 1].account!,
             lt: tr.ids[tr.ids.length - 1].lt!,
           } as liteServer_transactionId3;
@@ -781,7 +745,7 @@ export class LiteClient {
           fileHash: blockId.id.fileHash,
           transactions: mapped,
         };
-      })
+      }),
     );
 
     return {
@@ -793,10 +757,10 @@ export class LiteClient {
     return this.engine.query(
       Functions.liteServer_getLibraries,
       {
-        kind: "liteServer.getLibraries",
+        kind: 'liteServer.getLibraries',
         libraryList: hashes,
       },
-      queryArgs
+      queryArgs,
     );
   };
 }

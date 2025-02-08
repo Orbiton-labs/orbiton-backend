@@ -29,17 +29,17 @@ import {
   openContract,
   Transaction,
   loadTransaction,
-} from "@ton/core";
-import { Maybe } from "@ton/core/dist/utils/maybe";
-import { LiteClient } from "./";
-import { tonNode_BlockIdExt } from "./schema";
-import { Buffer } from "buffer";
+} from '@ton/core';
+import { Maybe } from '@ton/core/dist/utils/maybe';
+import { LiteClient } from './';
+import { tonNode_BlockIdExt } from './schema';
+import { Buffer } from 'buffer';
 
 export function createLiteClientProvider(
   client: LiteClient,
   block: number | null,
   address: Address,
-  init: StateInit | null
+  init: StateInit | null,
 ): ContractProvider {
   return {
     async getState(): Promise<ContractState> {
@@ -50,9 +50,7 @@ export function createLiteClientProvider(
         sq = res.last;
       } else {
         const res = await client.getFullBlock(block);
-        const shard = res.shards.find(
-          (s) => s.workchain === -1
-        ) as unknown as tonNode_BlockIdExt;
+        const shard = res.shards.find((s) => s.workchain === -1) as unknown as tonNode_BlockIdExt;
         sq = {
           ...shard,
         };
@@ -66,44 +64,41 @@ export function createLiteClientProvider(
       const last = state.lastTx // .account.last
         ? {
             lt: BigInt(state.lastTx.lt),
-            hash: Buffer.from(state.lastTx.hash.toString(16), "hex"),
+            hash: Buffer.from(state.lastTx.hash.toString(16), 'hex'),
           }
         : null;
       let storage:
         | {
-            type: "uninit";
+            type: 'uninit';
           }
         | {
-            type: "active";
+            type: 'active';
             code: Maybe<Buffer>;
             data: Maybe<Buffer>;
           }
         | {
-            type: "frozen";
+            type: 'frozen';
             stateHash: Buffer;
           };
 
-      if (state.state?.storage.state.type === "active") {
+      if (state.state?.storage.state.type === 'active') {
         storage = {
-          type: "active",
+          type: 'active',
           code: state.state?.storage.state.state.code?.toBoc(),
           data: state.state?.storage.state.state.data?.toBoc(),
         };
-      } else if (state.state?.storage.state.type === "uninit") {
+      } else if (state.state?.storage.state.type === 'uninit') {
         storage = {
-          type: "uninit",
+          type: 'uninit',
         };
         //
-      } else if (state.state?.storage.state.type === "frozen") {
+      } else if (state.state?.storage.state.type === 'frozen') {
         storage = {
-          type: "frozen",
-          stateHash: Buffer.from(
-            state.state.storage.state.stateHash.toString(16),
-            "hex"
-          ),
+          type: 'frozen',
+          stateHash: Buffer.from(state.state.storage.state.stateHash.toString(16), 'hex'),
         };
       } else {
-        throw Error("Unsupported state");
+        throw Error('Unsupported state');
       }
 
       return {
@@ -119,9 +114,7 @@ export function createLiteClientProvider(
         sq = res.last;
       } else {
         const res = await client.getFullBlock(block);
-        const shard = res.shards.find(
-          (s) => s.workchain === -1
-        ) as unknown as tonNode_BlockIdExt;
+        const shard = res.shards.find((s) => s.workchain === -1) as unknown as tonNode_BlockIdExt;
         sq = {
           ...shard,
         };
@@ -130,7 +123,7 @@ export function createLiteClientProvider(
       // const method = await client.runMethod(address, name, args, sq)c
       const method = await runMethod(client, sq, address, name, args);
       if (method.exitCode !== 0 && method.exitCode !== 1) {
-        throw Error("Exit code: " + method.exitCode);
+        throw Error('Exit code: ' + method.exitCode);
       }
       return {
         stack: new TupleReader(method.result),
@@ -144,8 +137,7 @@ export function createLiteClientProvider(
       let neededInit: StateInit | null = null;
       if (
         init &&
-        (await client.getAccountState(address, sq)).state?.storage.state
-          .type !== "active"
+        (await client.getAccountState(address, sq)).state?.storage.state.type !== 'active'
       ) {
         neededInit = init;
       }
@@ -167,8 +159,7 @@ export function createLiteClientProvider(
       let neededInit: StateInit | null = null;
       if (
         init &&
-        (await client.getAccountState(address, sq)).state?.storage.state
-          .type !== "active"
+        (await client.getAccountState(address, sq)).state?.storage.state.type !== 'active'
       ) {
         neededInit = init;
       }
@@ -181,7 +172,7 @@ export function createLiteClientProvider(
 
       // Resolve value
       let value: bigint;
-      if (typeof message.value === "string") {
+      if (typeof message.value === 'string') {
         value = toNano(message.value);
       } else {
         value = message.value;
@@ -189,7 +180,7 @@ export function createLiteClientProvider(
 
       // Resolve body
       let body: Cell | null = null;
-      if (typeof message.body === "string") {
+      if (typeof message.body === 'string') {
         body = comment(message.body);
       } else if (message.body) {
         body = message.body;
@@ -207,17 +198,17 @@ export function createLiteClientProvider(
     },
     open<T extends Contract>(contract: T): OpenedContract<T> {
       return openContract(contract, (args) =>
-        createLiteClientProvider(client, block, args.address, args.init)
+        createLiteClientProvider(client, block, args.address, args.init),
       );
     },
     async getTransactions(
       address: Address,
       lt: bigint,
       hash: Buffer,
-      limit?: number
+      limit?: number,
     ): Promise<Transaction[]> {
       // Resolve last
-      const useLimit = typeof limit === "number";
+      const useLimit = typeof limit === 'number';
       if (useLimit && limit <= 0) {
         return [];
       }
@@ -229,18 +220,14 @@ export function createLiteClientProvider(
           address,
           lt.toString(),
           hash,
-          limit ?? 100
+          limit ?? 100,
         );
-        const txs = Cell.fromBoc(result.transactions).map((tx) =>
-          loadTransaction(tx.beginParse())
-        );
+        const txs = Cell.fromBoc(result.transactions).map((tx) => loadTransaction(tx.beginParse()));
 
         const firstTx = txs[0];
         const [firstLt, firstHash] = [firstTx.lt, firstTx.hash()];
         const needSkipFirst =
-          transactions.length > 0 &&
-          firstLt === lt &&
-          firstHash.equals(new Uint8Array(hash));
+          transactions.length > 0 && firstLt === lt && firstHash.equals(new Uint8Array(hash));
         if (needSkipFirst) {
           txs.shift();
         }
@@ -283,18 +270,14 @@ async function runMethod(
   seqno: tonNode_BlockIdExt,
   address: Address,
   name: string,
-  args?: TupleItem[]
+  args?: TupleItem[],
 ) {
-  const tail = args
-    ? serializeTuple(args).toBoc({ idx: false, crc32: false })
-    : Buffer.alloc(0);
+  const tail = args ? serializeTuple(args).toBoc({ idx: false, crc32: false }) : Buffer.alloc(0);
 
   const res = await clinet.runMethod(address, name, tail, seqno);
   return {
     exitCode: res.exitCode, // res.data.exitCode,
-    result: res.result
-      ? parseTuple(Cell.fromBoc(Buffer.from(res.result, "base64"))[0])
-      : [],
+    result: res.result ? parseTuple(Cell.fromBoc(Buffer.from(res.result, 'base64'))[0]) : [],
     resultRaw: res.result, // res.data.resultRaw,
     block: res.block,
     shardBlock: res.shardBlock,

@@ -3,9 +3,7 @@ export const logger = (label: string, loglevel?: string): any => {
     info: (text: string) =>
       console.info(`${new Date().toLocaleString()} [INFO] [${label}]: ${text}`),
     error: (text: string, error: Error) => {
-      console.error(
-        `${new Date().toLocaleString()} [ERROR] [${label}]: ${text}, ${error}`
-      );
+      console.error(`${new Date().toLocaleString()} [ERROR] [${label}]: ${text}, ${error}`);
     },
   };
 };

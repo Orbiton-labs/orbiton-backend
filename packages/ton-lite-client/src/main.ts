@@ -6,14 +6,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { LiteEngine } from "./engines/engine";
-import { LiteSingleEngine } from "./engines/single";
-import { LiteRoundRobinEngine } from "./engines/roundRobin";
-import { LiteClient } from "./client";
-import { Address, Cell } from "@ton/core";
+import { LiteEngine } from './engines/engine';
+import { LiteSingleEngine } from './engines/single';
+import { LiteRoundRobinEngine } from './engines/roundRobin';
+import { LiteClient } from './client';
+import { Address, Cell } from '@ton/core';
 // import { formatDistance } from "date-fns";
-import { createBackoff } from "teslabot";
-import { inspect } from "util";
+import { createBackoff } from 'teslabot';
+import { inspect } from 'util';
 const backoff = createBackoff();
 
 function intToIP(int: number) {
@@ -22,15 +22,15 @@ function intToIP(int: number) {
   var part3 = (int >> 16) & 255;
   var part4 = (int >> 24) & 255;
 
-  return part4 + "." + part3 + "." + part2 + "." + part1;
+  return part4 + '.' + part3 + '.' + part2 + '.' + part1;
 }
 
 let server = {
   ip: 1097649206,
   port: 29296,
   id: {
-    "@type": "pub.ed25519",
-    key: "p2tSiaeSqX978BxE5zLxuTQM06WVDErf5/15QToxMYA=",
+    '@type': 'pub.ed25519',
+    key: 'p2tSiaeSqX978BxE5zLxuTQM06WVDErf5/15QToxMYA=',
   },
 };
 
@@ -41,49 +41,39 @@ async function main() {
       new LiteSingleEngine({
         host: `tcp://${intToIP(server.ip)}:${server.port}`,
         // host: `wss://ws.tonlens.com/?ip=${server.ip}&port=${server.port}&pubkey=${server.id.key}`,
-        publicKey: Buffer.from(server.id.key, "base64"),
+        publicKey: Buffer.from(server.id.key, 'base64'),
         // client: 'ws'
-      })
+      }),
     );
   }
   const engine: LiteEngine = new LiteRoundRobinEngine(engines);
   const client = new LiteClient({ engine });
-  console.log("get master info");
+  console.log('get master info');
   const master = await client.getMasterchainInfo();
-  console.log("master", master);
+  console.log('master', master);
 
-  const address = Address.parse(
-    "kQC2sf_Hy34aMM7n9f9_V-ThHDehjH71LWBETy_JrTirPIHa"
-  );
+  const address = Address.parse('kQC2sf_Hy34aMM7n9f9_V-ThHDehjH71LWBETy_JrTirPIHa');
 
   while (true) {
     let latest = await client.getMasterchainInfo();
-    console.log("Latest block: " + latest.last.seqno);
+    console.log('Latest block: ' + latest.last.seqno);
     await client.getFullBlock(latest.last.seqno);
 
     const libRes = await client.getLibraries([
-      Buffer.from(
-        "587cc789eff1c84f46ec3797e45fc809a14ff5ae24f1e0c7a6a99cc9dc9061ff",
-        "hex"
-      ),
-      Buffer.from(
-        "bd3d7ccaf2b4ccf7fc8f1e9abaf8781e5a783f1d1e075dfab884b1d795f23666",
-        "hex"
-      ),
+      Buffer.from('587cc789eff1c84f46ec3797e45fc809a14ff5ae24f1e0c7a6a99cc9dc9061ff', 'hex'),
+      Buffer.from('bd3d7ccaf2b4ccf7fc8f1e9abaf8781e5a783f1d1e075dfab884b1d795f23666', 'hex'),
     ]);
-    console.log("libRes: ", libRes);
+    console.log('libRes: ', libRes);
 
     console.log(
-      "Account state full   :",
+      'Account state full   :',
       Cell.fromBoc((await client.getAccountState(address, latest.last)).raw)[0]
         .hash()
-        .toString("hex")
+        .toString('hex'),
     );
     console.log(
-      "Account state prunned:",
-      (
-        await client.getAccountStatePrunned(address, latest.last)
-      ).stateHash?.toString("hex")
+      'Account state prunned:',
+      (await client.getAccountStatePrunned(address, latest.last)).stateHash?.toString('hex'),
     );
 
     // https://test-explorer.toncoin.org/transaction?account=EQBPId-mitsa7ldOJiYKMABPo64DxO46e93AiWXImbcPGzjI&lt=17770551000001&hash=ea5be964a475f24365ad9199e67ceb2309f4260a0fae697eed91e7fe1d168b97
@@ -94,9 +84,9 @@ async function main() {
       workchain: 0,
       lt,
     });
-    console.log("Block by lt", blockByLt);
+    console.log('Block by lt', blockByLt);
     if (blockByLt.id.seqno !== blockSeqno) {
-      throw new Error("Wrong lt");
+      throw new Error('Wrong lt');
     }
 
     const start = Date.now();
@@ -104,15 +94,11 @@ async function main() {
       timeout: 15000,
       awaitSeqno: latest.last.seqno + 2,
     });
-    console.log("wait res", Date.now() - start, res);
+    console.log('wait res', Date.now() - start, res);
 
     const blockData = await client.getFullBlock(34745880);
     // Should be 288
-    console.log(
-      "block data",
-      blockData,
-      blockData.shards[1].transactions.length
-    );
+    console.log('block data', blockData, blockData.shards[1].transactions.length);
 
     await new Promise((resolve, reject) => setTimeout(resolve, 3000));
   }

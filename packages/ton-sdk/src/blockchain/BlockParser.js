@@ -1,10 +1,10 @@
 // const {Cell} = require("../types/Cell");
-import { Cell } from "../types/Cell.js";
+import { Cell } from '../types/Cell.js';
 // const {Hashmap, HashmapE, HashmapAug, HashmapAugE} = require("../types/Hashmap");
-import { Hashmap, HashmapAug, HashmapAugE, HashmapE } from "../types/Hashmap.js";
+import { Hashmap, HashmapAug, HashmapAugE, HashmapE } from '../types/Hashmap.js';
 // } = require("../types/Hashmap");
 // const {BN, compareBytes} = require("../utils");
-import utils from "../utils/index.js";
+import utils from '../utils/index.js';
 const { BN, compareBytes } = utils;
 // const {
 import {
@@ -24,8 +24,8 @@ import {
   loadUint64,
   loadUint8,
   loadUintLeq,
-  loadVarUInteger
-} from "./BlockUtils.js";
+  loadVarUInteger,
+} from './BlockUtils.js';
 // } = require("./BlockUtils");
 
 /**
@@ -101,11 +101,11 @@ export function loadHashmapAugE(cell, t, n, f1, f2) {
 export function loadBinTreeR(cell, t, f) {
   let data = {};
   if (loadBit(cell, t) === 0) {
-    data.type = "leaf";
+    data.type = 'leaf';
     data.leaf = f ? f(cell, t) : null;
     return data;
   } else {
-    data.type = "fork";
+    data.type = 'fork';
     data.left = loadRefIfExist(cell, t, (c, p) => loadBinTreeR(c, p, f));
     data.right = loadRefIfExist(cell, t, (c, p) => loadBinTreeR(c, p, f));
     return data;
@@ -127,7 +127,7 @@ export function loadBinTreeR(cell, t, f) {
  */
 export function loadBinTree(cell, t, f) {
   let data = loadBinTreeR(cell, t, f);
-  data._ = "BinTree";
+  data._ = 'BinTree';
   return data;
 }
 
@@ -142,7 +142,7 @@ export function loadBinTree(cell, t, f) {
  * @returns {Object}
  */
 export function loadConfigParam0(cell, t) {
-  let data = { _: "ConfigParam", number: 0 };
+  let data = { _: 'ConfigParam', number: 0 };
   data.config_addr = loadBits(cell, t, 256);
   return data;
 }
@@ -158,7 +158,7 @@ export function loadConfigParam0(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam1(cell, t) {
-  let data = { _: "ConfigParam", number: 1 };
+  let data = { _: 'ConfigParam', number: 1 };
   data.elector_addr = loadBits(cell, t, 256);
   return data;
 }
@@ -174,7 +174,7 @@ export function loadConfigParam1(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam2(cell, t) {
-  let data = { _: "ConfigParam", number: 2 };
+  let data = { _: 'ConfigParam', number: 2 };
   data.minter_addr = loadBits(cell, t, 256);
   return data;
 }
@@ -190,7 +190,7 @@ export function loadConfigParam2(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam3(cell, t) {
-  let data = { _: "ConfigParam", number: 3 };
+  let data = { _: 'ConfigParam', number: 3 };
   data.fee_collector_addr = loadBits(cell, t, 256);
   return data;
 }
@@ -206,7 +206,7 @@ export function loadConfigParam3(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam4(cell, t) {
-  let data = { _: "ConfigParam", number: 4 };
+  let data = { _: 'ConfigParam', number: 4 };
   data.dns_root_addr = loadBits(cell, t, 256);
   return data;
 }
@@ -222,7 +222,7 @@ export function loadConfigParam4(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam6(cell, t) {
-  let data = { _: "ConfigParam", number: 6 };
+  let data = { _: 'ConfigParam', number: 6 };
   data.mint_new_price = loadGrams(cell, t);
   data.mint_add_price = loadGrams(cell, t);
   return data;
@@ -239,7 +239,7 @@ export function loadConfigParam6(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam7(cell, t) {
-  let data = { _: "ConfigParam", number: 7 };
+  let data = { _: 'ConfigParam', number: 7 };
   data.to_mint = loadExtraCurrencyCollection(cell, t);
   return data;
 }
@@ -255,7 +255,7 @@ export function loadConfigParam7(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam8(cell, t) {
-  let data = { _: "ConfigParam", number: 8 };
+  let data = { _: 'ConfigParam', number: 8 };
   data.version = loadGlobalVersion(cell, t);
   return data;
 }
@@ -271,7 +271,7 @@ export function loadConfigParam8(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam9(cell, t) {
-  let data = { _: "ConfigParam", number: 9 };
+  let data = { _: 'ConfigParam', number: 9 };
   // eslint-disable-next-line no-unused-vars
   data.mandatory_params = loadHashmap(cell, t, 32, (c, p) => true);
   return data;
@@ -288,7 +288,7 @@ export function loadConfigParam9(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam10(cell, t) {
-  let data = { _: "ConfigParam", number: 10 };
+  let data = { _: 'ConfigParam', number: 10 };
   // eslint-disable-next-line no-unused-vars
   data.critical_params = loadHashmap(cell, t, 32, (c, p) => true);
   return data;
@@ -305,8 +305,8 @@ export function loadConfigParam10(cell, t) {
  * @returns {Object}
  */
 export function loadConfigProposalSetup(cell, t) {
-  let data = { _: "ConfigProposalSetup" };
-  if (loadUint8(cell, t) !== 0x36) throw Error("Not a ConfigProposalSetup");
+  let data = { _: 'ConfigProposalSetup' };
+  if (loadUint8(cell, t) !== 0x36) throw Error('Not a ConfigProposalSetup');
   data.min_tot_rounds = loadUint8(cell, t);
   data.max_tot_rounds = loadUint8(cell, t);
   data.min_wins = loadUint8(cell, t);
@@ -329,8 +329,8 @@ export function loadConfigProposalSetup(cell, t) {
  * @returns {Object}
  */
 export function loadConfigVotingSetup(cell, t) {
-  let data = { _: "ConfigVotingSetup" };
-  if (loadUint8(cell, t) !== 0x91) throw Error("Not a ConfigVotingSetup");
+  let data = { _: 'ConfigVotingSetup' };
+  if (loadUint8(cell, t) !== 0x91) throw Error('Not a ConfigVotingSetup');
   data.normal_params = loadRefIfExist(cell, t, loadConfigProposalSetup);
   data.critical_params = loadRefIfExist(cell, t, loadConfigProposalSetup);
   return data;
@@ -347,7 +347,7 @@ export function loadConfigVotingSetup(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam11(cell, t) {
-  let data = { _: "ConfigParam", number: 11 };
+  let data = { _: 'ConfigParam', number: 11 };
   data.setup = loadConfigVotingSetup(cell, t);
   return data;
 }
@@ -363,9 +363,9 @@ export function loadConfigParam11(cell, t) {
  * @returns {Object}
  */
 export function loadWorkchainFormat1(cell, t) {
-  let data = { _: "WorkchainFormat" };
-  data.type = "basic";
-  if (loadUint(cell, t, 4).toNumber() !== 0x1) throw Error("not a WorkchainFormat");
+  let data = { _: 'WorkchainFormat' };
+  data.type = 'basic';
+  if (loadUint(cell, t, 4).toNumber() !== 0x1) throw Error('not a WorkchainFormat');
   data.vm_version = loadInt32(cell, t);
   data.vm_mode = loadUint64(cell, t);
   return data;
@@ -389,18 +389,18 @@ export function loadWorkchainFormat1(cell, t) {
  * @returns {Object}
  */
 export function loadWorkchainDescr(cell, t) {
-  let data = { _: "WorkchainDescr" };
-  if (loadUint8(cell, t) !== 0xa6) throw Error("not a WorkchainDescr");
+  let data = { _: 'WorkchainDescr' };
+  if (loadUint8(cell, t) !== 0xa6) throw Error('not a WorkchainDescr');
   data.enabled_since = loadUint32(cell, t);
   data.actual_min_split = loadUint(cell, t, 8).toNumber();
   data.min_split = loadUint(cell, t, 8).toNumber();
   data.max_split = loadUint(cell, t, 8).toNumber();
-  if (data.actual_min_split > data.min_split) throw Error("data.actual_min_split > data.min_split");
+  if (data.actual_min_split > data.min_split) throw Error('data.actual_min_split > data.min_split');
   data.basic = loadUint(cell, t, 1).toNumber();
   data.active = loadBool(cell, t);
   data.accept_msgs = loadBool(cell, t);
   data.flags = loadUint(cell, t, 13).toNumber();
-  if (data.flags !== 0) throw Error("data.flags");
+  if (data.flags !== 0) throw Error('data.flags');
   data.zerostate_root_hash = loadBits(cell, t, 256);
   data.zerostate_file_hash = loadBits(cell, t, 256);
   data.version = loadUint32(cell, t);
@@ -419,7 +419,7 @@ export function loadWorkchainDescr(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam12(cell, t) {
-  let data = { _: "ConfigParam", number: 12 };
+  let data = { _: 'ConfigParam', number: 12 };
   data.workchains = loadHashmapE(cell, t, 32, loadWorkchainDescr);
   return data;
 }
@@ -435,8 +435,8 @@ export function loadConfigParam12(cell, t) {
  * @returns {Object}
  */
 export function loadComplaintPricing(cell, t) {
-  let data = { _: "ComplaintPricing" };
-  if (loadUint8(cell, t) !== 0x1a) throw Error("not a ComplaintPricing");
+  let data = { _: 'ComplaintPricing' };
+  if (loadUint8(cell, t) !== 0x1a) throw Error('not a ComplaintPricing');
   data.deposit = loadGrams(cell, t);
   data.bit_price = loadGrams(cell, t);
   data.cell_price = loadGrams(cell, t);
@@ -454,7 +454,7 @@ export function loadComplaintPricing(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam13(cell, t) {
-  let data = { _: "ConfigParam", number: 13 };
+  let data = { _: 'ConfigParam', number: 13 };
   data.pricing = loadComplaintPricing(cell, t);
   return data;
 }
@@ -471,8 +471,8 @@ export function loadConfigParam13(cell, t) {
  * @returns {Object}
  */
 export function loadBlockCreateFees(cell, t) {
-  let data = { _: "BlockCreateFees" };
-  if (loadUint8(cell, t) !== 0x6b) throw Error("not a BlockCreateFees");
+  let data = { _: 'BlockCreateFees' };
+  if (loadUint8(cell, t) !== 0x6b) throw Error('not a BlockCreateFees');
   data.masterchain_block_fee = loadGrams(cell, t);
   data.basechain_block_fee = loadGrams(cell, t);
   return data;
@@ -489,7 +489,7 @@ export function loadBlockCreateFees(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam14(cell, t) {
-  let data = { _: "ConfigParam", number: 14 };
+  let data = { _: 'ConfigParam', number: 14 };
   data.fees = loadBlockCreateFees(cell, t);
   return data;
 }
@@ -507,7 +507,7 @@ export function loadConfigParam14(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam15(cell, t) {
-  let data = { _: "ConfigParam", number: 15 };
+  let data = { _: 'ConfigParam', number: 15 };
   data.validators_elected_for = loadUint32(cell, t);
   data.elections_start_before = loadUint32(cell, t);
   data.elections_end_before = loadUint32(cell, t);
@@ -530,13 +530,15 @@ export function loadConfigParam15(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam16(cell, t) {
-  let data = { _: "ConfigParam", number: 16 };
+  let data = { _: 'ConfigParam', number: 16 };
   data.max_validators = loadUint(cell, t, 16).toNumber();
   data.max_main_validators = loadUint(cell, t, 16).toNumber();
   data.min_validators = loadUint(cell, t, 16).toNumber();
-  if (data.max_validators < data.max_main_validators) throw Error("data.max_validators < data.max_main_validators");
-  if (data.max_main_validators < data.min_validators) throw Error("data.max_main_validators < data.min_validators");
-  if (data.min_validators < 1) throw Error("data.min_validators < 1");
+  if (data.max_validators < data.max_main_validators)
+    throw Error('data.max_validators < data.max_main_validators');
+  if (data.max_main_validators < data.min_validators)
+    throw Error('data.max_main_validators < data.min_validators');
+  if (data.min_validators < 1) throw Error('data.min_validators < 1');
   return data;
 }
 
@@ -551,7 +553,7 @@ export function loadConfigParam16(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam17(cell, t) {
-  let data = { _: "ConfigParam", number: 17 };
+  let data = { _: 'ConfigParam', number: 17 };
   data.min_stake = loadGrams(cell, t);
   data.max_stake = loadGrams(cell, t);
   data.min_total_stake = loadGrams(cell, t);
@@ -571,8 +573,8 @@ export function loadConfigParam17(cell, t) {
  * @returns {Object}
  */
 export function loadStoragePrices(cell, t) {
-  let data = { _: "StoragePrices" };
-  if (loadUint8(cell, t) !== 0xcc) throw Error("not a StoragePrices");
+  let data = { _: 'StoragePrices' };
+  if (loadUint8(cell, t) !== 0xcc) throw Error('not a StoragePrices');
   data.utime_since = loadUint32(cell, t);
   data.bit_price_ps = loadUint64(cell, t);
   data.cell_price_ps = loadUint64(cell, t);
@@ -592,7 +594,7 @@ export function loadStoragePrices(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam18(cell, t) {
-  let data = { _: "ConfigParam", number: 18 };
+  let data = { _: 'ConfigParam', number: 18 };
   data.prices = loadHashmap(cell, t, 32, loadStoragePrices);
   return data;
 }
@@ -617,10 +619,10 @@ export function loadConfigParam18(cell, t) {
  * @returns {Object}
  */
 export function loadGasLimitsPrices(cell, t) {
-  let data = { _: "GasLimitsPrices" };
+  let data = { _: 'GasLimitsPrices' };
   let type = loadUint8(cell, t);
   if (type === 0xdd) {
-    data.type = "";
+    data.type = '';
     data.gas_price = loadUint64(cell, t);
     data.gas_limit = loadUint64(cell, t);
     data.gas_credit = loadUint64(cell, t);
@@ -629,7 +631,7 @@ export function loadGasLimitsPrices(cell, t) {
     data.delete_due_limit = loadUint64(cell, t);
     return data;
   } else if (type === 0xde) {
-    data.type = "ext";
+    data.type = 'ext';
     data.gas_price = loadUint64(cell, t);
     data.gas_limit = loadUint64(cell, t);
     data.special_gas_limit = loadUint64(cell, t);
@@ -639,13 +641,13 @@ export function loadGasLimitsPrices(cell, t) {
     data.delete_due_limit = loadUint64(cell, t);
     return data;
   } else if (type === 0xd1) {
-    data.type = "pfx";
+    data.type = 'pfx';
     data.flat_gas_limit = loadUint64(cell, t);
     data.flat_gas_price = loadUint64(cell, t);
     data.other = loadGasLimitsPrices(cell, t);
     return data;
   }
-  throw Error("not a GasLimitsPrices");
+  throw Error('not a GasLimitsPrices');
 }
 
 /**
@@ -659,7 +661,7 @@ export function loadGasLimitsPrices(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam20(cell, t) {
-  let data = { _: "ConfigParam", number: 20 };
+  let data = { _: 'ConfigParam', number: 20 };
   data.prices = loadGasLimitsPrices(cell, t);
   return data;
 }
@@ -675,7 +677,7 @@ export function loadConfigParam20(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam21(cell, t) {
-  let data = { _: "ConfigParam", number: 21 };
+  let data = { _: 'ConfigParam', number: 21 };
   data.prices = loadGasLimitsPrices(cell, t);
   return data;
 }
@@ -692,13 +694,13 @@ export function loadConfigParam21(cell, t) {
  * @returns {Object}
  */
 export function loadParamLimits(cell, t) {
-  let data = { _: "ParamLimits" };
-  if (loadUint8(cell, t) !== 0xc3) throw Error("not a ParamLimits");
+  let data = { _: 'ParamLimits' };
+  if (loadUint8(cell, t) !== 0xc3) throw Error('not a ParamLimits');
   data.underload = loadUint32(cell, t);
   data.soft_limit = loadUint32(cell, t);
-  if (data.underload > data.soft_limit) throw Error("data.underload > data.soft_limit");
+  if (data.underload > data.soft_limit) throw Error('data.underload > data.soft_limit');
   data.hard_limit = loadUint32(cell, t);
-  if (data.soft_limit > data.hard_limit) throw Error("data.soft_limit > data.hard_limit");
+  if (data.soft_limit > data.hard_limit) throw Error('data.soft_limit > data.hard_limit');
   return data;
 }
 
@@ -714,8 +716,8 @@ export function loadParamLimits(cell, t) {
  * @returns {Object}
  */
 export function loadBlockLimits(cell, t) {
-  let data = { _: "BlockLimits" };
-  if (loadUint8(cell, t) !== 0x5d) throw Error("not a BlockLimits");
+  let data = { _: 'BlockLimits' };
+  if (loadUint8(cell, t) !== 0x5d) throw Error('not a BlockLimits');
   data.bytes = loadParamLimits(cell, t);
   data.gas = loadParamLimits(cell, t);
   data.lt_delta = loadParamLimits(cell, t);
@@ -733,7 +735,7 @@ export function loadBlockLimits(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam22(cell, t) {
-  let data = { _: "ConfigParam", number: 22 };
+  let data = { _: 'ConfigParam', number: 22 };
   data.limits = loadBlockLimits(cell, t);
   return data;
 }
@@ -749,7 +751,7 @@ export function loadConfigParam22(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam23(cell, t) {
-  let data = { _: "ConfigParam", number: 23 };
+  let data = { _: 'ConfigParam', number: 23 };
   data.limits = loadBlockLimits(cell, t);
   return data;
 }
@@ -769,8 +771,8 @@ export function loadConfigParam23(cell, t) {
  * @returns {Object}
  */
 export function loadMsgForwardPrices(cell, t) {
-  let data = { _: "MsgForwardPrices" };
-  if (loadUint8(cell, t) !== 0xea) throw Error("not a MsgForwardPrices");
+  let data = { _: 'MsgForwardPrices' };
+  if (loadUint8(cell, t) !== 0xea) throw Error('not a MsgForwardPrices');
   data.lump_price = loadUint64(cell, t);
   data.bit_price = loadUint64(cell, t);
   data.cell_price = loadUint64(cell, t);
@@ -792,7 +794,7 @@ export function loadMsgForwardPrices(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam24(cell, t) {
-  let data = { _: "ConfigParam", number: 24 };
+  let data = { _: 'ConfigParam', number: 24 };
   data.prices = loadMsgForwardPrices(cell, t);
   return data;
 }
@@ -809,7 +811,7 @@ export function loadConfigParam24(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam25(cell, t) {
-  let data = { _: "ConfigParam", number: 25 };
+  let data = { _: 'ConfigParam', number: 25 };
   data.prices = loadMsgForwardPrices(cell, t);
   return data;
 }
@@ -830,19 +832,19 @@ export function loadConfigParam25(cell, t) {
  * @returns {Object}
  */
 export function loadCatchainConfig(cell, t) {
-  let data = { _: "CatchainConfig" };
+  let data = { _: 'CatchainConfig' };
   let type = loadUint8(cell, t);
   if (type === 0xc1) {
-    data.type = "";
+    data.type = '';
     data.mc_catchain_lifetime = loadUint32(cell, t);
     data.shard_catchain_lifetime = loadUint32(cell, t);
     data.shard_validators_lifetime = loadUint32(cell, t);
     data.shard_validators_num = loadUint32(cell, t);
     return data;
   } else if (type === 0xc2) {
-    data.type = "new";
+    data.type = 'new';
     data.flags = loadUint(cell, t, 7).toNumber();
-    if (data.flags !== 0) throw Error("data.flags !== 0");
+    if (data.flags !== 0) throw Error('data.flags !== 0');
     data.shuffle_mc_validators = loadBool(cell, t);
     data.mc_catchain_lifetime = loadUint32(cell, t);
     data.shard_catchain_lifetime = loadUint32(cell, t);
@@ -850,7 +852,7 @@ export function loadCatchainConfig(cell, t) {
     data.shard_validators_num = loadUint32(cell, t);
     return data;
   }
-  throw Error("not a CatchainConfig");
+  throw Error('not a CatchainConfig');
 }
 
 /**
@@ -864,7 +866,7 @@ export function loadCatchainConfig(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam28(cell, t) {
-  let data = { _: "ConfigParam", number: 28 };
+  let data = { _: 'ConfigParam', number: 28 };
   data.catchain = loadCatchainConfig(cell, t);
   return data;
 }
@@ -889,12 +891,12 @@ export function loadConfigParam28(cell, t) {
  * @returns {Object}
  */
 export function loadConsensusConfig(cell, t) {
-  let data = { _: "ConsensusConfig" };
+  let data = { _: 'ConsensusConfig' };
   let type = loadUint8(cell, t);
   if (type === 0xd6) {
-    data.type = "";
+    data.type = '';
     data.round_candidates = loadUint32(cell, t);
-    if (data.round_candidates < 1) throw Error("data.round_candidates < 1");
+    if (data.round_candidates < 1) throw Error('data.round_candidates < 1');
     data.next_candidate_delay_ms = loadUint32(cell, t);
     data.consensus_timeout_ms = loadUint32(cell, t);
     data.fast_attempts = loadUint32(cell, t);
@@ -904,12 +906,12 @@ export function loadConsensusConfig(cell, t) {
     data.max_collated_bytes = loadUint32(cell, t);
     return data;
   } else if (type === 0xd7) {
-    data.type = "new";
+    data.type = 'new';
     data.flags = loadUint(cell, t, 7).toNumber();
-    if (data.flags !== 0) throw Error("data.flags !== 0");
+    if (data.flags !== 0) throw Error('data.flags !== 0');
     data.new_catchain_ids = loadBool(cell, t);
     data.round_candidates = loadUint(cell, t, 8).toNumber();
-    if (data.round_candidates < 1) throw Error("data.round_candidates < 1");
+    if (data.round_candidates < 1) throw Error('data.round_candidates < 1');
     data.next_candidate_delay_ms = loadUint32(cell, t);
     data.consensus_timeout_ms = loadUint32(cell, t);
     data.fast_attempts = loadUint32(cell, t);
@@ -920,7 +922,7 @@ export function loadConsensusConfig(cell, t) {
     return data;
   }
   return data;
-  throw Error("not a ConsensusConfig");
+  throw Error('not a ConsensusConfig');
 }
 
 /**
@@ -934,7 +936,7 @@ export function loadConsensusConfig(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam29(cell, t) {
-  let data = { _: "ConfigParam", number: 29 };
+  let data = { _: 'ConfigParam', number: 29 };
   data.consensus = loadConsensusConfig(cell, t);
   return data;
 }
@@ -950,7 +952,7 @@ export function loadConfigParam29(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam31(cell, t) {
-  let data = { _: "ConfigParam", number: 31 };
+  let data = { _: 'ConfigParam', number: 31 };
   // eslint-disable-next-line no-unused-vars
   data.fundamental_smc_addr = loadHashmapE(cell, t, 256, (c, p) => true);
   return data;
@@ -967,8 +969,8 @@ export function loadConfigParam31(cell, t) {
  * @returns {Object}
  */
 export function loadSigPubKey(cell, t) {
-  let data = { _: "SigPubKey" };
-  if (loadUint32(cell, t) !== 0x8e81278a) throw Error("not a SigPubKey");
+  let data = { _: 'SigPubKey' };
+  if (loadUint32(cell, t) !== 0x8e81278a) throw Error('not a SigPubKey');
   data.pubkey = loadBits(cell, t, 256);
   return data;
 }
@@ -985,21 +987,21 @@ export function loadSigPubKey(cell, t) {
  * @returns {Object}
  */
 export function loadValidatorDescr(cell, t) {
-  let data = { _: "ValidatorDescr" };
+  let data = { _: 'ValidatorDescr' };
   let type = loadUint8(cell, t);
   if (type === 0x53) {
-    data.type = "";
+    data.type = '';
     data.public_key = loadSigPubKey(cell, t);
     data.weight = loadUint64(cell, t);
     return data;
   } else if (type === 0x73) {
-    data.type = "addr";
+    data.type = 'addr';
     data.public_key = loadSigPubKey(cell, t);
     data.weight = loadUint64(cell, t);
     data.adnl_addr = loadBits(cell, t, 256);
     return data;
   }
-  throw Error("not a ValidatorDescr");
+  throw Error('not a ValidatorDescr');
 }
 
 /**
@@ -1022,17 +1024,17 @@ export function loadValidatorSet(cell, t) {
   // console.log(t);
   // console.log(Buffer.from(cell.getHash()).toString('hex'));
 
-  let data = { _: "ValidatorSet" };
+  let data = { _: 'ValidatorSet' };
   let type = loadUint8(cell, t);
   // console.log('loadValidatorSet', { type });
   if (type === 0x11) {
-    data.type = "";
+    data.type = '';
     data.utime_since = loadUint32(cell, t);
     data.utime_until = loadUint32(cell, t);
     data.total = loadUint(cell, t, 16).toNumber();
     data.main = loadUint(cell, t, 16).toNumber();
-    if (data.total < data.main) throw Error("data.total < data.main");
-    if (data.main < 1) throw Error("data.main < 1");
+    if (data.total < data.main) throw Error('data.total < data.main');
+    if (data.main < 1) throw Error('data.main < 1');
     data.list = loadHashmap(cell, t, 16, loadValidatorDescr);
 
     // console.log(data);
@@ -1040,13 +1042,13 @@ export function loadValidatorSet(cell, t) {
 
     return data;
   } else if (type === 0x12) {
-    data.type = "ext";
+    data.type = 'ext';
     data.utime_since = loadUint32(cell, t);
     data.utime_until = loadUint32(cell, t);
     data.total = loadUint(cell, t, 16).toNumber();
     data.main = loadUint(cell, t, 16).toNumber();
-    if (data.total < data.main) throw Error("data.total < data.main");
-    if (data.main < 1) throw Error("data.main < 1");
+    if (data.total < data.main) throw Error('data.total < data.main');
+    if (data.main < 1) throw Error('data.main < 1');
     data.total_weight = loadUint64(cell, t);
     // console.log("t before load valset: ", t);
     data.list = loadHashmapE(cell, t, 16, loadValidatorDescr);
@@ -1055,7 +1057,7 @@ export function loadValidatorSet(cell, t) {
 
     return data;
   }
-  throw Error("not a ValidatorSet");
+  throw Error('not a ValidatorSet');
 }
 
 /**
@@ -1069,7 +1071,7 @@ export function loadValidatorSet(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam32(cell, t) {
-  let data = { _: "ConfigParam", number: 32 };
+  let data = { _: 'ConfigParam', number: 32 };
   data.prev_validators = loadValidatorSet(cell, t);
   return data;
 }
@@ -1085,7 +1087,7 @@ export function loadConfigParam32(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam33(cell, t) {
-  let data = { _: "ConfigParam", number: 33 };
+  let data = { _: 'ConfigParam', number: 33 };
   data.prev_temp_validators = loadValidatorSet(cell, t);
   return data;
 }
@@ -1104,7 +1106,7 @@ export function loadConfigParam34(cell, t) {
   // console.log("loadConfigParam34 begin");
   // console.log(t);
   // console.log(cell.print());
-  let data = { _: "ConfigParam", number: 34 };
+  let data = { _: 'ConfigParam', number: 34 };
   // console.log("before load validator set t: ", t);
   data.cur_validators = loadValidatorSet(cell, t);
   // console.log("cur validators: ", data.cur_validators);
@@ -1125,7 +1127,7 @@ export function loadConfigParam34(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam35(cell, t) {
-  let data = { _: "ConfigParam", number: 35 };
+  let data = { _: 'ConfigParam', number: 35 };
   data.cur_temp_validators = loadValidatorSet(cell, t);
   return data;
 }
@@ -1141,7 +1143,7 @@ export function loadConfigParam35(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam36(cell, t) {
-  let data = { _: "ConfigParam", number: 36 };
+  let data = { _: 'ConfigParam', number: 36 };
   data.next_validators = loadValidatorSet(cell, t);
   return data;
 }
@@ -1157,7 +1159,7 @@ export function loadConfigParam36(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam37(cell, t) {
-  let data = { _: "ConfigParam", number: 37 };
+  let data = { _: 'ConfigParam', number: 37 };
   data.next_temp_validators = loadValidatorSet(cell, t);
   return data;
 }
@@ -1172,7 +1174,7 @@ export function loadConfigParam37(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParam(cell, t, number) {
-  if (t.cs !== 0 || t.ref !== 0) throw Error("Invalid config cell");
+  if (t.cs !== 0 || t.ref !== 0) throw Error('Invalid config cell');
   try {
     switch (number) {
       case 0:
@@ -1245,7 +1247,7 @@ export function loadConfigParam(cell, t, number) {
         return cell;
     }
   } catch (e) {
-    console.warn("ConfigParam " + number + " parse error:", e);
+    console.warn('ConfigParam ' + number + ' parse error:', e);
     return cell;
   }
 }
@@ -1262,7 +1264,7 @@ export function loadConfigParam(cell, t, number) {
  * @returns {Object}
  */
 export function loadExtraCurrencyCollection(cell, t) {
-  let data = { _: "ExtraCurrencyCollection" };
+  let data = { _: 'ExtraCurrencyCollection' };
   data.dict = loadHashmapE(cell, t, 32, (c, p) => loadVarUInteger(c, p, 32));
   return data;
 }
@@ -1279,7 +1281,7 @@ export function loadExtraCurrencyCollection(cell, t) {
  * @returns {Object}
  */
 export function loadCurrencyCollection(cell, t) {
-  let data = { _: "CurrencyCollection" };
+  let data = { _: 'CurrencyCollection' };
   data.grams = loadGrams(cell, t);
   data.other = loadExtraCurrencyCollection(cell, t);
   return data;
@@ -1297,8 +1299,8 @@ export function loadCurrencyCollection(cell, t) {
  * @returns {Object}
  */
 export function loadShardIdent(cell, t) {
-  if (loadUint(cell, t, 2).toNumber() !== 0) throw Error("not a ShardIdent");
-  let data = { _: "ShardIdent" };
+  if (loadUint(cell, t, 2).toNumber() !== 0) throw Error('not a ShardIdent');
+  let data = { _: 'ShardIdent' };
   data.shard_pfx_bits = loadUintLeq(cell, t, 60);
   data.workchain_id = loadInt32(cell, t);
   data.shard_prefix = loadUint64(cell, t);
@@ -1321,7 +1323,7 @@ export function loadShardIdent(cell, t) {
  */
 // eslint-disable-next-line no-unused-vars
 export function loadBlockIdExt(cell, t) {
-  let data = { _: "BlockIdExt" };
+  let data = { _: 'BlockIdExt' };
   data.shard_id = loadShardIdent(cell, t);
   data.seq_no = loadUint32(cell, t);
   data.root_hash = loadBits(cell, t, 256);
@@ -1342,7 +1344,7 @@ export function loadBlockIdExt(cell, t) {
  * @returns {Object}
  */
 export function loadExtBlkRef(cell, t) {
-  let data = { _: "ExtBlkRef" };
+  let data = { _: 'ExtBlkRef' };
   data.end_lt = loadUint64(cell, t);
   data.seq_no = loadUint32(cell, t);
   data.root_hash = loadBits(cell, t, 256);
@@ -1361,7 +1363,7 @@ export function loadExtBlkRef(cell, t) {
  * @returns {Object}
  */
 export function loadBlkMasterInfo(cell, t) {
-  let data = { _: "BlkMasterInfo" };
+  let data = { _: 'BlkMasterInfo' };
   data.master = loadExtBlkRef(cell, t);
   return data;
 }
@@ -1378,9 +1380,9 @@ export function loadBlkMasterInfo(cell, t) {
  * @returns {Object}
  */
 export function loadAnycast(cell, t) {
-  let data = { _: "Anycast" };
+  let data = { _: 'Anycast' };
   data.depth = loadUintLeq(cell, t, 30);
-  if (data.depth < 1) throw Error("data.depth < 1");
+  if (data.depth < 1) throw Error('data.depth < 1');
   data.rewrite_pfx = loadBits(cell, t, data.depth);
 }
 
@@ -1398,17 +1400,17 @@ export function loadAnycast(cell, t) {
  */
 export function loadMsgAddressExt(cell, t) {
   const addr_type = loadUint(cell, t, 2).toNumber();
-  let data = { _: "MsgAddressExt" };
+  let data = { _: 'MsgAddressExt' };
   if (addr_type === 0) {
-    data.type = "none";
+    data.type = 'none';
     return data;
   } else if (addr_type === 1) {
-    data.type = "extern";
+    data.type = 'extern';
     data.len = loadUint(cell, t, 9);
     data.external_address = loadBits(cell, t, data.len);
     return data;
   }
-  throw Error("not a MsgAddressExt");
+  throw Error('not a MsgAddressExt');
 }
 
 /**
@@ -1426,22 +1428,22 @@ export function loadMsgAddressExt(cell, t) {
  */
 export function loadMsgAddressInt(cell, t) {
   const addr_type = loadUint(cell, t, 2).toNumber();
-  let data = { _: "MsgAddressInt" };
+  let data = { _: 'MsgAddressInt' };
   if (addr_type === 2) {
-    data.type = "std";
+    data.type = 'std';
     data.anycast = loadMaybe(cell, t, loadAnycast);
     data.workchain_id = loadInt8(cell, t);
     data.address = loadBits(cell, t, 256);
     return data;
   } else if (addr_type === 3) {
-    data.type = "var";
+    data.type = 'var';
     data.anycast = loadMaybe(cell, t, loadAnycast);
     data.addr_len = loadUint(cell, t, 9).toNumber();
     data.workchain_id = loadInt32(cell, t);
     data.address = loadBits(cell, t, data.addr_len);
     return data;
   }
-  throw Error("not a MsgAddressInt");
+  throw Error('not a MsgAddressInt');
 }
 
 /**
@@ -1456,7 +1458,7 @@ export function loadMsgAddressInt(cell, t) {
  * @returns {Object}
  */
 export function loadStorageUsed(cell, t) {
-  let data = { _: "StorageUsed" };
+  let data = { _: 'StorageUsed' };
   data.cells = loadVarUInteger(cell, t, 7);
   data.bits = loadVarUInteger(cell, t, 7);
   data.public_cells = loadVarUInteger(cell, t, 7);
@@ -1475,7 +1477,7 @@ export function loadStorageUsed(cell, t) {
  * @returns {Object}
  */
 export function loadStorageInfo(cell, t) {
-  let data = { _: "StorageInfo" };
+  let data = { _: 'StorageInfo' };
   data.used = loadStorageUsed(cell, t);
   data.last_paid = loadUint32(cell, t);
   data.due_payment = loadMaybe(cell, t, loadGrams);
@@ -1493,7 +1495,7 @@ export function loadStorageInfo(cell, t) {
  * @returns {Object}
  */
 export function loadTickTock(cell, t) {
-  let data = { _: "TickTock" };
+  let data = { _: 'TickTock' };
   data.tick = loadBool(cell, t);
   data.tock = loadBool(cell, t);
   return data;
@@ -1512,7 +1514,7 @@ export function loadTickTock(cell, t) {
  * @returns {Object}
  */
 export function loadStateInit(cell, t) {
-  let data = { _: "StateInit" };
+  let data = { _: 'StateInit' };
   data.split_depth = loadMaybe(cell, t, loadUint, [5]);
   data.special = loadMaybe(cell, t, loadTickTock);
   // eslint-disable-next-line no-unused-vars
@@ -1537,18 +1539,18 @@ export function loadStateInit(cell, t) {
  * @returns {Object}
  */
 export function loadAccountState(cell, t) {
-  let data = { _: "AccountState" };
+  let data = { _: 'AccountState' };
   const active = loadBit(cell, t);
   if (active) {
-    data.state = "active";
+    data.state = 'active';
     data = Object.assign(data, loadStateInit(cell, t));
   } else {
     const frozen = loadBit(cell, t);
     if (frozen) {
-      data.state = "frozen";
+      data.state = 'frozen';
       data.state_hash = loadBits(cell, t, 256);
     } else {
-      data.state = "uninit";
+      data.state = 'uninit';
     }
   }
   return data;
@@ -1567,7 +1569,7 @@ export function loadAccountState(cell, t) {
  * @returns {Object}
  */
 export function loadAccountStorage(cell, t) {
-  let data = { _: "AccountState" };
+  let data = { _: 'AccountState' };
   data.last_trans_lt = loadUint64(cell, t);
   data.balance = loadCurrencyCollection(cell, t);
   data.state = loadAccountState(cell, t);
@@ -1588,13 +1590,13 @@ export function loadAccountStorage(cell, t) {
  */
 export function loadAccount(cell, t) {
   if (cell.type === Cell.PrunnedBranchCell) return cell;
-  let data = { _: "Account", cell, hash: cell.getHash(0) };
+  let data = { _: 'Account', cell, hash: cell.getHash(0) };
   const exist = loadBit(cell, t);
   if (!exist) {
-    data.type = "none";
+    data.type = 'none';
     return data;
   }
-  data.type = "";
+  data.type = '';
   data.addr = loadMsgAddressInt(cell, t);
   data.storage_stat = loadStorageInfo(cell, t);
   data.storage = loadAccountStorage(cell, t);
@@ -1613,7 +1615,7 @@ export function loadAccount(cell, t) {
  * @returns {Object}
  */
 export function loadShardAccount(cell, t) {
-  let data = { _: "ShardAccount" };
+  let data = { _: 'ShardAccount' };
   data.account = loadAccount(cell.refs[t.ref++], { cs: 0, ref: 0 });
   data.last_trans_hash = loadBits(cell, t, 256);
   data.last_trans_lt = loadUint64(cell, t);
@@ -1631,7 +1633,7 @@ export function loadShardAccount(cell, t) {
  * @returns {Object}
  */
 export function loadDepthBalanceInfo(cell, t) {
-  let data = { _: "DepthBalanceInfo" };
+  let data = { _: 'DepthBalanceInfo' };
   data.split_depth = loadUintLeq(cell, t, 30);
   data.balance = loadCurrencyCollection(cell, t);
   return data;
@@ -1664,9 +1666,9 @@ export function loadShardAccounts(cell, t) {
  */
 export function loadHASH_UPDATE(cell, t) {
   if (loadUint8(cell, t) !== 0x72) {
-    throw Error("not a HASH_UPDATE");
+    throw Error('not a HASH_UPDATE');
   }
-  let data = { _: "HASH_UPDATE" };
+  let data = { _: 'HASH_UPDATE' };
   data.old_hash = loadBits(cell, t, 256);
   data.new_hash = loadBits(cell, t, 256);
   return data;
@@ -1687,13 +1689,13 @@ export function loadHASH_UPDATE(cell, t) {
 export function loadAccStatusChange(cell, t) {
   const unchanged = loadBit(cell, t);
   if (unchanged === 0) {
-    return "unchanged";
+    return 'unchanged';
   }
   const acst = loadBit(cell, t);
   if (acst === 0) {
-    return "frozen";
+    return 'frozen';
   } else {
-    return "deleted";
+    return 'deleted';
   }
 }
 
@@ -1711,7 +1713,7 @@ export function loadAccStatusChange(cell, t) {
  * @returns {Object}
  */
 export function loadTrStoragePhase(cell, t) {
-  let data = { _: "TrStoragePhase" };
+  let data = { _: 'TrStoragePhase' };
   data.storage_fees_collected = loadGrams(cell, t);
   data.storage_fees_due = loadMaybe(cell, t, loadGrams);
   data.status_change = loadAccStatusChange(cell, t);
@@ -1730,7 +1732,7 @@ export function loadTrStoragePhase(cell, t) {
  * @returns {Object}
  */
 export function loadTrCreditPhase(cell, t) {
-  let data = { _: "TrCreditPhase" };
+  let data = { _: 'TrCreditPhase' };
   data.due_fees_collected = loadMaybe(cell, t, loadGrams);
   data.credit = loadCurrencyCollection(cell, t);
   return data;
@@ -1748,7 +1750,7 @@ export function loadTrCreditPhase(cell, t) {
  * @returns {Object}
  */
 export function loadStorageUsedShort(cell, t) {
-  let data = { _: "StorageUsedShort" };
+  let data = { _: 'StorageUsedShort' };
   data.cells = loadVarUInteger(cell, t, 7);
   data.bits = loadVarUInteger(cell, t, 7);
   return data;
@@ -1771,7 +1773,7 @@ export function loadStorageUsedShort(cell, t) {
  * @returns {Object}
  */
 export function loadTrActionPhase(cell, t) {
-  let data = { _: "TrActionPhase" };
+  let data = { _: 'TrActionPhase' };
   data.success = loadBool(cell, t);
   data.valid = loadBool(cell, t);
   data.no_funds = loadBool(cell, t);
@@ -1805,10 +1807,10 @@ export function loadTrActionPhase(cell, t) {
  */
 export function loadTrBouncePhase(cell, t) {
   const type = loadBit(cell, t);
-  let data = { _: "TrBouncePhase" };
+  let data = { _: 'TrBouncePhase' };
   if (type === 1) {
     // tr_phase_bounce_ok
-    data.type = "ok";
+    data.type = 'ok';
     data.msg_size = loadStorageUsedShort(cell, t);
     data.msg_fees = loadGrams(cell, t);
     data.fwd_fees = loadGrams(cell, t);
@@ -1817,11 +1819,11 @@ export function loadTrBouncePhase(cell, t) {
     const type2 = loadBit(cell, t);
     if (type2 === 0) {
       // tr_phase_bounce_negfunds
-      data.type = "negfunds";
+      data.type = 'negfunds';
       return data;
     } else {
       // tr_phase_bounce_nofunds
-      data.type = "nofunds";
+      data.type = 'nofunds';
       data.msg_size = loadStorageUsedShort(cell, t);
       data.req_fwd_fees = loadGrams(cell, t);
       return data;
@@ -1844,13 +1846,13 @@ export function loadTrBouncePhase(cell, t) {
 export function loadComputeSkipReason(cell, t) {
   const type = loadUint(cell, t, 2).toNumber();
   if (type === 0) {
-    return "no_state";
+    return 'no_state';
   } else if (type === 1) {
-    return "bad_state";
+    return 'bad_state';
   } else if (type === 2) {
-    return "no_gas";
+    return 'no_gas';
   }
-  throw Error("not a ComputeSkipReason");
+  throw Error('not a ComputeSkipReason');
 }
 
 /**
@@ -1874,15 +1876,15 @@ export function loadComputeSkipReason(cell, t) {
  */
 export function loadTrComputePhase(cell, t) {
   const type = loadBit(cell, t);
-  let data = { _: "TrComputePhase" };
+  let data = { _: 'TrComputePhase' };
   if (type === 0) {
     // tr_phase_compute_skipped
-    data.type = "skipped";
+    data.type = 'skipped';
     data.reason = loadComputeSkipReason(cell, t);
     return data;
   } else {
     // tr_phase_compute_vm
-    data.type = "vm";
+    data.type = 'vm';
     data.success = loadBool(cell, t);
     data.msg_state_used = loadBool(cell, t);
     data.account_activated = loadBool(cell, t);
@@ -1930,12 +1932,12 @@ export function loadTrComputePhase(cell, t) {
  */
 export function loadTransactionDescr(cell, t) {
   const type = loadUint(cell, t, 3).toNumber();
-  let data = { _: "TransactionDescr" };
+  let data = { _: 'TransactionDescr' };
   if (type === 0) {
     const type2 = loadBit(cell, t);
     if (type2 === 0) {
       // trans_ord
-      data.type = "ord";
+      data.type = 'ord';
       data.credit_first = loadBool(cell, t);
       data.storage_ph = loadMaybe(cell, t, loadTrStoragePhase);
       data.credit_ph = loadMaybe(cell, t, loadTrCreditPhase);
@@ -1947,13 +1949,13 @@ export function loadTransactionDescr(cell, t) {
       return data;
     } else {
       // trans_storage
-      data.type = "storage";
+      data.type = 'storage';
       data.storage_ph = loadTrStoragePhase(cell, t);
       return data;
     }
   } else if (type === 1) {
     //trans_tick_tock
-    data.type = "tick_tock";
+    data.type = 'tick_tock';
     data.is_tock = loadBool(cell, t);
     data.storage_ph = loadTrStoragePhase(cell, t);
     data.compute_ph = loadTrComputePhase(cell, t);
@@ -1962,7 +1964,7 @@ export function loadTransactionDescr(cell, t) {
     data.destroyed = loadBool(cell, t);
     return data;
   }
-  throw Error("not a TransactionDescr");
+  throw Error('not a TransactionDescr');
 }
 
 /**
@@ -1982,13 +1984,13 @@ export function loadAccountStatus(cell, t) {
   const type = loadUint(cell, t, 2).toNumber();
   switch (type) {
     case 0:
-      return "uninit";
+      return 'uninit';
     case 1:
-      return "frozen";
+      return 'frozen';
     case 2:
-      return "active";
+      return 'active';
     case 3:
-      return "nonexist";
+      return 'nonexist';
   }
 }
 
@@ -2010,10 +2012,10 @@ export function loadAccountStatus(cell, t) {
  * @returns {Object}
  */
 export function loadCommonMsgInfo(cell, t) {
-  let data = { _: "CommonMsgInfo" };
+  let data = { _: 'CommonMsgInfo' };
   let b = loadBit(cell, t);
   if (b === 0) {
-    data.type = "int";
+    data.type = 'int';
     data.ihr_disabled = loadBool(cell, t);
     data.bounce = loadBool(cell, t);
     data.bounced = loadBool(cell, t);
@@ -2028,13 +2030,13 @@ export function loadCommonMsgInfo(cell, t) {
   } else {
     b = loadBit(cell, t);
     if (b === 0) {
-      data.type = "ext_in";
+      data.type = 'ext_in';
       data.src = loadMsgAddressExt(cell, t);
       data.dest = loadMsgAddressInt(cell, t);
       data.import_fee = loadGrams(cell, t);
       return data;
     } else {
-      data.type = "ext_out";
+      data.type = 'ext_out';
       data.src = loadMsgAddressInt(cell, t);
       data.dest = loadMsgAddressExt(cell, t);
       data.created_lt = loadUint64(cell, t);
@@ -2052,7 +2054,7 @@ export function loadCommonMsgInfo(cell, t) {
  * @returns {Object}
  */
 export function loadAny(cell, t) {
-  let data = { _: "Any" };
+  let data = { _: 'Any' };
   data.cell = cell;
   data.current_pos = t.cs;
   data.current_ref = t.ref;
@@ -2072,21 +2074,21 @@ export function loadAny(cell, t) {
  * @returns {Object}
  */
 export function loadMessage(cell, t) {
-  let data = { _: "Message", cell, hash: cell.getHash(0) };
+  let data = { _: 'Message', cell, hash: cell.getHash(0) };
   data.info = loadCommonMsgInfo(cell, t);
   data.init = loadMaybe(cell, t, (c, p) =>
     loadEither(
       c,
       p,
       (c2, p2) => loadStateInit(c2, p2),
-      (c3, p3) => loadRefIfExist(c3, p3, (c4, p4) => loadStateInit(c4, p4))
-    )
+      (c3, p3) => loadRefIfExist(c3, p3, (c4, p4) => loadStateInit(c4, p4)),
+    ),
   );
   data.body = loadEither(
     cell,
     t,
     (c, p) => loadAny(c, p),
-    (c2, p2) => loadRefIfExist(c2, p2, (c3, p3) => loadAny(c3, p3))
+    (c2, p2) => loadRefIfExist(c2, p2, (c3, p3) => loadAny(c3, p3)),
   );
   return data;
 }
@@ -2109,9 +2111,9 @@ export function loadMessage(cell, t) {
  */
 export function loadTransaction(cell, t) {
   if (loadUint(cell, t, 4).toNumber() !== 7) {
-    throw Error("not a Transaction");
+    throw Error('not a Transaction');
   }
-  let data = { _: "Transaction", cell, hash: cell.getHash(0) };
+  let data = { _: 'Transaction', cell, hash: cell.getHash(0) };
   data.account_addr = loadBits(cell, t, 256);
   data.lt = loadUint64(cell, t);
   data.prev_trans_hash = loadBits(cell, t, 256);
@@ -2150,16 +2152,16 @@ export function loadTransaction(cell, t) {
 export function loadAccountBlock(cell, t) {
   // console.log("WARNIIING", t, cell.bits.toString(), cell.bits.cursor, cell.hashes.map(h => Buffer.from(h).toString('hex')));
   if (loadUint(cell, t, 4).toNumber() !== 0x5) {
-    throw Error("not an AccountBlock");
+    throw Error('not an AccountBlock');
   }
-  let data = { _: "AccountBlock" };
+  let data = { _: 'AccountBlock' };
   data.account_addr = loadBits(cell, t, 256);
   data.transactions = loadHashmapAug(
     cell,
     t,
     64,
     (c, p) => loadRefIfExist(c, p, loadTransaction),
-    loadCurrencyCollection
+    loadCurrencyCollection,
   );
   data.state_update = loadRefIfExist(cell, t, loadHASH_UPDATE);
   return data;
@@ -2191,12 +2193,14 @@ export function loadShardAccountBlocks(cell, t) {
  * @returns {Object}
  */
 export function loadConfigParams(cell, t) {
-  let data = { _: "ConfigParams" };
+  let data = { _: 'ConfigParams' };
   // console.log(cell);
   // console.log(t);
   data.config_addr = loadBits(cell, t, 256);
   data.config = loadRefIfExist(cell, t, (c, p) =>
-    loadHashmap(c, p, 32, (c2, p2, n) => loadRefIfExist(c2, p2, (c3, p3) => loadConfigParam(c3, p3, n.toNumber())))
+    loadHashmap(c, p, 32, (c2, p2, n) =>
+      loadRefIfExist(c2, p2, (c3, p3) => loadConfigParam(c3, p3, n.toNumber())),
+    ),
   );
   return data;
 }
@@ -2216,7 +2220,7 @@ export function loadConfigParams(cell, t) {
  * @returns {Object}
  */
 export function loadValidatorInfo(cell, t) {
-  let data = { _: "ValidatorInfo" };
+  let data = { _: 'ValidatorInfo' };
   data.validator_list_hash_short = loadUint32(cell, t);
   data.catchain_seqno = loadUint32(cell, t);
   data.nx_cc_updated = loadBool(cell, t);
@@ -2234,7 +2238,7 @@ export function loadValidatorInfo(cell, t) {
  * @returns {Object}
  */
 export function loadKeyExtBlkRef(cell, t) {
-  let data = { _: "KeyExtBlkRef" };
+  let data = { _: 'KeyExtBlkRef' };
   // console.log('loadKeyExtBlkRef', t);
   data.key = loadBool(cell, t);
   data.blk_ref = loadExtBlkRef(cell, t);
@@ -2252,7 +2256,7 @@ export function loadKeyExtBlkRef(cell, t) {
  * @returns {Object}
  */
 export function loadKeyMaxLt(cell, t) {
-  let data = { _: "KeyExtKeyMaxLtBlkRef" };
+  let data = { _: 'KeyExtKeyMaxLtBlkRef' };
   // console.log(cell, t);
   // console.log('loadKeyMaxLt', t);
   data.key = loadBool(cell, t);
@@ -2285,7 +2289,7 @@ export function loadOldMcBlocksInfo(cell, t) {
  * @returns {Object}
  */
 export function loadCounters(cell, t) {
-  let data = { _: "Counters" };
+  let data = { _: 'Counters' };
   data.last_updated = loadUint32(cell, t);
   data.total = loadUint64(cell, t);
   data.cnt2048 = loadUint64(cell, t);
@@ -2305,9 +2309,9 @@ export function loadCounters(cell, t) {
  */
 export function loadCreatorStats(cell, t) {
   if (loadUint(cell, t, 4).toNumber() !== 0x4) {
-    throw Error("not an CreatorStats");
+    throw Error('not an CreatorStats');
   }
-  let data = { _: "CreatorStats" };
+  let data = { _: 'CreatorStats' };
   data.mc_blocks = loadCounters(cell, t);
   data.shard_blocks = loadCounters(cell, t);
   return data;
@@ -2325,13 +2329,13 @@ export function loadCreatorStats(cell, t) {
  * @returns {Object}
  */
 export function loadBlockCreateStats(cell, t) {
-  let data = { _: "BlockCreateStats" };
+  let data = { _: 'BlockCreateStats' };
   let type = loadUint8(cell, t);
   if (type === 0x17) {
-    data.type = "";
+    data.type = '';
     data.counters = loadHashmapE(cell, t, 256, loadCreatorStats);
   } else if (type === 0x34) {
-    data.type = "ext";
+    data.type = 'ext';
     data.counters = loadHashmapAugE(cell, t, 256, loadCreatorStats, loadUint32);
   }
   return data;
@@ -2359,9 +2363,9 @@ export function loadBlockCreateStats(cell, t) {
  */
 export function loadMcStateExtra(cell, t) {
   if (loadUint16(cell, t) !== 0xcc26) {
-    throw Error("not a McStateExtra");
+    throw Error('not a McStateExtra');
   }
-  let data = { _: "McStateExtra" };
+  let data = { _: 'McStateExtra' };
   data.shard_hashes = loadShardHashes(cell, t);
   // console.log(t);
   data.config = loadConfigParams(cell, t);
@@ -2370,7 +2374,7 @@ export function loadMcStateExtra(cell, t) {
   let tr1 = { cs: 0, ref: 0 };
   if (cell_r1.type === Cell.OrdinaryCell) {
     data.flags = loadUint16(cell_r1, tr1);
-    if (data.flags > 1) throw Error("data.flags > 1");
+    if (data.flags > 1) throw Error('data.flags > 1');
     data.validator_info = loadValidatorInfo(cell_r1, tr1);
     data.prev_blocks = loadOldMcBlocksInfo(cell_r1, tr1);
     data.after_key_block = loadBool(cell_r1, tr1);
@@ -2408,8 +2412,8 @@ export function loadMcStateExtra(cell, t) {
  */
 export function loadShardStateUnsplit(cell) {
   let t = { cs: 0, ref: 0 };
-  if (loadUint32(cell, t) !== 0x9023afe2) throw Error("not a ShardStateUnsplit");
-  let data = { _: "ShardStateUnsplit" };
+  if (loadUint32(cell, t) !== 0x9023afe2) throw Error('not a ShardStateUnsplit');
+  let data = { _: 'ShardStateUnsplit' };
 
   data.global_id = loadInt32(cell, t);
   data.shard_id = loadShardIdent(cell, t);
@@ -2449,8 +2453,8 @@ export function loadShardStateUnsplit(cell) {
  * @returns {Object}
  */
 export function loadGlobalVersion(cell, t) {
-  if (loadUint8(cell, t) !== 0xc4) throw Error("not a GlobalVersion");
-  let data = { _: "GlobalVersion" };
+  if (loadUint8(cell, t) !== 0xc4) throw Error('not a GlobalVersion');
+  let data = { _: 'GlobalVersion' };
   data.version = loadUint32(cell, t);
   data.capabilities = loadUint64(cell, t);
   return data;
@@ -2468,12 +2472,12 @@ export function loadGlobalVersion(cell, t) {
  * @returns {Object}
  */
 export function loadBlkPrevInfo(cell, t, n) {
-  let data = { _: "BlkPrevInfo" };
+  let data = { _: 'BlkPrevInfo' };
   if (n === 0) {
-    data.type = "prev_blk_info";
+    data.type = 'prev_blk_info';
     data.prev = loadExtBlkRef(cell, t);
   } else {
-    data.type = "prev_blks_info";
+    data.type = 'prev_blks_info';
     data.prev1 = loadRefIfExist(cell, t, loadExtBlkRef);
     data.prev2 = loadRefIfExist(cell, t, loadExtBlkRef);
   }
@@ -2510,8 +2514,8 @@ export function loadBlkPrevInfo(cell, t, n) {
  */
 export function loadBlockInfo(cell) {
   let t = { cs: 0, ref: 0 };
-  if (loadUint32(cell, t) !== 0x9bc7a987) throw Error("not a BlockInfo");
-  let data = { _: "BlockInfo" };
+  if (loadUint32(cell, t) !== 0x9bc7a987) throw Error('not a BlockInfo');
+  let data = { _: 'BlockInfo' };
   data.version = loadUint32(cell, t);
   data.not_master = loadBit(cell, t);
   data.after_merge = loadBit(cell, t);
@@ -2522,11 +2526,12 @@ export function loadBlockInfo(cell) {
   data.key_block = loadBool(cell, t);
   data.vert_seqno_incr = loadBit(cell, t);
   data.flags = loadUint8(cell, t);
-  if (data.flags > 1) throw Error("data.flags > 1");
+  if (data.flags > 1) throw Error('data.flags > 1');
 
   data.seq_no = loadUint32(cell, t);
   data.vert_seq_no = loadUint32(cell, t);
-  if (data.vert_seqno_incr > data.vert_seq_no) throw Error("data.vert_seqno_incr > data.vert_seq_no");
+  if (data.vert_seqno_incr > data.vert_seq_no)
+    throw Error('data.vert_seqno_incr > data.vert_seq_no');
 
   data.prev_seq_no = data.seq_no - 1;
 
@@ -2566,17 +2571,17 @@ export function loadBlockInfo(cell) {
  */
 export function loadFutureSplitMerge(cell, t) {
   const type = loadBit(cell, t);
-  let data = { _: "FutureSplitMerge" };
+  let data = { _: 'FutureSplitMerge' };
   if (type === 0) {
-    data.type = "none";
+    data.type = 'none';
   } else {
     const type2 = loadBit(cell, t);
     if (type2 === 0) {
-      data.type = "split";
+      data.type = 'split';
       data.split_utime = loadUint32(cell, t);
       data.interval = loadUint32(cell, t);
     } else {
-      data.type = "merge";
+      data.type = 'merge';
       data.merge_utime = loadUint32(cell, t);
       data.interval = loadUint32(cell, t);
     }
@@ -2618,8 +2623,8 @@ export function loadFutureSplitMerge(cell, t) {
  */
 export function loadShardDescr(cell, t) {
   const type = loadUint(cell, t, 4).toNumber();
-  if (type !== 0xa && type !== 0xb) throw Error("not a ShardDescr");
-  let data = { _: "ShardDescr" };
+  if (type !== 0xa && type !== 0xb) throw Error('not a ShardDescr');
+  let data = { _: 'ShardDescr' };
   data.seq_no = loadUint32(cell, t);
   data.reg_mc_seqno = loadUint32(cell, t);
   data.start_lt = loadUint64(cell, t);
@@ -2632,7 +2637,7 @@ export function loadShardDescr(cell, t) {
   data.want_merge = loadBool(cell, t);
   data.nx_cc_updated = loadBool(cell, t);
   data.flags = loadUint(cell, t, 3).toNumber();
-  if (data.flags !== 0) throw Error("ShardDescr data.flags !== 0");
+  if (data.flags !== 0) throw Error('ShardDescr data.flags !== 0');
   data.next_catchain_seqno = loadUint32(cell, t);
   data.next_validator_shard = loadUint64(cell, t);
   data.min_ref_mc_seqno = loadUint32(cell, t);
@@ -2663,7 +2668,9 @@ export function loadShardDescr(cell, t) {
  * @returns {Object}
  */
 export function loadShardHashes(cell, t) {
-  return loadHashmapE(cell, t, 32, (c, p) => loadRefIfExist(c, p, (c2, p2) => loadBinTree(c2, p2, loadShardDescr)));
+  return loadHashmapE(cell, t, 32, (c, p) =>
+    loadRefIfExist(c, p, (c2, p2) => loadBinTree(c2, p2, loadShardDescr)),
+  );
 }
 
 /**
@@ -2677,7 +2684,7 @@ export function loadShardHashes(cell, t) {
  * @returns {Object}
  */
 export function loadShardFeeCreated(cell, t) {
-  let data = { _: "CurrencyCollection" };
+  let data = { _: 'CurrencyCollection' };
   data.fees = loadCurrencyCollection(cell, t);
   data.create = loadCurrencyCollection(cell, t);
   return data;
@@ -2710,9 +2717,9 @@ export function loadShardFees(cell, t) {
  */
 export function loadCryptoSignature(cell, t) {
   if (loadUint(cell, t, 4).toNumber() !== 0x5) {
-    throw Error("not a CryptoSignatureSimple");
+    throw Error('not a CryptoSignatureSimple');
   }
-  let data = { _: "CryptoSignatureSimple" };
+  let data = { _: 'CryptoSignatureSimple' };
   data.R = loadBits(cell, t, 256);
   data.s = loadBits(cell, t, 256);
   return data;
@@ -2729,7 +2736,7 @@ export function loadCryptoSignature(cell, t) {
  * @returns {Object}
  */
 export function loadCryptoSignaturePair(cell, t) {
-  let data = { _: "CryptoSignaturePair" };
+  let data = { _: 'CryptoSignaturePair' };
   data.node_id_short = loadBits(cell, t, 256);
   data.sign = loadCryptoSignature(cell, t);
   return data;
@@ -2738,19 +2745,19 @@ export function loadCryptoSignaturePair(cell, t) {
 export function loadInMsg(cell, t) {
   cell;
   t;
-  let data = { _: "InMsg" }; // TODO
+  let data = { _: 'InMsg' }; // TODO
   return data;
 }
 export function loadInMsgDescr(cell, t) {
   cell;
   t;
-  let data = { _: "InMsgDescr" }; // TODO
+  let data = { _: 'InMsgDescr' }; // TODO
   return data;
 }
 export function loadOutMsgDescr(cell, t) {
   cell;
   t;
-  let data = { _: "OutMsgDescr" }; // TODO
+  let data = { _: 'OutMsgDescr' }; // TODO
   return data;
 }
 
@@ -2776,9 +2783,9 @@ export function loadMcBlockExtra(cell, t) {
   const magic = loadUint16(cell, t);
   // console.log('magic:', magic.toString(16));
   if (magic !== 0xcca5) {
-    throw Error("not a McBlockExtra");
+    throw Error('not a McBlockExtra');
   }
-  let data = { _: "McBlockExtra" };
+  let data = { _: 'McBlockExtra' };
   data.key_block = loadBit(cell, t);
   // console.log(data);
   data.shard_hashes = loadShardHashes(cell, t);
@@ -2818,9 +2825,9 @@ export function loadBlockExtra(cell, t) {
   // console.log(cell.bits.toHex())
 
   if (loadUint32(cell, t) !== 0x4a33f6fd) {
-    throw Error("not a BlockExtra");
+    throw Error('not a BlockExtra');
   }
-  let data = { _: "BlockExtra" };
+  let data = { _: 'BlockExtra' };
   data.in_msg_descr = loadRefIfExist(cell, t, loadInMsgDescr);
   data.out_msg_descr = loadRefIfExist(cell, t, loadOutMsgDescr);
   data.account_blocks = loadRefIfExist(cell, t, loadShardAccountBlocks);
@@ -2856,7 +2863,7 @@ export function loadValueFlow(cell, t) {
   }
   // throw Error("not a ValueFlow");
   // console.warn("not a ValueFlow");
-  let data = { _: "ValueFlow" }; // TODO
+  let data = { _: 'ValueFlow' }; // TODO
   return data;
 }
 
@@ -2874,9 +2881,9 @@ export function loadValueFlow(cell, t) {
 export function loadMERKLE_UPDATE(cell, t) {
   // exotic cell with type = 4
   if (loadUint8(cell, t) !== 0x04) {
-    throw Error("not a MERKLE_UPDATE");
+    throw Error('not a MERKLE_UPDATE');
   }
-  let data = { _: "MERKLE_UPDATE" };
+  let data = { _: 'MERKLE_UPDATE' };
   data.old_hash = loadBits(cell, t, 256);
   data.new_hash = loadBits(cell, t, 256);
   data.old = cell.refs[t.ref++]; // TODO
@@ -2902,9 +2909,9 @@ export function loadBlock(cell) {
   const magic = loadUint32(cell, t);
   // console.log(magic.toString(16));
   if (magic !== 0x11ef55aa) {
-    throw Error("not a Block");
+    throw Error('not a Block');
   }
-  let data = { _: "Block" };
+  let data = { _: 'Block' };
   data.global_id = loadInt32(cell, t);
   data.info = loadRefIfExist(cell, t, loadBlockInfo);
   data.value_flow = loadRefIfExist(cell, t, loadValueFlow);
@@ -2991,12 +2998,12 @@ export class BlockParser {
    * @returns {Object}
    */
   static parseSignature(any) {
-    if (any._ !== "Any") throw Error("not an any");
+    if (any._ !== 'Any') throw Error('not an any');
 
     let t = { cs: any.current_pos, ref: any.current_ref };
 
     let exist = loadBit(any.cell, t);
-    if (!exist) throw Error("no signature");
+    if (!exist) throw Error('no signature');
 
     let signature = loadBits(any.cell, t, 512);
     return signature;
@@ -3010,7 +3017,7 @@ export class BlockParser {
    * @returns {Object}
    */
   static parseSignatureClassic(any) {
-    if (any._ !== "Any") throw Error("not an any");
+    if (any._ !== 'Any') throw Error('not an any');
 
     let t = { cs: any.current_pos, ref: any.current_ref };
 
@@ -3028,24 +3035,24 @@ export class BlockParser {
    */
   static checkBlockHeader(cell, blockId) {
     if (cell.type !== Cell.MerkleProofCell) {
-      throw Error("Not a MerkleProof block");
+      throw Error('Not a MerkleProof block');
     }
     if (!compareBytes(new Uint8Array(blockId.root_hash.buffer), cell.refs[0].getHash(0))) {
-      throw Error("Block header has incorrect root hash");
+      throw Error('Block header has incorrect root hash');
     }
     let block = loadBlock(cell.refs[0]);
     //console.log(block);
     if (block.info.version !== 0) {
-      throw Error("Invalid BlockInfo version");
+      throw Error('Invalid BlockInfo version');
     }
     if (block.info.shard.workchain_id !== blockId.workchain) {
-      throw Error("Invalid BlockInfo workchain");
+      throw Error('Invalid BlockInfo workchain');
     }
     if (!blockId.compareShard(block.info.shard.shard)) {
-      throw Error("Invalid BlockInfo shard");
+      throw Error('Invalid BlockInfo shard');
     }
     if (block.info.seq_no !== blockId.seqno) {
-      throw Error("Invalid BlockInfo seqno");
+      throw Error('Invalid BlockInfo seqno');
     }
     //if (block.state_update._ !== 'MERKLE_UPDATE') {
     //    throw Error("No MerkleUpdate in block");

@@ -3,10 +3,10 @@
 // const {Cell} = require("./Cell");
 // const Hashmap = require("./Hashmap");
 
-export { Address } from "./Address.js";
-export { BitString } from "./BitString.js";
-export * from "./Block.js";
-export { Cell } from "./Cell.js";
-export * from "./Validator.js";
+export { Address } from './Address.js';
+export { BitString } from './BitString.js';
+export * from './Block.js';
+export { Cell } from './Cell.js';
+export * from './Validator.js';
 
 // module.exports = {Address, BitString, Cell, ...Hashmap};

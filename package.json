@@ -11,7 +11,8 @@
     "deploy": "yarn lerna publish",
     "build:watch": "lerna run build --stream",
     "prepare": "husky install",
-    "build:docker": "lerna run build --concurrency 1"
+    "build:docker": "lerna run build --concurrency 1",
+    "prettier": "prettier --write ."
   },
   "workspaces": [
     "packages/*"

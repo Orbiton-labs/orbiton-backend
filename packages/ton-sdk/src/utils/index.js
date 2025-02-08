@@ -1,13 +1,13 @@
 // const BN = require("bn.js");
-import BN from "bn.js";
+import BN from 'bn.js';
 // const nacl = require("tweetnacl");
-import nacl from "tweetnacl";
+import nacl from 'tweetnacl';
 // const ethunit = require("ethjs-unit");
-import ethunit from "ethjs-unit";
+import ethunit from 'ethjs-unit';
 // const bip39 = require("bip39");
-import bip39 from "bip39";
+import bip39 from 'bip39';
 
-import nodeCrypto from "crypto";
+import nodeCrypto from 'crypto';
 
 // let nodeCrypto = null;
 // if (typeof window === 'undefined') {
@@ -21,7 +21,8 @@ import nodeCrypto from "crypto";
  * @param {Uint8Array} bytes
  * @returns {string}
  */
-export const bytesToBinString = (bytes) => bytes.reduce((str, byte) => str + byte.toString(2).padStart(8, '0'), '');
+export const bytesToBinString = (bytes) =>
+  bytes.reduce((str, byte) => str + byte.toString(2).padStart(8, '0'), '');
 
 /**
  * Converts string to Uint8Array
@@ -30,11 +31,11 @@ export const bytesToBinString = (bytes) => bytes.reduce((str, byte) => str + byt
  * @returns {Uint8Array}
  */
 export function stringToArray(str) {
-    let buf = new Uint8Array(str.length);
-    for (let i = 0; i < str.length; i++) {
-        buf[i] = str.charCodeAt(i);
-    }
-    return buf;
+  let buf = new Uint8Array(str.length);
+  for (let i = 0; i < str.length; i++) {
+    buf[i] = str.charCodeAt(i);
+  }
+  return buf;
 }
 
 /**
@@ -44,9 +45,9 @@ export function stringToArray(str) {
  * @returns {string}
  */
 export function bytesToString(b) {
-    // convert bytes to string
-    // encoding can be specfied, defaults to utf-8 which is ascii.
-    return new TextDecoder().decode(b);
+  // convert bytes to string
+  // encoding can be specfied, defaults to utf-8 which is ascii.
+  return new TextDecoder().decode(b);
 }
 
 /**
@@ -56,11 +57,11 @@ export function bytesToString(b) {
  * @returns {Promise<ArrayBuffer>}
  */
 export function sha256(bytes) {
-    if (typeof window === 'undefined') {
-        return nodeCrypto.createHash('sha256').update(bytes).digest();
-    } else {
-        return crypto.subtle.digest("SHA-256", bytes);
-    }
+  if (typeof window === 'undefined') {
+    return nodeCrypto.createHash('sha256').update(bytes).digest();
+  } else {
+    return crypto.subtle.digest('SHA-256', bytes);
+  }
 }
 
 /**
@@ -70,11 +71,11 @@ export function sha256(bytes) {
  * @returns {Promise<ArrayBuffer>}
  */
 export function sha512(bytes) {
-    if (typeof window === 'undefined') {
-        return nodeCrypto.createHash('sha512').update(bytes).digest();
-    } else {
-        return crypto.subtle.digest("SHA-512", bytes);
-    }
+  if (typeof window === 'undefined') {
+    return nodeCrypto.createHash('sha512').update(bytes).digest();
+  } else {
+    return crypto.subtle.digest('SHA-512', bytes);
+  }
 }
 
 /**
@@ -84,7 +85,7 @@ export function sha512(bytes) {
  * @returns {BN}
  */
 export function toNano(amount) {
-    return ethunit.toWei(amount, 'gwei');
+  return ethunit.toWei(amount, 'gwei');
 }
 
 /**
@@ -94,19 +95,19 @@ export function toNano(amount) {
  * @returns {string}
  */
 export function fromNano(amount) {
-    return ethunit.fromWei(amount, 'gwei');
+  return ethunit.fromWei(amount, 'gwei');
 }
 
 // look up tables
 const to_hex_array = [];
 const to_byte_map = {};
 for (let ord = 0; ord <= 0xff; ord++) {
-    let s = ord.toString(16);
-    if (s.length < 2) {
-        s = "0" + s;
-    }
-    to_hex_array.push(s);
-    to_byte_map[s] = ord;
+  let s = ord.toString(16);
+  if (s.length < 2) {
+    s = '0' + s;
+  }
+  to_hex_array.push(s);
+  to_byte_map[s] = ord;
 }
 
 //  converter using lookups
@@ -117,12 +118,12 @@ for (let ord = 0; ord <= 0xff; ord++) {
  * @returns {string}
  */
 export function bytesToHex(buffer) {
-    const hex_array = [];
-    //(new Uint8Array(buffer)).forEach((v) => { hex_array.push(to_hex_array[v]) });
-    for (let i = 0; i < buffer.byteLength; i++) {
-        hex_array.push(to_hex_array[buffer[i]]);
-    }
-    return hex_array.join("");
+  const hex_array = [];
+  //(new Uint8Array(buffer)).forEach((v) => { hex_array.push(to_hex_array[v]) });
+  for (let i = 0; i < buffer.byteLength; i++) {
+    hex_array.push(to_hex_array[buffer[i]]);
+  }
+  return hex_array.join('');
 }
 
 // reverse conversion using lookups
@@ -133,19 +134,19 @@ export function bytesToHex(buffer) {
  * @returns {Uint8Array}
  */
 export function hexToBytes(s) {
-    s = s.toLowerCase();
-    const length2 = s.length;
-    if (length2 % 2 !== 0) {
-        throw Error("hex string must have length a multiple of 2");
-    }
-    const length = length2 / 2;
-    const result = new Uint8Array(length);
-    for (let i = 0; i < length; i++) {
-        const i2 = i * 2;
-        const b = s.substring(i2, i2 + 2);
-        result[i] = to_byte_map[b];
-    }
-    return result;
+  s = s.toLowerCase();
+  const length2 = s.length;
+  if (length2 % 2 !== 0) {
+    throw Error('hex string must have length a multiple of 2');
+  }
+  const length = length2 / 2;
+  const result = new Uint8Array(length);
+  for (let i = 0; i < length; i++) {
+    const i2 = i * 2;
+    const b = s.substring(i2, i2 + 2);
+    result[i] = to_byte_map[b];
+  }
+  return result;
 }
 
 /**
@@ -156,26 +157,25 @@ export function hexToBytes(s) {
  * @returns {Uint8Array}
  */
 export function stringToBytes(str, size = 1) {
-    let buf;
-    let bufView;
-    if (size === 1) {
-        buf = new ArrayBuffer(str.length);
-        bufView = new Uint8Array(buf);
-    }
-    if (size === 2) {
-        buf = new ArrayBuffer(str.length * 2);
-        bufView = new Uint16Array(buf);
-    }
-    if (size === 4) {
-        buf = new ArrayBuffer(str.length * 4);
-        bufView = new Uint32Array(buf);
-    }
-    for (let i = 0, strLen = str.length; i < strLen; i++) {
-        bufView[i] = str.charCodeAt(i);
-    }
-    return new Uint8Array(bufView.buffer);
+  let buf;
+  let bufView;
+  if (size === 1) {
+    buf = new ArrayBuffer(str.length);
+    bufView = new Uint8Array(buf);
+  }
+  if (size === 2) {
+    buf = new ArrayBuffer(str.length * 2);
+    bufView = new Uint16Array(buf);
+  }
+  if (size === 4) {
+    buf = new ArrayBuffer(str.length * 4);
+    bufView = new Uint32Array(buf);
+  }
+  for (let i = 0, strLen = str.length; i < strLen; i++) {
+    bufView[i] = str.charCodeAt(i);
+  }
+  return new Uint8Array(bufView.buffer);
 }
-
 
 // /**
 //  * @private
@@ -206,20 +206,20 @@ export function stringToBytes(str, size = 1) {
  * @param bytes {Uint8Array}
  * @return {number}
  */
- function _crc32c(crc, bytes) {
+function _crc32c(crc, bytes) {
   const POLY = 0x82f63b78;
 
   crc ^= 0xffffffff;
   for (let n = 0; n < bytes.length; n++) {
-      crc ^= bytes[n];
-      crc = crc & 1 ? (crc >>> 1) ^ POLY : crc >>> 1;
-      crc = crc & 1 ? (crc >>> 1) ^ POLY : crc >>> 1;
-      crc = crc & 1 ? (crc >>> 1) ^ POLY : crc >>> 1;
-      crc = crc & 1 ? (crc >>> 1) ^ POLY : crc >>> 1;
-      crc = crc & 1 ? (crc >>> 1) ^ POLY : crc >>> 1;
-      crc = crc & 1 ? (crc >>> 1) ^ POLY : crc >>> 1;
-      crc = crc & 1 ? (crc >>> 1) ^ POLY : crc >>> 1;
-      crc = crc & 1 ? (crc >>> 1) ^ POLY : crc >>> 1;
+    crc ^= bytes[n];
+    crc = crc & 1 ? (crc >>> 1) ^ POLY : crc >>> 1;
+    crc = crc & 1 ? (crc >>> 1) ^ POLY : crc >>> 1;
+    crc = crc & 1 ? (crc >>> 1) ^ POLY : crc >>> 1;
+    crc = crc & 1 ? (crc >>> 1) ^ POLY : crc >>> 1;
+    crc = crc & 1 ? (crc >>> 1) ^ POLY : crc >>> 1;
+    crc = crc & 1 ? (crc >>> 1) ^ POLY : crc >>> 1;
+    crc = crc & 1 ? (crc >>> 1) ^ POLY : crc >>> 1;
+    crc = crc & 1 ? (crc >>> 1) ^ POLY : crc >>> 1;
   }
   return crc ^ 0xffffffff;
 }
@@ -240,9 +240,9 @@ export function stringToBytes(str, size = 1) {
 // }
 
 /**
-* @param bytes {Uint8Array}
-* @return {Uint8Array}
-*/
+ * @param bytes {Uint8Array}
+ * @return {Uint8Array}
+ */
 export function crc32c(bytes) {
   //Version suitable for crc32-c of BOC
   const int_crc = _crc32c(0, bytes);
@@ -259,25 +259,25 @@ export function crc32c(bytes) {
  * @returns {Uint8Array}
  */
 export function crc16(data) {
-    const poly = 0x1021;
-    let reg = 0;
-    const message = new Uint8Array(data.length + 2);
-    message.set(data);
-    for (let byte of message) {
-        let mask = 0x80;
-        while (mask > 0) {
-            reg <<= 1;
-            if (byte & mask) {
-                reg += 1;
-            }
-            mask >>= 1
-            if (reg > 0xffff) {
-                reg &= 0xffff;
-                reg ^= poly;
-            }
-        }
+  const poly = 0x1021;
+  let reg = 0;
+  const message = new Uint8Array(data.length + 2);
+  message.set(data);
+  for (let byte of message) {
+    let mask = 0x80;
+    while (mask > 0) {
+      reg <<= 1;
+      if (byte & mask) {
+        reg += 1;
+      }
+      mask >>= 1;
+      if (reg > 0xffff) {
+        reg &= 0xffff;
+        reg ^= poly;
+      }
     }
-    return new Uint8Array([Math.floor(reg / 256), reg % 256]);
+  }
+  return new Uint8Array([Math.floor(reg / 256), reg % 256]);
 }
 
 /**
@@ -293,7 +293,7 @@ export function concatBytes(a, b) {
     c.set(a);
     c.set(b, a.length);
     return c;
-  } catch ( ex ) {
+  } catch (ex) {
     console.log({ a, b });
     throw ex;
   }
@@ -311,30 +311,30 @@ export function compareBytes(a, b) {
   // return a.toString() === b.toString();
   const hexA = Buffer.from(a).toString('hex');
   const hexB = Buffer.from(b).toString('hex');
-  const res = hexA === hexB
-  if ( !res ) {
+  const res = hexA === hexB;
+  if (!res) {
     console.log({ hexA, hexB });
   }
   return res;
 }
 
 const base64abc = (() => {
-    const abc = []
-    const A = "A".charCodeAt(0);
-    const a = "a".charCodeAt(0);
-    const n = "0".charCodeAt(0);
-    for (let i = 0; i < 26; ++i) {
-        abc.push(String.fromCharCode(A + i));
-    }
-    for (let i = 0; i < 26; ++i) {
-        abc.push(String.fromCharCode(a + i));
-    }
-    for (let i = 0; i < 10; ++i) {
-        abc.push(String.fromCharCode(n + i));
-    }
-    abc.push("+");
-    abc.push("/");
-    return abc;
+  const abc = [];
+  const A = 'A'.charCodeAt(0);
+  const a = 'a'.charCodeAt(0);
+  const n = '0'.charCodeAt(0);
+  for (let i = 0; i < 26; ++i) {
+    abc.push(String.fromCharCode(A + i));
+  }
+  for (let i = 0; i < 26; ++i) {
+    abc.push(String.fromCharCode(a + i));
+  }
+  for (let i = 0; i < 10; ++i) {
+    abc.push(String.fromCharCode(n + i));
+  }
+  abc.push('+');
+  abc.push('/');
+  return abc;
 })();
 
 /**
@@ -344,29 +344,29 @@ const base64abc = (() => {
  * @returns {string}
  */
 export function bytesToBase64(bytes) {
-    let result = "";
-    let i;
-    const l = bytes.length;
-    for (i = 2; i < l; i += 3) {
-        result += base64abc[bytes[i - 2] >> 2];
-        result += base64abc[((bytes[i - 2] & 0x03) << 4) | (bytes[i - 1] >> 4)];
-        result += base64abc[((bytes[i - 1] & 0x0f) << 2) | (bytes[i] >> 6)];
-        result += base64abc[bytes[i] & 0x3f];
-    }
-    if (i === l + 1) {
-        // 1 octet missing
-        result += base64abc[bytes[i - 2] >> 2];
-        result += base64abc[(bytes[i - 2] & 0x03) << 4];
-        result += "==";
-    }
-    if (i === l) {
-        // 2 octets missing
-        result += base64abc[bytes[i - 2] >> 2];
-        result += base64abc[((bytes[i - 2] & 0x03) << 4) | (bytes[i - 1] >> 4)];
-        result += base64abc[(bytes[i - 1] & 0x0f) << 2];
-        result += "=";
-    }
-    return result;
+  let result = '';
+  let i;
+  const l = bytes.length;
+  for (i = 2; i < l; i += 3) {
+    result += base64abc[bytes[i - 2] >> 2];
+    result += base64abc[((bytes[i - 2] & 0x03) << 4) | (bytes[i - 1] >> 4)];
+    result += base64abc[((bytes[i - 1] & 0x0f) << 2) | (bytes[i] >> 6)];
+    result += base64abc[bytes[i] & 0x3f];
+  }
+  if (i === l + 1) {
+    // 1 octet missing
+    result += base64abc[bytes[i - 2] >> 2];
+    result += base64abc[(bytes[i - 2] & 0x03) << 4];
+    result += '==';
+  }
+  if (i === l) {
+    // 2 octets missing
+    result += base64abc[bytes[i - 2] >> 2];
+    result += base64abc[((bytes[i - 2] & 0x03) << 4) | (bytes[i - 1] >> 4)];
+    result += base64abc[(bytes[i - 1] & 0x0f) << 2];
+    result += '=';
+  }
+  return result;
 }
 
 /**
@@ -376,11 +376,11 @@ export function bytesToBase64(bytes) {
  * @returns {string}
  */
 export function base64toString(base64) {
-    if (typeof window === 'undefined') {
-        return Buffer.from(base64, 'base64').toString('binary');
-    } else {
-        return atob(base64);
-    }
+  if (typeof window === 'undefined') {
+    return Buffer.from(base64, 'base64').toString('binary');
+  } else {
+    return atob(base64);
+  }
 }
 
 /**
@@ -390,11 +390,11 @@ export function base64toString(base64) {
  * @returns {string}
  */
 export function stringToBase64(s) {
-    if (typeof window === 'undefined') {
-        return Buffer.from(s, "binary").toString('base64')
-    } else {
-        return btoa(s);
-    }
+  if (typeof window === 'undefined') {
+    return Buffer.from(s, 'binary').toString('base64');
+  } else {
+    return btoa(s);
+  }
 }
 
 /**
@@ -404,13 +404,13 @@ export function stringToBase64(s) {
  * @returns {Uint8Array}
  */
 export function base64ToBytes(base64) {
-    const binary_string = base64toString(base64);
-    const len = binary_string.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-        bytes[i] = binary_string.charCodeAt(i);
-    }
-    return bytes;
+  const binary_string = base64toString(base64);
+  const len = binary_string.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binary_string.charCodeAt(i);
+  }
+  return bytes;
 }
 
 /**
@@ -421,38 +421,38 @@ export function base64ToBytes(base64) {
  * @returns {number}
  */
 export function readNBytesUIntFromArray(n, ui8array) {
-    let res = 0;
-    for (let c = 0; c < n; c++) {
-        res *= 256;
-        res += ui8array[c];
-    }
-    return res;
+  let res = 0;
+  for (let c = 0; c < n; c++) {
+    res *= 256;
+    res += ui8array[c];
+  }
+  return res;
 }
 
 // export type BN = typeof BN;
 
 // module.exports = {
 export default {
-    BN,
-    nacl,
-    bip39,
-    sha256,
-    sha512,
-    fromNano,
-    toNano,
-    bytesToHex,
-    hexToBytes,
-    stringToBytes,
-    crc32c,
-    crc16,
-    concatBytes,
-    bytesToBase64,
-    base64ToBytes,
-    base64toString,
-    stringToBase64,
-    compareBytes,
-    readNBytesUIntFromArray,
-    bytesToBinString,
-    bytesToString,
-    stringToArray
+  BN,
+  nacl,
+  bip39,
+  sha256,
+  sha512,
+  fromNano,
+  toNano,
+  bytesToHex,
+  hexToBytes,
+  stringToBytes,
+  crc32c,
+  crc16,
+  concatBytes,
+  bytesToBase64,
+  base64ToBytes,
+  base64toString,
+  stringToBase64,
+  compareBytes,
+  readNBytesUIntFromArray,
+  bytesToBinString,
+  bytesToString,
+  stringToArray,
 };

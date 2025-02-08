@@ -1,21 +1,23 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-      "baseUrl": ".",
-      "outDir": "dist",
-      "declaration": true,
-      "declarationMap": true,
-      "rootDir": "src",
-      "strict": false,
-      "noFallthroughCasesInSwitch": false,
-      "noImplicitAny": false,
+    "baseUrl": ".",
+    "outDir": "dist",
+    "declaration": true,
+    "declarationMap": true,
+    "rootDir": "src",
+    "strict": false,
+    "noFallthroughCasesInSwitch": false,
+    "noImplicitAny": false,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "paths": {
+      "@src/*": ["src/*"],
+      "@types/*": ["src/@types/*"],
+      "@services/*": ["src/services/*"],
+      "@utils/*": ["src/utils/*"]
+    }
   },
-  "include": [
-      "src/**/*.ts",
-      "src/@types/**/*.ts",
-  ],
-  "exclude": [
-    "src/**/demo.ts",
-      "node_modules/"
-  ]
+  "include": ["src/**/*.ts", "src/@types/**/*.ts"],
+  "exclude": ["src/**/demo.ts", "node_modules/"]
 }

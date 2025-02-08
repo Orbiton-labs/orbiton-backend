@@ -1,22 +1,22 @@
-import type { Account, Address, CurrencyCollection } from "@ton/core";
-import type { tonNode_blockIdExt } from "./schema";
+import type { Account, Address, CurrencyCollection } from '@ton/core';
+import type { tonNode_blockIdExt } from './schema';
 
 export type BlockLookupIDRequest = {
   seqno: number;
   shard: string;
   workchain: number;
-  mode: "id";
+  mode: 'id';
 };
 export type BlockLookupUtimeRequest = {
   shard: string;
   workchain: number;
-  mode: "utime";
+  mode: 'utime';
   utime: number;
 };
 export type BlockLookupLtRequest = {
   shard: string;
   workchain: number;
-  mode: "lt";
+  mode: 'lt';
   lt: bigint;
 };
 export type BlockLookupRequest =

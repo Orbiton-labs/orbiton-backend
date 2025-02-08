@@ -5,8 +5,8 @@ import {
   bytesToHex,
   stringToBytes,
   base64toString,
-  stringToBase64
-} from "../utils/index.js";
+  stringToBase64,
+} from '../utils/index.js';
 // } = require("../utils");
 
 const bounceable_tag = 0x11;
@@ -20,14 +20,15 @@ const test_flag = 0x80;
  */
 function parseFriendlyAddress(addressString) {
   const data = stringToBytes(base64toString(addressString));
-  if (data.length !== 36) { // 1byte tag + 1byte workchain + 32 bytes hash + 2 byte crc
-    throw Error("Unknown address type: byte length is not equal to 36");
+  if (data.length !== 36) {
+    // 1byte tag + 1byte workchain + 32 bytes hash + 2 byte crc
+    throw Error('Unknown address type: byte length is not equal to 36');
   }
   const addr = data.slice(0, 34);
   const crc = data.slice(34, 36);
   const calcedCrc = crc16(addr);
   if (!(calcedCrc[0] === crc[0] && calcedCrc[1] === crc[1])) {
-    throw Error("Wrong crc16 hashsum");
+    throw Error('Wrong crc16 hashsum');
   }
   let tag = addr[0];
   let isTestOnly = false;
@@ -36,20 +37,20 @@ function parseFriendlyAddress(addressString) {
     isTestOnly = true;
     tag = tag ^ test_flag;
   }
-  if ((tag !== bounceable_tag) && (tag !== non_bounceable_tag))
-    throw Error("Unknown address tag");
+  if (tag !== bounceable_tag && tag !== non_bounceable_tag) throw Error('Unknown address tag');
 
   isBounceable = tag === bounceable_tag;
 
   let workchain = null;
-  if (addr[1] === 0xff) { // TODO we should read signed integer here
+  if (addr[1] === 0xff) {
+    // TODO we should read signed integer here
     workchain = -1;
   } else {
     workchain = addr[1];
   }
 
   const hashPart = addr.slice(2, 34);
-  return {isTestOnly, isBounceable, workchain, hashPart};
+  return { isTestOnly, isBounceable, workchain, hashPart };
 }
 
 /**
@@ -70,7 +71,7 @@ export class Address {
 
   static fromBytes(wc, address) {
     let addr = bytesToHex(address);
-    while (addr.length < 64) addr = "0" + addr;
+    while (addr.length < 64) addr = '0' + addr;
     return new Address(wc.toString() + ':' + addr);
   }
 
@@ -82,7 +83,7 @@ export class Address {
    */
   constructor(anyForm) {
     if (anyForm === undefined || anyForm === null) {
-      throw Error("Invalid address");
+      throw Error('Invalid address');
     }
 
     if (anyForm instanceof Address) {
@@ -101,10 +102,10 @@ export class Address {
     } else {
       this.isUrlSafe = false;
     }
-    if (anyForm.search(":") > 0) {
+    if (anyForm.search(':') > 0) {
       this.isUserFriendly = false;
-      this.wc = parseInt(anyForm.split(":")[0]);
-      this.hashPart = hexToBytes(anyForm.split(":")[1]);
+      this.wc = parseInt(anyForm.split(':')[0]);
+      this.hashPart = hexToBytes(anyForm.split(':')[1]);
       this.isTestOnly = false;
       this.isBounceable = false;
     } else {
@@ -126,18 +127,14 @@ export class Address {
    * @param {boolean} isTestOnly? Test flag
    * @return {string}
    */
-  toString(isUserFriendly,
-            isUrlSafe,
-            isBounceable,
-            isTestOnly) {
-
+  toString(isUserFriendly, isUrlSafe, isBounceable, isTestOnly) {
     if (isUserFriendly === undefined) isUserFriendly = this.isUserFriendly;
     if (isUrlSafe === undefined) isUrlSafe = this.isUrlSafe;
     if (isBounceable === undefined) isBounceable = this.isBounceable;
     if (isTestOnly === undefined) isTestOnly = this.isTestOnly;
 
     if (!isUserFriendly) {
-      return this.wc + ":" + bytesToHex(this.hashPart);
+      return this.wc + ':' + bytesToHex(this.hashPart);
     } else {
       let tag = isBounceable ? bounceable_tag : non_bounceable_tag;
       if (isTestOnly) {
@@ -152,7 +149,9 @@ export class Address {
       const addressWithChecksum = new Uint8Array(36);
       addressWithChecksum.set(addr);
       addressWithChecksum.set(crc16(addr), 34);
-      let addressBase64 = stringToBase64(String.fromCharCode.apply(null, new Uint8Array(addressWithChecksum)));
+      let addressBase64 = stringToBase64(
+        String.fromCharCode.apply(null, new Uint8Array(addressWithChecksum)),
+      );
 
       if (isUrlSafe) {
         addressBase64 = addressBase64.replace(/\+/g, '-').replace(/\//g, '_');

@@ -1,27 +1,25 @@
-import { getHttpEndpoint } from "@orbs-network/ton-access";
+import { getHttpEndpoint } from '@orbs-network/ton-access';
 import {
   WalletContractV3R2,
   WalletContractV4,
   TonClient,
   internal,
   OpenedContract,
-} from "@ton/ton";
-import { mnemonicToWalletKey } from "@ton/crypto";
-import env from "../configs/env";
+} from '@ton/ton';
+import { mnemonicToWalletKey } from '@ton/crypto';
+import env from '../configs/env';
 
 export async function waitSeqno(
-  walletContract:
-    | OpenedContract<WalletContractV3R2>
-    | OpenedContract<WalletContractV4>,
-  seqno: number
+  walletContract: OpenedContract<WalletContractV3R2> | OpenedContract<WalletContractV4>,
+  seqno: number,
 ) {
   let currentSeqno = seqno;
   while (currentSeqno == seqno) {
-    console.log("waiting for transaction to confirm...");
+    console.log('waiting for transaction to confirm...');
     await new Promise((resolve) => setTimeout(resolve, 3000));
     currentSeqno = await walletContract.getSeqno();
   }
-  console.log("transaction confirmed!");
+  console.log('transaction confirmed!');
 }
 
 export async function createTonWallet() {
@@ -29,9 +27,9 @@ export async function createTonWallet() {
     endpoint: env.ton.tonCenterUrl,
     apiKey: env.ton.tonApiKey,
   });
-  const mnemonic = env.ton.mnemonic.split(" ");
+  const mnemonic = env.ton.mnemonic.split(' ');
   if (!mnemonic) {
-    throw new Error("Mnemonic is not set");
+    throw new Error('Mnemonic is not set');
   }
   const key = await mnemonicToWalletKey(mnemonic);
   // NOTE: Testnet using WalletContractV3R2 and Mainnet using WalletContractV4
@@ -39,7 +37,7 @@ export async function createTonWallet() {
     publicKey: key.publicKey,
     workchain: 0,
   });
-  if (env.server.env === "testnet") {
+  if (env.server.env === 'testnet') {
     wallet = WalletContractV4.create({
       publicKey: key.publicKey,
       workchain: 0,
@@ -63,7 +61,7 @@ export async function createTonWallet() {
       messages: [
         internal({
           to: subWallet2.address,
-          value: "0.05",
+          value: '0.05',
         }),
       ],
     });
