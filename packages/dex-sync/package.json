@@ -10,9 +10,12 @@
     "build": "tsc -p tsconfig.json && tsc-alias",
     "start:dev": "tsx src/index.ts",
     "start:prod": "npm run build && node dist/index.js",
-    "push:dev": "npm run db:exec push --config=drizzle-dev.drizzle.config",
-    "push:prod": "npm run db:exec push --config=drizzle-prod.drizzle.config",
-    "db:exec": "drizzle-kit"
+    "push:dev": "npx drizzle-kit push --config drizzle-dev.config.ts",
+    "push:prod": "npx drizzle-kit push --config drizzle-prod.config.ts",
+    "generate:dev": "npx drizzle-kit generate --config drizzle-dev.config.ts",
+    "generate:prod": "npx drizzle-kit generate --config drizzle-prod.config.ts",
+    "migrate:dev": "npx drizzle-kit migrate --config drizzle-dev.config.ts",
+    "migrate:prod": "npx drizzle-kit migrate --config drizzle-prod.config.ts"
   },
   "dependencies": {
     "@oraichain/oraidex-common": "1.1.29",
@@ -29,6 +32,7 @@
     "@uniswap/v3-sdk": "^3.24.0",
     "async-mutex": "^0.5.0",
     "bignumber.js": "^9.1.2",
+    "bn.js": "^5.2.1",
     "compression": "^1.7.5",
     "cors": "^2.8.5",
     "cosmjs-types": "0.8.0",
@@ -37,23 +41,29 @@
     "express-validator": "^7.2.0",
     "helmet": "^8.0.0",
     "http-status": "^2.0.0",
+    "jest": "^29.7.0",
     "joi": "^17.13.3",
+    "js-big-decimal": "^2.2.0",
     "jsbi": "^4.3.0",
     "mongoose": "^8.8.2",
     "morgan": "^1.10.0",
     "orbiton-contracts": "^0.0.10",
     "pg": "^8.13.1",
     "tonweb": "^0.0.66",
+    "ts-jest": "^29.2.5",
     "winston": "^3.14.2",
     "xss-clean": "^0.1.4"
   },
   "license": "MIT",
   "devDependencies": {
+    "@swc/jest": "^0.2.37",
     "@types/compression": "^1.7.5",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/http-status": "^1.1.2",
+    "@types/jest": "^29.5.14",
     "drizzle-kit": "^0.30.4",
-    "tsc-alias": "^1.8.10"
+    "tsc-alias": "^1.8.10",
+    "typescript": "^5.7.3"
   }
 }
