@@ -2,8 +2,16 @@ import * as t from 'drizzle-orm/pg-core';
 import { pgTable as table } from 'drizzle-orm/pg-core';
 
 export const router = table('router', {
-  poolCount: t.integer().notNull(),
-  txCount: t.integer().notNull(),
+  poolCount: t
+    .bigint('pool_count', {
+      mode: 'bigint',
+    })
+    .notNull(),
+  txCount: t
+    .bigint('tx_count', {
+      mode: 'bigint',
+    })
+    .notNull(),
   totalVolumeUSD: t.text('total_volume_usd').notNull(),
   totalVolumeTon: t.text('total_volume_ton').notNull(),
   totalFeesUSD: t.text('total_fees_usd').notNull(),

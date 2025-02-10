@@ -1,20 +1,57 @@
 import * as t from 'drizzle-orm/pg-core';
 import { pgTable as table } from 'drizzle-orm/pg-core';
+import { transaction } from './transaction';
+import { jetton } from './jetton';
+import { relations } from 'drizzle-orm';
+import { poolData } from './pool-data';
+import { position } from './position';
+import { positionData } from './position-data';
+import { mint } from './mint';
+import { swap } from './swap';
+import { burn } from './burn';
 
 export const pool = table('pools', {
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
-  createdAtBlock: t.integer('created_at_block').notNull(),
   createdAtTimestamp: t.integer('created_at_timestamp').notNull(),
-  transaction: t.text().notNull(),
-  jetton0: t.text().notNull(),
-  jetton1: t.text().notNull(),
+  transactionId: t
+    .integer('transaction_id')
+    .references(() => transaction.id)
+    .notNull(),
+  jetton0Id: t
+    .integer('jetton0_id')
+    .references(() => jetton.id)
+    .notNull(),
+  jetton1Id: t
+    .integer('jetton1_id')
+    .references(() => jetton.id)
+    .notNull(),
   feeTier: t.integer('fee_tier').notNull(),
-  feeProtocol: t.integer('fee_protocol').notNull(),
-  liquidity: t.text().notNull(),
-  sqrtPrice: t.text('sqrt_price').notNull(),
-  feeGrowthGlobal0X128: t.text('fee_growth_global_0x128').notNull(),
-  feeGrowthGlobal1X128: t.text('fee_growth_global_1x128').notNull(),
-  tick: t.integer().notNull(),
+  feeProtocol: t.text('fee_protocol').notNull(),
+  liquidity: t
+    .bigint({
+      mode: 'bigint',
+    })
+    .notNull(),
+  sqrtPrice: t
+    .bigint('sqrt_price', {
+      mode: 'bigint',
+    })
+    .notNull(),
+  feeGrowthGlobal0X128: t
+    .bigint('fee_growth_global_0x128', {
+      mode: 'bigint',
+    })
+    .notNull(),
+  feeGrowthGlobal1X128: t
+    .bigint('fee_growth_global_1x128', {
+      mode: 'bigint',
+    })
+    .notNull(),
+  tick: t
+    .bigint({
+      mode: 'bigint',
+    })
+    .notNull(),
   feesUSD: t.text('fees_usd').notNull(),
   protocolFeesUSD: t.text('protocol_fees_usd').notNull(),
   collectedFeesJetton0: t.text('collected_fees_jetton0').notNull(),
@@ -26,9 +63,40 @@ export const pool = table('pools', {
   totalValueLockedUSD: t.text('total_value_locked_usd').notNull(),
   jetton0Price: t.text('jetton0_price').notNull(),
   jetton1Price: t.text('jetton1_price').notNull(),
-  volume0: t.text().notNull(),
-  volume1: t.text().notNull(),
+  volumeJetton0: t.text('volume_jetton0').notNull(),
+  volumeJetton1: t.text('volume_jetton1').notNull(),
   volumeUSD: t.text('volume_usd').notNull(),
-  txCount: t.integer('tx_count').notNull(),
-  liquidityProviderCount: t.integer('liquidity_provider_count').notNull(),
+  txCount: t
+    .bigint('tx_count', {
+      mode: 'bigint',
+    })
+    .notNull(),
+  liquidityProviderCount: t
+    .bigint('liquidity_provider_count', {
+      mode: 'bigint',
+    })
+    .notNull(),
+});
+
+export const poolRelations = relations(pool, ({ one, many }) => {
+  return {
+    transaction: one(transaction, {
+      fields: [pool.transactionId],
+      references: [transaction.id],
+    }),
+    jetton0: one(jetton, {
+      fields: [pool.jetton0Id],
+      references: [jetton.id],
+    }),
+    jetton1: one(jetton, {
+      fields: [pool.jetton1Id],
+      references: [jetton.id],
+    }),
+    poolData: many(poolData),
+    position: many(position),
+    positionData: many(positionData),
+    mint: many(mint),
+    swap: many(swap),
+    burn: many(burn),
+  };
 });
