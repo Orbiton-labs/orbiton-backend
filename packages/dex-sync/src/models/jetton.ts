@@ -1,4 +1,4 @@
-import { relations } from 'drizzle-orm';
+import { relations, InferSelectModel } from 'drizzle-orm';
 import * as t from 'drizzle-orm/pg-core';
 import { pgTable as table } from 'drizzle-orm/pg-core';
 import { pool } from './pool';
@@ -49,3 +49,5 @@ export const jettonRelations = relations(jetton, ({ many }) => {
     burn: many(burn),
   };
 });
+
+export type Jetton = InferSelectModel<typeof jetton>;

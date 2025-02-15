@@ -1,3 +1,4 @@
+import { InferSelectModel } from 'drizzle-orm';
 import * as t from 'drizzle-orm/pg-core';
 import { pgTable as table } from 'drizzle-orm/pg-core';
 
@@ -20,3 +21,5 @@ export const router = table('router', {
   totalValueLockedTon: t.text('total_value_locked_ton').notNull(),
   tonPriceUSD: t.text('ton_price_usd').notNull(),
 });
+
+export type Router = InferSelectModel<typeof router>;

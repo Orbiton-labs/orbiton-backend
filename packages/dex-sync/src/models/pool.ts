@@ -2,7 +2,7 @@ import * as t from 'drizzle-orm/pg-core';
 import { pgTable as table } from 'drizzle-orm/pg-core';
 import { transaction } from './transaction';
 import { jetton } from './jetton';
-import { relations } from 'drizzle-orm';
+import { InferSelectModel, relations } from 'drizzle-orm';
 import { poolData } from './pool-data';
 import { position } from './position';
 import { positionData } from './position-data';
@@ -25,8 +25,16 @@ export const pool = table('pools', {
     .integer('jetton1_id')
     .references(() => jetton.id)
     .notNull(),
-  feeTier: t.integer('fee_tier').notNull(),
-  feeProtocol: t.text('fee_protocol').notNull(),
+  feeTier: t
+    .bigint('fee_tier', {
+      mode: 'bigint',
+    })
+    .notNull(),
+  feeProtocol: t
+    .bigint('fee_protocol', {
+      mode: 'bignt',
+    })
+    .notNull(),
   liquidity: t
     .bigint({
       mode: 'bigint',
@@ -100,3 +108,5 @@ export const poolRelations = relations(pool, ({ one, many }) => {
     burn: many(burn),
   };
 });
+
+export type Pool = InferSelectModel<typeof pool>;
