@@ -4,8 +4,8 @@ import { pool } from './pool';
 import { relations } from 'drizzle-orm';
 
 export const poolData = table('pool_data', {
-  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
-  date: t.timestamp().notNull(),
+  id: t.text().primaryKey().notNull(),
+  date: t.integer().notNull(),
   poolId: t
     .integer('pool_id')
     .references(() => pool.id)
@@ -27,8 +27,8 @@ export const poolData = table('pool_data', {
       mode: 'bigint',
     })
     .notNull(),
-  feeGrowthGlobal0X128: t.text('fee_growth_global_0x128').notNull(),
-  feeGrowthGlobal1X128: t.text('fee_growth_global_1x128').notNull(),
+  feeGrowthGlobal0X128: t.bigint('fee_growth_global_0x128', { mode: 'bigint' }).notNull(),
+  feeGrowthGlobal1X128: t.bigint('fee_growth_global_1x128', { mode: 'bigint' }).notNull(),
   tvlUSD: t.text('tvl_usd').notNull(),
   volumeJetton0: t.text('volume_jetton0').notNull(),
   volumeJetton1: t.text('volume_jetton1').notNull(),

@@ -12,6 +12,7 @@ import { burn } from './burn';
 
 export const pool = table('pools', {
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+  address: t.text().unique().notNull(),
   createdAtTimestamp: t.integer('created_at_timestamp').notNull(),
   transactionId: t
     .integer('transaction_id')
@@ -32,7 +33,7 @@ export const pool = table('pools', {
     .notNull(),
   feeProtocol: t
     .bigint('fee_protocol', {
-      mode: 'bignt',
+      mode: 'bigint',
     })
     .notNull(),
   liquidity: t

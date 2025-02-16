@@ -5,6 +5,11 @@ import * as schema from '@src/models/index';
 import { ZERO_BD, ZERO_BI } from '@src/constants';
 import { getOrLoadJetton } from './utils/jetton';
 import { eq } from 'drizzle-orm';
+import { getTonPrice } from './utils/ton';
+import { tonApiClient } from '@src/services/ton-api';
+import { tonNode_BlockIdExt } from '@orbiton/ton-lite-client/dist/schema';
+import { encodeBlockId } from './utils/block';
+import { LiteClientService } from '@src/services/ton-lite-client';
 
 function feeTierToProtocolFeeDefault(feeTier: bigint): bigint {
   if (feeTier === 10000n) {
@@ -24,12 +29,13 @@ function feeTierToProtocolFeeDefault(feeTier: bigint): bigint {
 }
 
 export const handlePoolCreated = async (event: PoolCreated) => {
+  const tonPriceUSD = await getTonPrice();
   let router = (await db.query.router.findFirst({})) as Router | undefined;
   if (!router) {
     await db.insert(schema.router).values({
       poolCount: ZERO_BI,
       txCount: ZERO_BI,
-      tonPriceUSD: ZERO_BD,
+      tonPriceUSD: tonPriceUSD.toString(),
       totalFeesTon: ZERO_BD,
       totalFeesUSD: ZERO_BD,
       totalValueLockedTon: ZERO_BD,
@@ -51,15 +57,18 @@ export const handlePoolCreated = async (event: PoolCreated) => {
   let transaction = await db.query.transaction.findFirst({
     where: eq(schema.transaction.hash, event.transactionHash),
   });
+  let block = transaction.block as tonNode_BlockIdExt;
+  let blockData = await tonApiClient.blockchain.getBlockchainBlock(encodeBlockId(block));
 
   let poolData = {
+    address: event.poolAddress.toString(),
     jetton0Id: jetton0.id,
     jetton1Id: jetton1.id,
     feeTier,
     collectedFeesJetton0: ZERO_BD,
     collectedFeesJetton1: ZERO_BD,
     collectedFeesUSD: ZERO_BD,
-    createdAtTimestamp: new Date().getMilliseconds(),
+    createdAtTimestamp: blockData.genUtime,
     feeGrowthGlobal0X128: ZERO_BI,
     feeGrowthGlobal1X128: ZERO_BI,
     feeProtocol: feeTierToProtocolFeeDefault(BigInt(feeTier)),

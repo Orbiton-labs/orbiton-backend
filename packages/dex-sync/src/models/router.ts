@@ -3,6 +3,7 @@ import * as t from 'drizzle-orm/pg-core';
 import { pgTable as table } from 'drizzle-orm/pg-core';
 
 export const router = table('router', {
+  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
   poolCount: t
     .bigint('pool_count', {
       mode: 'bigint',

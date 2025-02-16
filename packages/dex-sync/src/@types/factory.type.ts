@@ -7,5 +7,5 @@ export type PoolCreated = TraceTx & {
   jetton1: Address;
   fee: bigint;
   tickSpacing: bigint;
-  pool: Address;
+  poolAddress: Address;
 };

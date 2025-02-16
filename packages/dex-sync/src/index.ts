@@ -1,11 +1,4 @@
-import {
-  LiteClient,
-  LiteEngine,
-  LiteRoundRobinEngine,
-  LiteSingleEngine,
-} from '@orbiton/ton-lite-client';
 import dotenv from 'dotenv';
-import { intToIP } from './constants';
 import compression from 'compression';
 import cors from 'cors';
 import express from 'express';
@@ -15,6 +8,7 @@ import morgan from './configs/morgan';
 import env from './configs/env';
 import BlockScanner from '@services/block-scanner';
 import BlockTransactionHandler from '@services/block-handler';
+import { LiteClientService } from './services/ton-lite-client';
 
 dotenv.config();
 
@@ -55,21 +49,7 @@ const PORT = env.server.port;
 
 server.listen(PORT, async () => {
   // setup lite engine server
-  const { liteservers } = await fetch(
-    `https://ton.org/${env.server.network == 'mainnet' ? '' : 'testnet-'}global.config.json`,
-  ).then((data) => data.json());
-  const engines: LiteEngine[] = [];
-  engines.push(
-    ...liteservers.map(
-      (server: any) =>
-        new LiteSingleEngine({
-          host: `tcp://${intToIP(server.ip)}:${server.port}`,
-          publicKey: Buffer.from(server.id.key, 'base64'),
-        }),
-    ),
-  );
-  const liteEngine = new LiteRoundRobinEngine(engines);
-  const liteClient = new LiteClient({ engine: liteEngine });
+  const liteClient = await LiteClientService.init();
   const blockHandler = new BlockTransactionHandler(liteClient);
   const blockScanner = new BlockScanner(liteClient, blockHandler);
   await blockScanner.run();
