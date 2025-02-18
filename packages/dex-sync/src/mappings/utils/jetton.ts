@@ -3,7 +3,8 @@ import { Jetton } from '@src/models';
 import { Address } from '@ton/core';
 import { tonApiClient } from '@src/services/ton-api';
 import * as schema from '@src/models';
-import { ZERO_BD, ZERO_BI } from '@src/constants';
+import { ONE_BI, ZERO_BD, ZERO_BI } from '@src/constants';
+import BigDecimal from 'js-big-decimal';
 
 export const getOrLoadJetton = async (address: Address) => {
   //@ts-ignore
@@ -32,3 +33,20 @@ export const getOrLoadJetton = async (address: Address) => {
   }
   return jetton;
 };
+
+export function convertJettonToDecimal(tokenAmount: bigint, jetton: Jetton | null): BigDecimal {
+  if (jetton === null || ZERO_BI === BigInt(jetton.decimals)) {
+    return new BigDecimal(tokenAmount.toString());
+  }
+  return new BigDecimal(tokenAmount.toString()).divide(
+    exponentToBigDecimal(BigInt(jetton.decimals)),
+  );
+}
+
+export function exponentToBigDecimal(decimals: bigint): BigDecimal {
+  let bd = new BigDecimal('1');
+  for (let i = ZERO_BI; i < decimals; i = i + ONE_BI) {
+    bd = bd.multiply(new BigDecimal('10'));
+  }
+  return bd;
+}
