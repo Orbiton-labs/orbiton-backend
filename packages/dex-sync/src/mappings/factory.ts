@@ -9,7 +9,6 @@ import { getTonPrice } from './utils/ton';
 import { tonApiClient } from '@src/services/ton-api';
 import { tonNode_BlockIdExt } from '@orbiton/ton-lite-client/dist/schema';
 import { encodeBlockId } from './utils/block';
-import { LiteClientService } from '@src/services/ton-lite-client';
 
 function feeTierToProtocolFeeDefault(feeTier: bigint): bigint {
   if (feeTier === 10000n) {
@@ -58,7 +57,6 @@ export const handlePoolCreated = async (event: PoolCreated) => {
     where: eq(schema.transaction.hash, event.transactionHash),
   });
   let block = transaction.block as tonNode_BlockIdExt;
-  let blockData = await tonApiClient.blockchain.getBlockchainBlock(encodeBlockId(block));
 
   let poolData = {
     address: event.poolAddress.toString(),
@@ -68,7 +66,7 @@ export const handlePoolCreated = async (event: PoolCreated) => {
     collectedFeesJetton0: ZERO_BD,
     collectedFeesJetton1: ZERO_BD,
     collectedFeesUSD: ZERO_BD,
-    createdAtTimestamp: blockData.genUtime,
+    createdAtTimestamp: event.blockTimestamp,
     feeGrowthGlobal0X128: ZERO_BI,
     feeGrowthGlobal1X128: ZERO_BI,
     feeProtocol: feeTierToProtocolFeeDefault(BigInt(feeTier)),

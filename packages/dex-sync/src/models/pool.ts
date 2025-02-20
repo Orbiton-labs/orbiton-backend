@@ -9,6 +9,7 @@ import { positionData } from './position-data';
 import { mint } from './mint';
 import { swap } from './swap';
 import { burn } from './burn';
+import { tick } from './tick';
 
 export const pool = table('pools', {
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -107,6 +108,7 @@ export const poolRelations = relations(pool, ({ one, many }) => {
     mint: many(mint),
     swap: many(swap),
     burn: many(burn),
+    tick: many(tick),
   };
 });
 

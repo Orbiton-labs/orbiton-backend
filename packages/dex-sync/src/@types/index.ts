@@ -5,4 +5,5 @@ export * from './factory.type';
 export type TraceTx = {
   transactionHash: string;
   block: tonNode_blockIdExt;
+  blockTimestamp: number;
 };

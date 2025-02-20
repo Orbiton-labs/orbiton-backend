@@ -10,3 +10,4 @@ export * from './position-data';
 export * from './jetton';
 export * from './jetton-data';
 export * from './router';
+export * from './tick';

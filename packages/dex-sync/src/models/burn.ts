@@ -5,7 +5,7 @@ import { pool } from './pool';
 import { transaction } from './transaction';
 import { relations } from 'drizzle-orm';
 
-export const burn = table('burn', {
+export const burn = table('burns', {
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
   poolId: t
     .integer('pool_id')

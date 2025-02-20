@@ -5,7 +5,7 @@ import { jetton } from './jetton';
 import { transaction } from './transaction';
 import { relations } from 'drizzle-orm';
 
-export const swap = table('swap', {
+export const swap = table('swaps', {
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
   poolId: t
     .integer('pool_id')

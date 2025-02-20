@@ -5,7 +5,7 @@ import { jetton } from './jetton';
 import { transaction } from './transaction';
 import { relations } from 'drizzle-orm';
 
-export const mint = table('mint', {
+export const mint = table('mints', {
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
   poolId: t
     .integer('pool_id')
@@ -20,7 +20,6 @@ export const mint = table('mint', {
     .references(() => jetton.id)
     .notNull(),
   sender: t.text().notNull(),
-  recipient: t.text().notNull(),
   amount0: t.text().notNull(),
   amount1: t.text().notNull(),
   amount: t
@@ -43,7 +42,7 @@ export const mint = table('mint', {
     .integer('transaction_id')
     .references(() => transaction.id)
     .notNull(),
-  timestamp: t.timestamp().notNull(),
+  timestamp: t.integer().notNull(),
 });
 
 export const mintRelations = relations(mint, ({ one, many }) => {

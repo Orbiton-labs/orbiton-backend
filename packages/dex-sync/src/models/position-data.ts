@@ -5,7 +5,7 @@ import { pool } from './pool';
 import { position } from './position';
 
 export const positionData = table('position_data', {
-  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+  id: t.text().primaryKey().notNull(),
   owner: t.text().notNull(),
   poolId: t
     .integer('pool_id')

@@ -1,4 +1,4 @@
-import { relations } from 'drizzle-orm';
+import { InferSelectModel, relations } from 'drizzle-orm';
 import * as t from 'drizzle-orm/pg-core';
 import { pgTable as table } from 'drizzle-orm/pg-core';
 import { pool } from './pool';
@@ -39,3 +39,5 @@ export const transactionRelations = relations(transaction, ({ many, one }) => {
     }),
   };
 });
+
+export type Transaction = InferSelectModel<typeof transaction>;

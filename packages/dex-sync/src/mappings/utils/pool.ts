@@ -8,8 +8,7 @@ import { eq } from 'drizzle-orm';
 import { ZERO_BD, ZERO_BI } from '@src/constants';
 
 export const updatePoolDayData = async (pool: Pool, event: TraceTx) => {
-  let block = await tonApiClient.blockchain.getBlockchainBlock(encodeBlockId(event.block));
-  let timestamp = block.genUtime;
+  let timestamp = event.blockTimestamp;
   let dayID = timestamp / 86400;
   let dayStartTimestamp = dayID * 86400;
   let dayPoolID = event.transactionHash.concat('-').concat(dayID.toString());

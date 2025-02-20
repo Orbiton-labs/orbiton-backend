@@ -22,7 +22,12 @@ export async function updateDerivedTVLAmounts(
   jetton0: Jetton,
   jetton1: Jetton,
   oldPoolTotalValueLockedTon: BigDecimal,
-) {
+): Promise<{
+  router: Router;
+  pool: Pool;
+  jetton0: Jetton;
+  jetton1: Jetton;
+}> {
   jetton0.totalValueLockedUSD = new BigDecimal(jetton0.totalValueLocked)
     .multiply(new BigDecimal(jetton0.derivedTon))
     .multiply(new BigDecimal(router.tonPriceUSD))
@@ -55,7 +60,14 @@ export async function updateDerivedTVLAmounts(
   router.totalValueLockedUSD = new BigDecimal(router.totalValueLockedTon)
     .multiply(new BigDecimal(router.tonPriceUSD))
     .getValue();
-  await db.update(schema.router).set(router).where(eq(schema.router, router.id));
   await db.update(schema.jetton).set(jetton0).where(eq(schema.jetton, jetton0.id));
   await db.update(schema.jetton).set(jetton1).where(eq(schema.jetton, jetton1.id));
+  await db.update(schema.router).set(router).where(eq(schema.router, router.id));
+  await db.update(schema.pool).set(pool).where(eq(schema.pool, pool.id));
+  return {
+    router,
+    pool,
+    jetton0,
+    jetton1,
+  };
 }
