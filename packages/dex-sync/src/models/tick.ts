@@ -31,7 +31,6 @@ export const tick = table('ticks', {
   collectedFeesJetton0: t.text('collected_fees_jetton0').notNull(),
   collectedFeesJetton1: t.text('collected_fees_jetton1').notNull(),
   collectedFeesUSD: t.text('collected_fees_usd').notNull(),
-  createdAtTimestamp: t.integer('created_at_timestamp').notNull(),
   liquidityProviderCount: t.bigint('liquidity_provider_count', {
     mode: 'bigint',
   }),
@@ -41,6 +40,7 @@ export const tick = table('ticks', {
   feeGrowthOutside1X128: t.bigint('fee_growth_outside_1_x128', {
     mode: 'bigint',
   }),
+  timestamp: t.timestamp('timestamp').notNull(),
 });
 
 export const tickRelations = relations(tick, ({ one }) => {

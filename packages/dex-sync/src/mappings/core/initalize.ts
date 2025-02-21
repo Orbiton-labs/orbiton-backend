@@ -10,7 +10,7 @@ import { updatePoolDayData } from '../utils/pool';
 
 export const handleInitialize = async (event: Initialize) => {
   let pool = await db.query.pool.findFirst({
-    where: eq(schema.pool.address, event.poolAddress),
+    where: eq(schema.pool.address, event.address.toString()),
     with: {
       jetton0: true,
       jetton1: true,

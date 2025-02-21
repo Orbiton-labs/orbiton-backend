@@ -42,7 +42,7 @@ export const mint = table('mints', {
     .integer('transaction_id')
     .references(() => transaction.id)
     .notNull(),
-  timestamp: t.integer().notNull(),
+  timestamp: t.timestamp().notNull(),
 });
 
 export const mintRelations = relations(mint, ({ one, many }) => {

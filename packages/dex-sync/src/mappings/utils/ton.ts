@@ -1,7 +1,10 @@
+import { TraceTx } from '@src/@types';
 import { ONE_BD, ZERO_ADDRESS } from '@src/constants';
-import { Jetton } from '@src/models';
+import { Jetton, Tick } from '@src/models';
 import { tonApiClient } from '@src/services/ton-api';
 import { setTimeout } from 'timers/promises';
+import * as schema from '@src/models';
+import { db } from '@src/db';
 
 export const getTonPrice = async (): Promise<number> => {
   while (true) {
@@ -36,4 +39,22 @@ export const findTonPerJetton = async (jetton: Jetton): Promise<string> => {
     } catch (err) {}
     await setTimeout(500);
   }
+};
+
+export const updateTickFeeVarsAndSave = async (tick: Tick, event: TraceTx) => {
+  // let poolAddress = event.address;
+  // TODO: Fetch fee growth outside 0 and 1 from contract here
+  // let tickResult = poolContract.ticks(tick.tickIdx.toI32());
+  // tick.feeGrowthOutside0X128 = tickResult.value2;
+  // tick.feeGrowthOutside1X128 = tickResult.value3;
+  // tick.save();
+  await db
+    .insert(schema.tick)
+    .values(tick)
+    .onConflictDoUpdate({
+      target: schema.tick.id,
+      set: {
+        ...tick,
+      },
+    });
 };

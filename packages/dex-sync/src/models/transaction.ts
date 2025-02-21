@@ -11,8 +11,7 @@ export const transaction = table('transactions', {
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
   hash: t.text().unique().notNull(),
   block: t.json().notNull(),
-  updatedAt: t.timestamp('updated_at').defaultNow().notNull(),
-  createdAt: t.timestamp('created_at').defaultNow().notNull(),
+  timestamp: t.timestamp().notNull(),
 });
 
 export const transactionRelations = relations(transaction, ({ many, one }) => {

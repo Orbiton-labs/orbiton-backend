@@ -8,6 +8,7 @@ export const ZERO_ADDRESS = 'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c';
 export const OpCallbackCreatePool = crc32('op::cb_create_pool');
 export const OpMintPosition = crc32('op::mint_position');
 export const OP_CODES = [OpCallbackCreatePool, OpMintPosition];
+export const ONE_DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
 
 export function intToIP(int: number) {
   const part1 = int & 255;

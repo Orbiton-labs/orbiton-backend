@@ -43,7 +43,7 @@ export const burn = table('burns', {
     .integer('transaction_id')
     .references(() => transaction.id)
     .notNull(),
-  timestamp: t.integer().notNull(),
+  timestamp: t.timestamp().notNull(),
 });
 
 export const burnRelations = relations(burn, ({ one, many }) => {

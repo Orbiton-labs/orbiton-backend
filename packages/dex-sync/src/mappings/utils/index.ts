@@ -32,6 +32,7 @@ export const loadTransaction = async (event: TraceTx): Promise<Transaction> => {
     await db.insert(schema.transaction).values({
       hash: event.transactionHash,
       block: event.block,
+      timestamp: new Date(event.blockTimestamp),
     });
     transaction = await db.query.transaction.findFirst({
       where: eq(schema.transaction.hash, event.transactionHash),

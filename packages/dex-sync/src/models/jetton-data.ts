@@ -4,8 +4,7 @@ import { jetton } from './jetton';
 import { relations } from 'drizzle-orm';
 
 export const jettonData = table('jetton_data', {
-  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
-  date: t.timestamp().notNull(),
+  id: t.text().primaryKey().notNull(),
   jettonId: t
     .integer('jetton_id')
     .references(() => jetton.id)
@@ -17,6 +16,7 @@ export const jettonData = table('jetton_data', {
   priceUSD: t.text('price_usd').notNull(),
   feesUSD: t.text('fees_usd').notNull(),
   protocolFeesUSD: t.text('protocol_fees_usd').notNull(),
+  timestamp: t.timestamp().notNull(),
 });
 
 export const jettonDataRelations = relations(jettonData, ({ one }) => {

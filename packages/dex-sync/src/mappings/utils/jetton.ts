@@ -1,10 +1,12 @@
 import { db } from '@src/db';
-import { Jetton } from '@src/models';
+import { Jetton, Router } from '@src/models';
 import { Address } from '@ton/core';
 import { tonApiClient } from '@src/services/ton-api';
 import * as schema from '@src/models';
-import { ONE_BI, ZERO_BD, ZERO_BI } from '@src/constants';
+import { ONE_BI, ONE_DAY_IN_MILLISECONDS, ZERO_BD, ZERO_BI } from '@src/constants';
 import BigDecimal from 'js-big-decimal';
+import { TraceTx } from '@src/@types';
+import { eq } from 'drizzle-orm';
 
 export const getOrLoadJetton = async (address: Address) => {
   //@ts-ignore
@@ -32,6 +34,50 @@ export const getOrLoadJetton = async (address: Address) => {
     jetton = (await db.query.jetton.findFirst()) as Jetton;
   }
   return jetton;
+};
+
+export const updateJettonData = async (router: Router, jetton: Jetton, event: TraceTx) => {
+  let timestamp = event.blockTimestamp;
+  let dayID = timestamp / ONE_DAY_IN_MILLISECONDS;
+  let dayStartTimestamp = dayID * ONE_DAY_IN_MILLISECONDS;
+  let jettonDayID = jetton.id.toString().concat('-').concat(dayID.toString());
+  let jettonDayData = await db.query.jettonData.findFirst({
+    where: eq(schema.jettonData.id, jettonDayID),
+  });
+  if (!jettonDayData) {
+    jettonDayData = {
+      id: jettonDayID,
+      timestamp: new Date(dayStartTimestamp),
+      feesUSD: ZERO_BD,
+      volume: ZERO_BD,
+      volumeUSD: ZERO_BD,
+      jettonId: jetton.id,
+      priceUSD: ZERO_BD,
+      protocolFeesUSD: ZERO_BD,
+      totalValueLocked: ZERO_BD,
+      totalValueLockedUSD: ZERO_BD,
+    };
+  }
+  jettonDayData.priceUSD = jetton.derivedUSD;
+  jettonDayData.totalValueLocked = jetton.totalValueLocked;
+  jettonDayData.totalValueLockedUSD = jetton.totalValueLockedUSD;
+  await db
+    .insert(schema.jettonData)
+    .values({ ...jettonDayData })
+    .onConflictDoUpdate({
+      target: schema.jettonData.id,
+      set: {
+        timestamp: jettonDayData.timestamp,
+        feesUSD: jettonDayData.feesUSD,
+        volume: jettonDayData.volume,
+        volumeUSD: jettonDayData.volumeUSD,
+        jettonId: jettonDayData.jettonId,
+        priceUSD: jettonDayData.priceUSD,
+        protocolFeesUSD: jettonDayData.protocolFeesUSD,
+        totalValueLocked: jettonDayData.totalValueLocked,
+        totalValueLockedUSD: jettonDayData.totalValueLockedUSD,
+      },
+    });
 };
 
 export function convertJettonToDecimal(tokenAmount: bigint, jetton: Jetton | null): BigDecimal {

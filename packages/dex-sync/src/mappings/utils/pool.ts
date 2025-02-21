@@ -5,12 +5,12 @@ import { encodeBlockId } from './block';
 import { db } from '@src/db';
 import * as schema from '@src/models';
 import { eq } from 'drizzle-orm';
-import { ZERO_BD, ZERO_BI } from '@src/constants';
+import { ONE_DAY_IN_MILLISECONDS, ZERO_BD, ZERO_BI } from '@src/constants';
 
 export const updatePoolDayData = async (pool: Pool, event: TraceTx) => {
   let timestamp = event.blockTimestamp;
-  let dayID = timestamp / 86400;
-  let dayStartTimestamp = dayID * 86400;
+  let dayID = timestamp / ONE_DAY_IN_MILLISECONDS;
+  let dayStartTimestamp = dayID * ONE_DAY_IN_MILLISECONDS;
   let dayPoolID = event.transactionHash.concat('-').concat(dayID.toString());
   let poolDayData = await db.query.poolData.findFirst({
     where: eq(schema.poolData.id, dayPoolID),

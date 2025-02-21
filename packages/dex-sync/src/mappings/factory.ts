@@ -52,6 +52,7 @@ export const handlePoolCreated = async (event: PoolCreated) => {
   await db.insert(schema.transaction).values({
     hash: event.transactionHash,
     block: event.block,
+    timestamp: new Date(event.blockTimestamp),
   });
   let transaction = await db.query.transaction.findFirst({
     where: eq(schema.transaction.hash, event.transactionHash),
@@ -66,7 +67,6 @@ export const handlePoolCreated = async (event: PoolCreated) => {
     collectedFeesJetton0: ZERO_BD,
     collectedFeesJetton1: ZERO_BD,
     collectedFeesUSD: ZERO_BD,
-    createdAtTimestamp: event.blockTimestamp,
     feeGrowthGlobal0X128: ZERO_BI,
     feeGrowthGlobal1X128: ZERO_BI,
     feeProtocol: feeTierToProtocolFeeDefault(BigInt(feeTier)),
@@ -87,6 +87,7 @@ export const handlePoolCreated = async (event: PoolCreated) => {
     volumeJetton1: ZERO_BD,
     transactionId: transaction.id,
     volumeUSD: ZERO_BD,
+    timestamp: new Date(event.blockTimestamp),
   };
   await db.insert(schema.pool).values({ ...poolData });
 };

@@ -14,7 +14,6 @@ import { tick } from './tick';
 export const pool = table('pools', {
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
   address: t.text().unique().notNull(),
-  createdAtTimestamp: t.integer('created_at_timestamp').notNull(),
   transactionId: t
     .integer('transaction_id')
     .references(() => transaction.id)
@@ -86,6 +85,7 @@ export const pool = table('pools', {
       mode: 'bigint',
     })
     .notNull(),
+  timestamp: t.timestamp('timestamp').notNull(),
 });
 
 export const poolRelations = relations(pool, ({ one, many }) => {

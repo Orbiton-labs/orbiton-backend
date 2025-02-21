@@ -13,9 +13,8 @@ export function createTick(tickId: string, tickIdx: bigint, pool: Pool, event: M
     collectedFeesJetton0: ZERO_BD,
     collectedFeesJetton1: ZERO_BD,
     collectedFeesUSD: ZERO_BD,
-    createdAtTimestamp: event.blockTimestamp,
-    liquidityGross: Number(ZERO_BI),
-    liquidityNet: Number(ZERO_BI),
+    liquidityGross: ZERO_BI,
+    liquidityNet: ZERO_BI,
     liquidityProviderCount: ZERO_BI,
     price0: ONE_BD,
     price1: ONE_BD,
@@ -27,6 +26,7 @@ export function createTick(tickId: string, tickIdx: bigint, pool: Pool, event: M
     poolId: pool.id,
     feeGrowthOutside0X128: ZERO_BI,
     feeGrowthOutside1X128: ZERO_BI,
+    timestamp: new Date(event.blockTimestamp),
   } as Tick;
 
   // 1.0001^tick is token1/token0.

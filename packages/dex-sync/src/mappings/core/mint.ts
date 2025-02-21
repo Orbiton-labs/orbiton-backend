@@ -2,7 +2,7 @@ import { MintEvent } from '@src/@types/core.type';
 import { db } from '@src/db';
 import { eq } from 'drizzle-orm';
 import * as schema from '@src/models/index';
-import { convertJettonToDecimal, getOrLoadJetton } from '../utils/jetton';
+import { convertJettonToDecimal, getOrLoadJetton, updateJettonData } from '../utils/jetton';
 import { Address } from '@ton/core';
 import { Router } from '@src/models/router';
 import BigDecimal from 'js-big-decimal';
@@ -10,6 +10,9 @@ import { updateDerivedTVLAmounts } from '../utils/tvl';
 import { ONE_BI } from '@src/constants';
 import { loadTransaction } from '../utils';
 import { createTick } from '../utils/tick';
+import { updateRouterData } from '../utils/router';
+import { updatePoolDayData } from '../utils/pool';
+import { updateTickFeeVarsAndSave } from '../utils/ton';
 
 export const handleMint = async (event: MintEvent) => {
   let router = (await db.query.router.findFirst({})) as Router | undefined;
@@ -17,7 +20,7 @@ export const handleMint = async (event: MintEvent) => {
     return;
   }
   let pool = await db.query.pool.findFirst({
-    where: eq(schema.pool.address, event.poolAddress),
+    where: eq(schema.pool.address, event.address.toString()),
     with: {
       jetton0: true,
       jetton1: true,
@@ -70,7 +73,7 @@ export const handleMint = async (event: MintEvent) => {
   }
   pool.liquidityProviderCount += ONE_BI;
   let transaction = await loadTransaction(event);
-  await db.insert(schema.mint).values({
+  let mintData = {
     amount: event.amount,
     amount0: event.amount0.toString(),
     amount1: event.amount1.toString(),
@@ -81,9 +84,9 @@ export const handleMint = async (event: MintEvent) => {
     sender: event.sender.toString(),
     tickLower: event.tickLower,
     tickUpper: event.tickUpper,
-    timestamp: event.blockTimestamp,
     transactionId: transaction.id,
-  });
+    timestamp: new Date(event.blockTimestamp),
+  };
 
   let lowerTickIdx = event.tickLower;
   let upperTickIdx = event.tickUpper;
@@ -109,4 +112,18 @@ export const handleMint = async (event: MintEvent) => {
   lowerTick.liquidityNet = lowerTick.liquidityNet + amount;
   upperTick.liquidityGross = upperTick.liquidityGross + amount;
   upperTick.liquidityNet = upperTick.liquidityNet + amount;
+
+  await updateRouterData(router, event);
+  await updatePoolDayData(pool, event);
+  await updateJettonData(router, jetton0, event);
+  await updateJettonData(router, jetton1, event);
+
+  await db.update(schema.jetton).set(jetton0).where(eq(schema.jetton.id, jetton0.id));
+  await db.update(schema.jetton).set(jetton1).where(eq(schema.jetton.id, jetton1.id));
+  await db.update(schema.pool).set(pool).where(eq(schema.pool.id, pool.id));
+  await db.update(schema.router).set(router).where(eq(schema.router.id, router.id));
+  await db.insert(schema.mint).values(mintData);
+
+  await updateTickFeeVarsAndSave(lowerTick, event);
+  await updateTickFeeVarsAndSave(upperTick, event);
 };
