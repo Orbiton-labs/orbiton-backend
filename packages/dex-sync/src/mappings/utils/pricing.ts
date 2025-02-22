@@ -27,8 +27,8 @@ export function getAdjustedAmounts(
   return { ton, usd };
 }
 
-let Q192 = 2 ** 192;
-export function sqrtPriceX96ToTokenPrices(
+let Q192 = 2n ** 192n;
+export function sqrtPriceX96ToJettonPrices(
   sqrtPriceX96: bigint,
   jetton0: Jetton,
   jetton1: Jetton,
