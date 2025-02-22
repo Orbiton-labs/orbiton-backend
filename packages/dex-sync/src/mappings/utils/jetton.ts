@@ -5,7 +5,7 @@ import { tonApiClient } from '@src/services/ton-api';
 import * as schema from '@src/models';
 import { ONE_BI, ONE_DAY_IN_MILLISECONDS, ZERO_BD, ZERO_BI } from '@src/constants';
 import BigDecimal from 'js-big-decimal';
-import { TraceTx } from '@src/@types';
+import { TraceEvent } from '@src/@types';
 import { eq } from 'drizzle-orm';
 
 export const getOrLoadJetton = async (address: Address) => {
@@ -36,8 +36,8 @@ export const getOrLoadJetton = async (address: Address) => {
   return jetton;
 };
 
-export const updateJettonData = async (router: Router, jetton: Jetton, event: TraceTx) => {
-  let timestamp = event.blockTimestamp;
+export const updateJettonDayData = async (router: Router, jetton: Jetton, event: TraceEvent) => {
+  let timestamp = event.block.timestamp;
   let dayID = timestamp / ONE_DAY_IN_MILLISECONDS;
   let dayStartTimestamp = dayID * ONE_DAY_IN_MILLISECONDS;
   let jettonDayID = jetton.id.toString().concat('-').concat(dayID.toString());
@@ -78,6 +78,7 @@ export const updateJettonData = async (router: Router, jetton: Jetton, event: Tr
         totalValueLockedUSD: jettonDayData.totalValueLockedUSD,
       },
     });
+  return jettonDayData;
 };
 
 export function convertJettonToDecimal(tokenAmount: bigint, jetton: Jetton | null): BigDecimal {

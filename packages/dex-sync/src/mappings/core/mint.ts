@@ -2,7 +2,7 @@ import { MintEvent } from '@src/@types/core.type';
 import { db } from '@src/db';
 import { eq } from 'drizzle-orm';
 import * as schema from '@src/models/index';
-import { convertJettonToDecimal, getOrLoadJetton, updateJettonData } from '../utils/jetton';
+import { convertJettonToDecimal, getOrLoadJetton, updateJettonDayData } from '../utils/jetton';
 import { Address } from '@ton/core';
 import { Router } from '@src/models/router';
 import BigDecimal from 'js-big-decimal';
@@ -10,7 +10,7 @@ import { updateDerivedTVLAmounts } from '../utils/tvl';
 import { ONE_BI } from '@src/constants';
 import { loadTransaction } from '../utils';
 import { createTick } from '../utils/tick';
-import { updateRouterData } from '../utils/router';
+import { updateRouterDayData } from '../utils/router';
 import { updatePoolDayData } from '../utils/pool';
 import { updateTickFeeVarsAndSave } from '../utils/ton';
 
@@ -85,7 +85,7 @@ export const handleMint = async (event: MintEvent) => {
     tickLower: event.tickLower,
     tickUpper: event.tickUpper,
     transactionId: transaction.id,
-    timestamp: new Date(event.blockTimestamp),
+    timestamp: new Date(event.block.timestamp),
   };
 
   let lowerTickIdx = event.tickLower;
@@ -113,10 +113,10 @@ export const handleMint = async (event: MintEvent) => {
   upperTick.liquidityGross = upperTick.liquidityGross + amount;
   upperTick.liquidityNet = upperTick.liquidityNet + amount;
 
-  await updateRouterData(router, event);
+  await updateRouterDayData(router, event);
   await updatePoolDayData(pool, event);
-  await updateJettonData(router, jetton0, event);
-  await updateJettonData(router, jetton1, event);
+  await updateJettonDayData(router, jetton0, event);
+  await updateJettonDayData(router, jetton1, event);
 
   await db.update(schema.jetton).set(jetton0).where(eq(schema.jetton.id, jetton0.id));
   await db.update(schema.jetton).set(jetton1).where(eq(schema.jetton.id, jetton1.id));

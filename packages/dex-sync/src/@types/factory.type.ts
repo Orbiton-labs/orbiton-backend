@@ -1,7 +1,7 @@
 import { Address } from '@ton/core';
-import { TraceTx } from '.';
+import { TraceEvent } from '.';
 
-export type PoolCreated = TraceTx & {
+export type PoolCreated = TraceEvent & {
   transactionHash: string;
   jetton0: Address;
   jetton1: Address;

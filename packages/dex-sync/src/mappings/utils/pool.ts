@@ -1,4 +1,4 @@
-import { TraceTx } from '@src/@types';
+import { TraceEvent } from '@src/@types';
 import { Pool } from '@src/models';
 import { tonApiClient } from '@src/services/ton-api';
 import { encodeBlockId } from './block';
@@ -7,11 +7,11 @@ import * as schema from '@src/models';
 import { eq } from 'drizzle-orm';
 import { ONE_DAY_IN_MILLISECONDS, ZERO_BD, ZERO_BI } from '@src/constants';
 
-export const updatePoolDayData = async (pool: Pool, event: TraceTx) => {
-  let timestamp = event.blockTimestamp;
+export const updatePoolDayData = async (pool: Pool, event: TraceEvent) => {
+  let timestamp = event.block.timestamp;
   let dayID = timestamp / ONE_DAY_IN_MILLISECONDS;
   let dayStartTimestamp = dayID * ONE_DAY_IN_MILLISECONDS;
-  let dayPoolID = event.transactionHash.concat('-').concat(dayID.toString());
+  let dayPoolID = event.transaction.hash.concat('-').concat(dayID.toString());
   let poolDayData = await db.query.poolData.findFirst({
     where: eq(schema.poolData.id, dayPoolID),
   });
@@ -63,4 +63,5 @@ export const updatePoolDayData = async (pool: Pool, event: TraceTx) => {
         tvlUSD: poolDayData.tvlUSD,
       },
     });
+  return poolDayData;
 };

@@ -1,5 +1,6 @@
 import { Jetton, Router } from '@src/models';
 import BigDecimal from 'js-big-decimal';
+import { exponentToBigDecimal } from './jetton';
 
 export interface AmountType {
   ton: BigDecimal;
@@ -24,4 +25,21 @@ export function getAdjustedAmounts(
   }
   let usd = ton.multiply(new BigDecimal(router.tonPriceUSD));
   return { ton, usd };
+}
+
+let Q192 = 2 ** 192;
+export function sqrtPriceX96ToTokenPrices(
+  sqrtPriceX96: bigint,
+  jetton0: Jetton,
+  jetton1: Jetton,
+): BigDecimal[] {
+  let num = new BigDecimal((sqrtPriceX96 * sqrtPriceX96).toString());
+  let denom = new BigDecimal(Q192.toString());
+  let price1 = num
+    .divide(denom)
+    .multiply(exponentToBigDecimal(BigInt(jetton0.decimals)))
+    .multiply(exponentToBigDecimal(BigInt(jetton1.decimals)));
+
+  let price0 = new BigDecimal('1').divide(price1);
+  return [price0, price1];
 }

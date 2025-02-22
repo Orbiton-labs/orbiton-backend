@@ -41,6 +41,8 @@ export const handlePoolCreated = async (event: PoolCreated) => {
       totalValueLockedUSD: ZERO_BD,
       totalVolumeTon: ZERO_BD,
       totalVolumeUSD: ZERO_BD,
+      totalProtocolFeesTon: ZERO_BD,
+      totalProtocolFeesUSD: ZERO_BD,
     });
     router = (await db.query.router.findFirst()) as Router;
   }
@@ -50,14 +52,13 @@ export const handlePoolCreated = async (event: PoolCreated) => {
   let feeTier = event.fee;
 
   await db.insert(schema.transaction).values({
-    hash: event.transactionHash,
+    hash: event.transaction.hash,
     block: event.block,
-    timestamp: new Date(event.blockTimestamp),
+    timestamp: new Date(event.block.timestamp),
   });
   let transaction = await db.query.transaction.findFirst({
-    where: eq(schema.transaction.hash, event.transactionHash),
+    where: eq(schema.transaction.hash, event.transaction.hash),
   });
-  let block = transaction.block as tonNode_BlockIdExt;
 
   let poolData = {
     address: event.poolAddress.toString(),
@@ -87,7 +88,7 @@ export const handlePoolCreated = async (event: PoolCreated) => {
     volumeJetton1: ZERO_BD,
     transactionId: transaction.id,
     volumeUSD: ZERO_BD,
-    timestamp: new Date(event.blockTimestamp),
+    timestamp: new Date(event.block.timestamp),
   };
   await db.insert(schema.pool).values({ ...poolData });
 };

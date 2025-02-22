@@ -3,7 +3,7 @@ import { pgTable as table } from 'drizzle-orm/pg-core';
 import { pool } from './pool';
 import { jetton } from './jetton';
 import { transaction } from './transaction';
-import { relations } from 'drizzle-orm';
+import { InferSelectModel, relations } from 'drizzle-orm';
 
 export const swap = table('swaps', {
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -62,3 +62,5 @@ export const swapRelations = relations(swap, ({ one, many }) => {
     }),
   };
 });
+
+export type Swap = InferSelectModel<typeof swap>;

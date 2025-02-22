@@ -1,10 +1,11 @@
-import { TraceTx } from '@src/@types';
+import { TraceEvent } from '@src/@types';
 import { ONE_BD, ZERO_ADDRESS } from '@src/constants';
 import { Jetton, Tick } from '@src/models';
 import { tonApiClient } from '@src/services/ton-api';
 import { setTimeout } from 'timers/promises';
 import * as schema from '@src/models';
 import { db } from '@src/db';
+import { eq } from 'drizzle-orm';
 
 export const getTonPrice = async (): Promise<number> => {
   while (true) {
@@ -41,7 +42,7 @@ export const findTonPerJetton = async (jetton: Jetton): Promise<string> => {
   }
 };
 
-export const updateTickFeeVarsAndSave = async (tick: Tick, event: TraceTx) => {
+export const updateTickFeeVarsAndSave = async (tick: Tick, event: TraceEvent) => {
   // let poolAddress = event.address;
   // TODO: Fetch fee growth outside 0 and 1 from contract here
   // let tickResult = poolContract.ticks(tick.tickIdx.toI32());
@@ -57,4 +58,15 @@ export const updateTickFeeVarsAndSave = async (tick: Tick, event: TraceTx) => {
         ...tick,
       },
     });
+};
+
+export const loadTickUpdateFeeVarsAndSave = async (tickId: bigint, event: TraceEvent) => {
+  const poolAddress = event.address;
+  const encodeTickId = poolAddress.toString().concat('#').concat(tickId.toString());
+  let tick = await db.query.tick.findFirst({
+    where: eq(schema.tick.id, encodeTickId),
+  });
+  if (tick !== null) {
+    await updateTickFeeVarsAndSave(tick!, event);
+  }
 };

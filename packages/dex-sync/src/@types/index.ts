@@ -4,9 +4,18 @@ import { Address } from '@ton/core';
 export * from './factory.type';
 
 export type TraceTx = {
+  from: Address;
+  to: Address;
+  hash: string;
+};
+
+export type TraceBlock = {
+  id: tonNode_blockIdExt;
+  timestamp: number;
+};
+
+export type TraceEvent = {
   address: Address;
-  transactionHash: string;
-  block: tonNode_blockIdExt;
-  // NOTICE: this timestamp must be converted to be in milliseconds
-  blockTimestamp: number;
+  transaction: TraceTx;
+  block: TraceBlock;
 };

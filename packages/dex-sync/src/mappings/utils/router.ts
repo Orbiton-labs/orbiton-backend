@@ -1,12 +1,12 @@
-import { TraceTx } from '@src/@types';
+import { TraceEvent } from '@src/@types';
 import { ONE_DAY_IN_MILLISECONDS, ZERO_BD, ZERO_BI } from '@src/constants';
 import { Router } from '@src/models';
 import { db } from '@src/db';
 import * as schema from '@src/models';
 import { eq } from 'drizzle-orm';
 
-export const updateRouterData = async (router: Router, event: TraceTx) => {
-  const timestamp = event.blockTimestamp;
+export const updateRouterDayData = async (router: Router, event: TraceEvent) => {
+  const timestamp = event.block.timestamp;
   let dayID = timestamp / ONE_DAY_IN_MILLISECONDS;
   let dayStartTimestamp = dayID * ONE_DAY_IN_MILLISECONDS;
   let routerDayData = await db.query.routerData.findFirst({
@@ -41,4 +41,5 @@ export const updateRouterData = async (router: Router, event: TraceTx) => {
         tvlUSD: routerDayData.tvlUSD,
       },
     });
+  return routerDayData;
 };

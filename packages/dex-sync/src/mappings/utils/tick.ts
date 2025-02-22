@@ -26,7 +26,7 @@ export function createTick(tickId: string, tickIdx: bigint, pool: Pool, event: M
     poolId: pool.id,
     feeGrowthOutside0X128: ZERO_BI,
     feeGrowthOutside1X128: ZERO_BI,
-    timestamp: new Date(event.blockTimestamp),
+    timestamp: new Date(event.block.timestamp),
   } as Tick;
 
   // 1.0001^tick is token1/token0.

@@ -40,4 +40,5 @@ export const handleInitialize = async (event: Initialize) => {
     db.update(schema.jetton).set(jetton0).where(eq(schema.jetton, jetton0.id)),
     db.update(schema.jetton).set(jetton1).where(eq(schema.jetton, jetton1.id)),
   ]);
+  return poolData;
 };
