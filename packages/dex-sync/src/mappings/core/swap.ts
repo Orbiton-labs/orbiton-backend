@@ -30,7 +30,6 @@ export const handleSwap = async (event: SwapEvent) => {
     return;
   }
   let { jetton0, jetton1 } = pool;
-  let oldTick = pool.tick;
   let amount0 = convertJettonToDecimal(event.amount0, jetton0);
   let amount1 = convertJettonToDecimal(event.amount1, jetton1);
 

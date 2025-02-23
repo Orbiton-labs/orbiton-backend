@@ -19,11 +19,11 @@ export const pool = table('pools', {
     .references(() => transaction.id)
     .notNull(),
   jetton0Id: t
-    .integer('jetton0_id')
+    .text('jetton0_id')
     .references(() => jetton.id)
     .notNull(),
   jetton1Id: t
-    .integer('jetton1_id')
+    .text('jetton1_id')
     .references(() => jetton.id)
     .notNull(),
   feeTier: t

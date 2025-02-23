@@ -27,3 +27,12 @@ export type SwapEvent = TraceEvent & {
   protocolFeesJetton0: bigint;
   protocolFeesJetton1: bigint;
 };
+
+export type BurnEvent = TraceEvent & {
+  owner: Address;
+  tickLower: bigint;
+  tickUpper: bigint;
+  amount: bigint;
+  amount0: bigint;
+  amount1: bigint;
+};

@@ -9,7 +9,7 @@ import { swap } from './swap';
 import { burn } from './burn';
 
 export const jetton = table('jettons', {
-  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+  id: t.text().primaryKey().notNull(),
   name: t.text().notNull(),
   symbol: t.text().notNull(),
   decimals: t.integer().notNull(),
@@ -18,7 +18,6 @@ export const jetton = table('jettons', {
       mode: 'bigint',
     })
     .notNull(),
-  address: t.text().notNull(),
   poolCount: t
     .bigint('pool_count', {
       mode: 'bigint',

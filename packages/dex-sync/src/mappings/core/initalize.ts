@@ -11,10 +11,6 @@ import { updatePoolDayData } from '../utils/pool';
 export const handleInitialize = async (event: Initialize) => {
   let pool = await db.query.pool.findFirst({
     where: eq(schema.pool.address, event.address.toString()),
-    with: {
-      jetton0: true,
-      jetton1: true,
-    },
   });
   if (!pool) {
     return;
@@ -25,8 +21,8 @@ export const handleInitialize = async (event: Initialize) => {
     tick: event.tick,
   };
   await db.insert(schema.pool).values({ ...poolData });
-  let jetton0 = await getOrLoadJetton(Address.parse(poolData.jetton0.address));
-  let jetton1 = await getOrLoadJetton(Address.parse(poolData.jetton1.address));
+  let jetton0 = await getOrLoadJetton(Address.parse(poolData.jetton0Id));
+  let jetton1 = await getOrLoadJetton(Address.parse(poolData.jetton1Id));
 
   let router = (await db.query.router.findFirst({})) as Router;
   router.tonPriceUSD = (await getTonPrice()).toString();

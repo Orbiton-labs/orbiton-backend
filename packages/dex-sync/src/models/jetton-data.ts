@@ -6,7 +6,7 @@ import { relations } from 'drizzle-orm';
 export const jettonData = table('jetton_data', {
   id: t.text().primaryKey().notNull(),
   jettonId: t
-    .integer('jetton_id')
+    .text('jetton_id')
     .references(() => jetton.id)
     .notNull(),
   volume: t.text().notNull(),

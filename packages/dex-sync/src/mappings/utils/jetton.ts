@@ -14,9 +14,9 @@ export const getOrLoadJetton = async (address: Address) => {
   if (!jetton) {
     const jettonInfo = await tonApiClient.jettons.getJettonInfo(address);
     await db.insert(schema.jetton).values({
+      id: jettonInfo.metadata.address.toString(),
       name: jettonInfo.metadata.name,
       symbol: jettonInfo.metadata.symbol,
-      address: jettonInfo.metadata.address.toString(),
       decimals: Number(jettonInfo.metadata.decimals),
       totalSupply: jettonInfo.totalSupply,
       derivedTon: ZERO_BD,

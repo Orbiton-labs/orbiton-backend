@@ -26,15 +26,15 @@ export const getTonPrice = async (): Promise<number> => {
 export const findTonPerJetton = async (jetton: Jetton): Promise<string> => {
   while (true) {
     try {
-      if (jetton.address === ZERO_ADDRESS) {
+      if (jetton.id === ZERO_ADDRESS) {
         return ONE_BD;
       }
 
       const rateData = await tonApiClient.rates.getRates({
-        tokens: [jetton.address],
+        tokens: [jetton.id],
         currencies: ['TON'],
       });
-      const tonRate = rateData.rates[jetton.address];
+      const tonRate = rateData.rates[jetton.id];
       const jettonPricePerTon = tonRate.prices['TON'];
       return jettonPricePerTon.toString();
     } catch (err) {}
