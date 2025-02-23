@@ -36,3 +36,19 @@ export type BurnEvent = TraceEvent & {
   amount0: bigint;
   amount1: bigint;
 };
+
+export type CollectEvent = TraceEvent & {
+  owner: Address;
+  recipient: Address;
+  tickLower: bigint;
+  tickUpper: bigint;
+  amount0: bigint;
+  amount1: bigint;
+};
+
+export type CollectProtocolEvent = TraceEvent & {
+  sender: Address;
+  recipient: Address;
+  amount0: bigint;
+  amount1: bigint;
+};

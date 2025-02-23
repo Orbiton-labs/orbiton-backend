@@ -6,13 +6,13 @@ import * as schema from '@src/models';
 import { convertJettonToDecimal, getOrLoadJetton, updateJettonDayData } from '../utils/jetton';
 import BigDecimal from 'js-big-decimal';
 import { getAdjustedAmounts, sqrtPriceX96ToJettonPrices } from '../utils/pricing';
-import { ONE_BI, ZERO_BI } from '@src/constants';
-import { getTonPrice, loadTickUpdateFeeVarsAndSave } from '../utils/ton';
+import { ONE_BI } from '@src/constants';
+import { getTonPrice } from '../utils/ton';
 import { loadTransaction } from '../utils';
 import { updateDerivedTVLAmounts } from '../utils/tvl';
 import { updateRouterDayData } from '../utils/router';
 import { updatePoolDayData } from '../utils/pool';
-import { feeTierToTickSpacing } from '../utils/tick';
+import { Address } from '@ton/core';
 
 export const handleSwap = async (event: SwapEvent) => {
   let router = (await db.query.router.findFirst({})) as Router | undefined;
@@ -21,15 +21,12 @@ export const handleSwap = async (event: SwapEvent) => {
   }
   let pool = await db.query.pool.findFirst({
     where: eq(schema.pool.address, event.address.toString()),
-    with: {
-      jetton0: true,
-      jetton1: true,
-    },
   });
   if (!pool) {
     return;
   }
-  let { jetton0, jetton1 } = pool;
+  let jetton0 = await getOrLoadJetton(Address.parse(pool.jetton0Id));
+  let jetton1 = await getOrLoadJetton(Address.parse(pool.jetton1Id));
   let amount0 = convertJettonToDecimal(event.amount0, jetton0);
   let amount1 = convertJettonToDecimal(event.amount1, jetton1);
 
@@ -144,8 +141,8 @@ export const handleSwap = async (event: SwapEvent) => {
     amountUSD: volumeUSD.toString(),
     amountFeeUSD: protocolFeeAmounts.usd.toString(),
     poolId: pool.id,
-    jetton0Id: pool.jetton0.id,
-    jetton1Id: pool.jetton1.id,
+    jetton0Id: jetton0.id,
+    jetton1Id: jetton1.id,
     recipient: event.recipient.toString(),
     sender: event.sender.toString(),
     origin: event.transaction.from.toString(),

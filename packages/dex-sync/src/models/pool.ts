@@ -10,6 +10,7 @@ import { mint } from './mint';
 import { swap } from './swap';
 import { burn } from './burn';
 import { tick } from './tick';
+import { collect } from './collect';
 
 export const pool = table('pools', {
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -109,6 +110,7 @@ export const poolRelations = relations(pool, ({ one, many }) => {
     swap: many(swap),
     burn: many(burn),
     tick: many(tick),
+    collect: many(collect),
   };
 });
 

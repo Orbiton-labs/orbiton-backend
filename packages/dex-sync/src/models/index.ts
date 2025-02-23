@@ -12,3 +12,4 @@ export * from './jetton-data';
 export * from './router';
 export * from './tick';
 export * from './router-data';
+export * from './collect';

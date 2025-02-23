@@ -3,7 +3,7 @@ import { pgTable as table } from 'drizzle-orm/pg-core';
 import { jetton } from './jetton';
 import { pool } from './pool';
 import { transaction } from './transaction';
-import { relations } from 'drizzle-orm';
+import { InferSelectModel, relations } from 'drizzle-orm';
 
 export const burn = table('burns', {
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -19,8 +19,8 @@ export const burn = table('burns', {
     .text('jetton1_id')
     .references(() => jetton.id)
     .notNull(),
-  sender: t.text().notNull(),
-  recipient: t.text().notNull(),
+  owner: t.text().notNull(),
+  origin: t.text().notNull(),
   amount0: t.text().notNull(),
   amount1: t.text().notNull(),
   amount: t
@@ -66,3 +66,6 @@ export const burnRelations = relations(burn, ({ one, many }) => {
     }),
   };
 });
+
+export type Burn = InferSelectModel<typeof burn>;
+export type BurnWithoutId = Omit<Burn, 'id'>;

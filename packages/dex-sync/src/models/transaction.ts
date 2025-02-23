@@ -6,6 +6,7 @@ import { position } from './position';
 import { mint } from './mint';
 import { swap } from './swap';
 import { burn } from './burn';
+import { collect } from './collect';
 
 export const transaction = table('transactions', {
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -35,6 +36,10 @@ export const transactionRelations = relations(transaction, ({ many, one }) => {
     burn: one(burn, {
       fields: [transaction.id],
       references: [burn.transactionId],
+    }),
+    collect: one(collect, {
+      fields: [transaction.id],
+      references: [collect.transactionId],
     }),
   };
 });

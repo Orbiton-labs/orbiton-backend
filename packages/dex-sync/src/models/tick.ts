@@ -11,7 +11,10 @@ export const tick = table('ticks', {
       mode: 'bigint',
     })
     .notNull(),
-  poolId: t.integer('pool_id').notNull(),
+  poolId: t
+    .integer('pool_id')
+    .references(() => pool.id)
+    .notNull(),
   liquidityGross: t
     .bigint('liquidity_gross', {
       mode: 'bigint',
