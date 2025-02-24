@@ -8,7 +8,7 @@ describe('Test me', () => {
     // console.log(process.cwd() + '/drizzle');
     Database.init(DatabaseMode.IN_MEMORY);
     await migrate(db as any, {
-      migrationsFolder: process.cwd() + '/drizzle',
+      migrationsFolder: __dirname.split('/tests')[0] + '/drizzle',
     });
 
     await db.insert(schema.transaction).values({
