@@ -6,7 +6,7 @@ import env from './configs/env';
 
 export enum DatabaseMode {
   IN_MEMORY,
-  POSTGREQL,
+  NORMAL,
 }
 
 let db: NodePgDatabase<typeof schema> & {
@@ -25,7 +25,7 @@ export class Database {
         const client = new PGlite();
         Database.instance = drizzlePgLite({ client, schema });
         break;
-      case DatabaseMode.POSTGREQL:
+      case DatabaseMode.NORMAL:
         Database.instance = drizzlePg({
           schema: schema,
           connection: env.server.pgUrl,
