@@ -8,7 +8,7 @@
     "clean": "lerna clean --yes && lerna exec -- rimraf build/ dist/ cache/",
     "build": "lerna run build --concurrency 1",
     "build-tsc": "tsc -p",
-    "deploy": "yarn lerna publish",
+    "deploy": "lerna publish",
     "build:watch": "lerna run build --stream",
     "prepare": "husky install",
     "build:docker": "lerna run build --concurrency 1",
@@ -53,5 +53,5 @@
     "typescript": "5.4.5"
   },
   "version": "1.0.1",
-  "packageManager": "yarn@1.22.9"
+  "packageManager": "bun@latest"
 }
