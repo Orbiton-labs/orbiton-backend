@@ -53,7 +53,7 @@ export const handlePoolCreated = async (event: PoolCreated) => {
 
   await db.insert(schema.transaction).values({
     hash: event.transaction.hash,
-    block: event.block,
+    block: event.block.id,
     timestamp: new Date(event.block.timestamp),
   });
   let transaction = await db.query.transaction.findFirst({

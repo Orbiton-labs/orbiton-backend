@@ -1,4 +1,3 @@
-import { getHttpEndpoint } from '@orbs-network/ton-access';
 import {
   WalletContractV3R2,
   WalletContractV4,
@@ -6,8 +5,8 @@ import {
   internal,
   OpenedContract,
 } from '@ton/ton';
-import { mnemonicToWalletKey } from '@ton/crypto';
-import env from '../configs/env';
+// import { mnemonicToWalletKey } from '@ton/crypto';
+// import env from '../configs/env';
 
 export async function waitSeqno(
   walletContract: OpenedContract<WalletContractV3R2> | OpenedContract<WalletContractV4>,
@@ -22,51 +21,51 @@ export async function waitSeqno(
   console.log('transaction confirmed!');
 }
 
-export async function createTonWallet() {
-  const client = new TonClient({
-    endpoint: env.ton.tonCenterUrl,
-    apiKey: env.ton.tonApiKey,
-  });
-  const mnemonic = env.ton.mnemonic.split(' ');
-  if (!mnemonic) {
-    throw new Error('Mnemonic is not set');
-  }
-  const key = await mnemonicToWalletKey(mnemonic);
-  // NOTE: Testnet using WalletContractV3R2 and Mainnet using WalletContractV4
-  let wallet = WalletContractV4.create({
-    publicKey: key.publicKey,
-    workchain: 0,
-  });
-  if (env.server.env === 'testnet') {
-    wallet = WalletContractV4.create({
-      publicKey: key.publicKey,
-      workchain: 0,
-    });
-  }
+// export async function createTonWallet() {
+//   const client = new TonClient({
+//     endpoint: env.ton.tonCenterUrl,
+//     apiKey: env.ton.tonApiKey,
+//   });
+//   const mnemonic = env.ton.mnemonic.split(' ');
+//   if (!mnemonic) {
+//     throw new Error('Mnemonic is not set');
+//   }
+//   const key = await mnemonicToWalletKey(mnemonic);
+//   // NOTE: Testnet using WalletContractV3R2 and Mainnet using WalletContractV4
+//   let wallet = WalletContractV4.create({
+//     publicKey: key.publicKey,
+//     workchain: 0,
+//   });
+//   if (env.server.env === 'testnet') {
+//     wallet = WalletContractV4.create({
+//       publicKey: key.publicKey,
+//       workchain: 0,
+//     });
+//   }
 
-  let walletContract = client.open(wallet);
-  // Deployed by sending a simple transaction to another subwallet. Since the subwallet have not been deployed,
-  // the fund will return.
-  if (!(await client.isContractDeployed(wallet.address))) {
-    console.log(wallet);
-    const subWallet2 = WalletContractV4.create({
-      publicKey: key.publicKey,
-      workchain: 0,
-      walletId: 110300,
-    });
-    const seqno = await walletContract.getSeqno();
-    await walletContract.sendTransfer({
-      secretKey: key.secretKey,
-      seqno,
-      messages: [
-        internal({
-          to: subWallet2.address,
-          value: '0.05',
-        }),
-      ],
-    });
-    // wait until confirmed
-    await waitSeqno(walletContract, seqno);
-  }
-  return { client, walletContract, key };
-}
+//   let walletContract = client.open(wallet);
+//   // Deployed by sending a simple transaction to another subwallet. Since the subwallet have not been deployed,
+//   // the fund will return.
+//   if (!(await client.isContractDeployed(wallet.address))) {
+//     console.log(wallet);
+//     const subWallet2 = WalletContractV4.create({
+//       publicKey: key.publicKey,
+//       workchain: 0,
+//       walletId: 110300,
+//     });
+//     const seqno = await walletContract.getSeqno();
+//     await walletContract.sendTransfer({
+//       secretKey: key.secretKey,
+//       seqno,
+//       messages: [
+//         internal({
+//           to: subWallet2.address,
+//           value: '0.05',
+//         }),
+//       ],
+//     });
+//     // wait until confirmed
+//     await waitSeqno(walletContract, seqno);
+//   }
+//   return { client, walletContract, key };
+// }

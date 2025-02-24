@@ -18,11 +18,11 @@ export const position = table('positions', {
     .notNull(),
   owner: t.text().notNull(),
   jetton0Id: t
-    .integer('jetton0_id')
+    .text('jetton0_id')
     .references(() => jetton.id)
     .notNull(),
   jetton1Id: t
-    .integer('jetton2_id')
+    .text('jetton2_id')
     .references(() => jetton.id)
     .notNull(),
   tickLower: t

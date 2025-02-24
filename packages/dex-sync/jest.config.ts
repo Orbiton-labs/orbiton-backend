@@ -1,4 +1,3 @@
-// jest.config.js
 module.exports = {
   transform: {
     '^.+\\.ts?$': ['@swc/jest'],

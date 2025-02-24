@@ -29,8 +29,8 @@ export const handleMint = async (event: MintEvent) => {
   if (!pool) {
     return;
   }
-  let jetton0 = await getOrLoadJetton(Address.parse(pool.jetton0.address));
-  let jetton1 = await getOrLoadJetton(Address.parse(pool.jetton1.address));
+  let jetton0 = await getOrLoadJetton(Address.parse(pool.jetton0.id));
+  let jetton1 = await getOrLoadJetton(Address.parse(pool.jetton1.id));
   let amount0 = convertJettonToDecimal(event.amount0, jetton0);
   let amount1 = convertJettonToDecimal(event.amount1, jetton1);
   let amountUSD = amount0
@@ -111,7 +111,7 @@ export const handleMint = async (event: MintEvent) => {
   lowerTick.liquidityGross = lowerTick.liquidityGross + amount;
   lowerTick.liquidityNet = lowerTick.liquidityNet + amount;
   upperTick.liquidityGross = upperTick.liquidityGross + amount;
-  upperTick.liquidityNet = upperTick.liquidityNet + amount;
+  upperTick.liquidityNet = upperTick.liquidityNet - amount;
 
   await updateRouterDayData(router, event);
   await updatePoolDayData(pool, event);
