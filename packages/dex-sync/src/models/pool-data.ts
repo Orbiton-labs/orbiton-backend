@@ -5,7 +5,6 @@ import { relations } from 'drizzle-orm';
 
 export const poolData = table('pool_data', {
   id: t.text().primaryKey().notNull(),
-  date: t.integer().notNull(),
   poolId: t
     .integer('pool_id')
     .references(() => pool.id)
@@ -40,6 +39,7 @@ export const poolData = table('pool_data', {
       mode: 'bigint',
     })
     .notNull(),
+  timestamp: t.timestamp().notNull(),
 });
 
 export const poolDataRelations = relations(poolData, ({ one }) => {

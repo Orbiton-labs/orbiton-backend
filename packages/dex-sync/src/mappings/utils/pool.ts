@@ -1,7 +1,5 @@
 import { TraceEvent } from '@src/@types';
 import { Pool } from '@src/models';
-import { tonApiClient } from '@src/services/ton-api';
-import { encodeBlockId } from './block';
 import { db } from '@src/db';
 import * as schema from '@src/models';
 import { eq } from 'drizzle-orm';
@@ -15,10 +13,11 @@ export const updatePoolDayData = async (pool: Pool, event: TraceEvent) => {
   let poolDayData = await db.query.poolData.findFirst({
     where: eq(schema.poolData.id, dayPoolID),
   });
+  console.log(dayPoolID);
   if (!poolDayData) {
     poolDayData = {
       ...poolDayData,
-      date: dayStartTimestamp,
+      id: dayPoolID,
       poolId: pool.id,
       volumeJetton0: ZERO_BD,
       volumeJetton1: ZERO_BD,
@@ -28,6 +27,7 @@ export const updatePoolDayData = async (pool: Pool, event: TraceEvent) => {
       txCount: ZERO_BI,
       feeGrowthGlobal0X128: ZERO_BI,
       feeGrowthGlobal1X128: ZERO_BI,
+      timestamp: new Date(dayStartTimestamp),
     };
   }
   poolDayData.liquidity = pool.liquidity;
@@ -45,7 +45,7 @@ export const updatePoolDayData = async (pool: Pool, event: TraceEvent) => {
     .onConflictDoUpdate({
       target: schema.poolData.id,
       set: {
-        date: poolDayData.date,
+        timestamp: poolDayData.timestamp,
         poolId: poolDayData.poolId,
         volumeJetton0: poolDayData.volumeJetton0,
         volumeJetton1: poolDayData.volumeJetton1,

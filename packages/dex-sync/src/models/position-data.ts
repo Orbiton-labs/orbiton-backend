@@ -16,7 +16,7 @@ export const positionData = table('position_data', {
     .references(() => position.id)
     .notNull(),
   block: t.json().notNull(),
-  timestamp: t.integer().notNull(),
+  timestamp: t.timestamp().notNull(),
   liquidity: t
     .bigint({
       mode: 'bigint',

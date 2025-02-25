@@ -12,12 +12,14 @@ export const getTonPrice = async (): Promise<number> => {
     try {
       const rateData = await tonApiClient.rates.getRates({
         tokens: ['TON'],
-        currencies: ['TON', 'USDT'],
+        currencies: ['TON,USDT'],
       });
       const tonRate = rateData.rates['TON'];
       const tonPrice = tonRate.prices['USDT'];
       return tonPrice;
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
     await setTimeout(500);
   }
 };
@@ -29,15 +31,18 @@ export const findTonPerJetton = async (jetton: Jetton): Promise<string> => {
       if (jetton.id === ZERO_ADDRESS) {
         return ONE_BD;
       }
-
       const rateData = await tonApiClient.rates.getRates({
         tokens: [jetton.id],
         currencies: ['TON'],
       });
-      const tonRate = rateData.rates[jetton.id];
+      console.log(rateData.rates, jetton.id, Object.keys(rateData.rates).includes(jetton.id));
+      const tonRate = rateData.rates?.[jetton.id];
+      console.log('Yamete:', tonRate);
       const jettonPricePerTon = tonRate.prices['TON'];
       return jettonPricePerTon.toString();
-    } catch (err) {}
+    } catch (err) {
+      console.log(err, err.stack);
+    }
     await setTimeout(500);
   }
 };

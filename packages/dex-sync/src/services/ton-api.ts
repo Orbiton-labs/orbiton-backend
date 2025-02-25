@@ -2,5 +2,5 @@ import { TonApiClient } from '@ton-api/client';
 
 export const tonApiClient = new TonApiClient({
   baseUrl: 'https://tonapi.io',
-  apiKey: 'AGSNOVUCWK5SY3AAAAAJR7JCKFUKNOT2CBNTKVWBLKOZ34JTPZTV5V77KBSVJVPDZI2QW6A',
+  apiKey: 'AGSNOVUCGDJF32AAAAANN2LHR6HNAGLSAAHD4X3MNJGOJNJ45MAK4JNTWOT3V5RHGNJC5QY',
 });

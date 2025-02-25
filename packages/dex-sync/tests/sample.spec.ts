@@ -1,7 +1,6 @@
 import { Database, DatabaseMode, db } from '../src/db';
 import * as schema from '../src/models';
 import { migrate } from 'drizzle-orm/pglite/migrator';
-import process from 'process';
 
 describe('Test me', () => {
   it('should pass', async () => {
@@ -11,11 +10,19 @@ describe('Test me', () => {
       migrationsFolder: __dirname.split('/tests')[0] + '/drizzle',
     });
 
-    await db.insert(schema.transaction).values({
-      hash: '0x123',
-      block: 1,
-      timestamp: new Date(),
-    });
+    const res = await db
+      .insert(schema.transaction)
+      .values([
+        {
+          hash: '0x123',
+          block: 1,
+          timestamp: new Date(),
+        },
+      ])
+      .returning({
+        id: schema.transaction.id,
+      });
+    console.log(res);
 
     const transactions = await db.query.transaction.findMany();
     console.log(transactions);

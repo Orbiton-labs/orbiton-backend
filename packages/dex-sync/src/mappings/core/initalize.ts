@@ -7,29 +7,99 @@ import { Address } from '@ton/core';
 import { Router } from '@src/models/router';
 import { findTonPerJetton, getTonPrice } from '../utils/ton';
 import { updatePoolDayData } from '../utils/pool';
+import { ZERO_BD, ZERO_BI } from '@src/constants';
+
+function feeTierToProtocolFeeDefault(feeTier: bigint): bigint {
+  if (feeTier === 10000n) {
+    return 209718400n;
+  }
+  if (feeTier === 2500n) {
+    return 209718400n;
+  }
+  if (feeTier === 500n) {
+    return 222825800n;
+  }
+  if (feeTier === 100n) {
+    return 216272100n;
+  }
+  return 209718400n;
+}
 
 export const handleInitialize = async (event: Initialize) => {
-  let pool = await db.query.pool.findFirst({
-    where: eq(schema.pool.address, event.address.toString()),
-  });
-  if (!pool) {
-    return;
+  const tonPriceUSD = await getTonPrice();
+  let router = (await db.query.router.findFirst({})) as Router | undefined;
+  if (!router) {
+    await db.insert(schema.router).values({
+      poolCount: ZERO_BI,
+      txCount: ZERO_BI,
+      tonPriceUSD: tonPriceUSD.toString(),
+      totalFeesTon: ZERO_BD,
+      totalFeesUSD: ZERO_BD,
+      totalValueLockedTon: ZERO_BD,
+      totalValueLockedUSD: ZERO_BD,
+      totalVolumeTon: ZERO_BD,
+      totalVolumeUSD: ZERO_BD,
+      totalProtocolFeesTon: ZERO_BD,
+      totalProtocolFeesUSD: ZERO_BD,
+    });
+    router = (await db.query.router.findFirst()) as Router;
   }
+  router.poolCount += 1n;
+
+  let jetton0 = await getOrLoadJetton(event.jetton0);
+  let jetton1 = await getOrLoadJetton(event.jetton1);
+  let feeTier = event.fee;
+
+  await db.insert(schema.transaction).values({
+    hash: event.transaction.hash,
+    block: event.block.id,
+    timestamp: new Date(event.block.timestamp),
+  });
+  let transaction = await db.query.transaction.findFirst({
+    where: eq(schema.transaction.hash, event.transaction.hash),
+  });
+
   let poolData = {
-    ...pool,
-    sqrtPrice: event.sqrtPriceX96,
-    tick: event.tick,
+    address: event.address.toString(),
+    jetton0Id: jetton0.id,
+    jetton1Id: jetton1.id,
+    feeTier,
+    collectedFeesJetton0: ZERO_BD,
+    collectedFeesJetton1: ZERO_BD,
+    collectedFeesUSD: ZERO_BD,
+    feeGrowthGlobal0X128: ZERO_BI,
+    feeGrowthGlobal1X128: ZERO_BI,
+    feeProtocol: feeTierToProtocolFeeDefault(BigInt(feeTier)),
+    feesUSD: ZERO_BD,
+    protocolFeesUSD: ZERO_BD,
+    jetton0Price: ZERO_BD,
+    jetton1Price: ZERO_BD,
+    liquidity: ZERO_BI,
+    liquidityProviderCount: ZERO_BI,
+    sqrtPrice: ZERO_BI,
+    tick: ZERO_BI,
+    totalValueLockedJetton0: ZERO_BD,
+    totalValueLockedJetton1: ZERO_BD,
+    totalValueLockedTon: ZERO_BD,
+    totalValueLockedUSD: ZERO_BD,
+    txCount: ZERO_BI,
+    volumeJetton0: ZERO_BD,
+    volumeJetton1: ZERO_BD,
+    transactionId: transaction.id,
+    volumeUSD: ZERO_BD,
+    timestamp: new Date(event.block.timestamp),
   };
-  await db.insert(schema.pool).values({ ...poolData });
-  let jetton0 = await getOrLoadJetton(Address.parse(poolData.jetton0Id));
-  let jetton1 = await getOrLoadJetton(Address.parse(poolData.jetton1Id));
-
-  let router = (await db.query.router.findFirst({})) as Router;
-  router.tonPriceUSD = (await getTonPrice()).toString();
-  await db.update(schema.router).set(router).where(eq(schema.router, router.id));
-
-  await updatePoolDayData(pool, event);
-
+  const results = await db
+    .insert(schema.pool)
+    .values({ ...poolData })
+    .returning({ id: schema.pool.id });
+  await updatePoolDayData(
+    {
+      ...poolData,
+      id: results[0].id,
+    },
+    event,
+  );
   jetton0.derivedTon = await findTonPerJetton(jetton0);
   jetton1.derivedTon = await findTonPerJetton(jetton1);
   await Promise.all([
