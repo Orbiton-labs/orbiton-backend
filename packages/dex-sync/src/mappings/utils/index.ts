@@ -28,7 +28,7 @@ export const loadTransaction = async (event: TraceEvent): Promise<Transaction> =
   let transaction = await db.query.transaction.findFirst({
     where: eq(schema.transaction.hash, event.transaction.hash),
   });
-  if (transaction === null) {
+  if (!transaction) {
     await db.insert(schema.transaction).values({
       hash: event.transaction.hash,
       block: event.block.id,

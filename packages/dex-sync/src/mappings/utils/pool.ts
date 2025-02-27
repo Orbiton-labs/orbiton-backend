@@ -1,19 +1,18 @@
 import { TraceEvent } from '@src/@types';
 import { Pool } from '@src/models';
-import { db } from '@src/db';
+import { DatabaseType, db } from '@src/db';
 import * as schema from '@src/models';
 import { eq } from 'drizzle-orm';
-import { ONE_DAY_IN_MILLISECONDS, ZERO_BD, ZERO_BI } from '@src/constants';
+import { ONE_DAY_IN_MILLISECONDS, ZERO_BD } from '@src/constants';
 
-export const updatePoolDayData = async (pool: Pool, event: TraceEvent) => {
+export const updatePoolDayData = async (pool: Pool, event: TraceEvent, _db: DatabaseType = db) => {
   let timestamp = event.block.timestamp;
   let dayID = timestamp / ONE_DAY_IN_MILLISECONDS;
   let dayStartTimestamp = dayID * ONE_DAY_IN_MILLISECONDS;
   let dayPoolID = event.transaction.hash.concat('-').concat(dayID.toString());
-  let poolDayData = await db.query.poolData.findFirst({
+  let poolDayData = await _db.query.poolData.findFirst({
     where: eq(schema.poolData.id, dayPoolID),
   });
-  console.log(dayPoolID);
   if (!poolDayData) {
     poolDayData = {
       ...poolDayData,
@@ -24,9 +23,9 @@ export const updatePoolDayData = async (pool: Pool, event: TraceEvent) => {
       volumeUSD: ZERO_BD,
       feesUSD: ZERO_BD,
       protocolFeesUSD: ZERO_BD,
-      txCount: ZERO_BI,
-      feeGrowthGlobal0X128: ZERO_BI,
-      feeGrowthGlobal1X128: ZERO_BI,
+      txCount: ZERO_BD,
+      feeGrowthGlobal0X128: ZERO_BD,
+      feeGrowthGlobal1X128: ZERO_BD,
       timestamp: new Date(dayStartTimestamp),
     };
   }
@@ -38,8 +37,8 @@ export const updatePoolDayData = async (pool: Pool, event: TraceEvent) => {
   poolDayData.jetton1Price = pool.jetton1Price;
   poolDayData.tick = pool.tick;
   poolDayData.tvlUSD = pool.totalValueLockedUSD;
-  poolDayData.txCount += 1n;
-  await db
+  poolDayData.txCount = (BigInt(poolDayData.txCount) + 1n).toString();
+  await _db
     .insert(schema.poolData)
     .values({ ...poolDayData })
     .onConflictDoUpdate({

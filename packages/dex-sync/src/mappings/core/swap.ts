@@ -56,43 +56,53 @@ export const handleSwap = async (event: SwapEvent) => {
   let feesProtocolTon = protocolFeeAmounts.ton;
 
   // router update
-  router.txCount = router.txCount + ONE_BI;
-  router.totalVolumeTon = router.totalVolumeTon + volumeTon;
-  router.totalVolumeUSD = router.totalVolumeUSD + volumeUSD;
-  router.totalFeesTon = router.totalFeesTon + feesTon;
-  router.totalFeesUSD = router.totalFeesUSD + feesUSD;
-  router.totalProtocolFeesTon = router.totalProtocolFeesTon + feesProtocolTon;
-  router.totalProtocolFeesUSD = router.totalProtocolFeesUSD + protocolFeeAmounts.usd;
+  router.txCount = (BigInt(router.txCount) + ONE_BI).toString();
+  router.totalVolumeTon = new BigDecimal(router.totalVolumeTon).add(volumeTon).toString();
+  router.totalVolumeUSD = new BigDecimal(router.totalVolumeUSD).add(volumeUSD).toString();
+  router.totalFeesTon = new BigDecimal(router.totalFeesTon).add(feesTon).toString();
+  router.totalFeesUSD = new BigDecimal(router.totalFeesUSD).add(feesUSD).toString();
+  router.totalProtocolFeesTon = new BigDecimal(router.totalProtocolFeesTon)
+    .add(feesProtocolTon)
+    .toString();
+  router.totalProtocolFeesUSD = new BigDecimal(router.totalProtocolFeesUSD)
+    .add(protocolFeeAmounts.usd)
+    .toString();
 
   // pool update
-  pool.volumeJetton0 = pool.volumeJetton0 + amount0Abs;
-  pool.volumeJetton1 = pool.volumeJetton1 + amount1Abs;
-  pool.volumeUSD = pool.volumeUSD + volumeUSD;
-  pool.feesUSD = pool.feesUSD + feesUSD;
-  pool.protocolFeesUSD = pool.protocolFeesUSD + protocolFeeAmounts.usd;
-  pool.txCount = pool.txCount + ONE_BI;
+  pool.volumeJetton0 = new BigDecimal(pool.volumeJetton0).add(amount0Abs).toString();
+  pool.volumeJetton1 = new BigDecimal(pool.volumeJetton1).add(amount1Abs).toString();
+  pool.volumeUSD = new BigDecimal(pool.volumeUSD).add(volumeUSD).toString();
+  pool.feesUSD = new BigDecimal(pool.feesUSD).add(feesUSD).toString();
+  pool.protocolFeesUSD = new BigDecimal(pool.protocolFeesUSD)
+    .add(protocolFeeAmounts.usd)
+    .toString();
+  pool.txCount = (BigInt(pool.txCount) + ONE_BI).toString();
 
   // update the pool with the new active liquidity, price, and tick.
-  pool.liquidity = event.liquidity;
+  pool.liquidity = event.liquidity.toString();
   pool.tick = event.tick;
-  pool.sqrtPrice = event.sqrtPriceX96;
+  pool.sqrtPrice = event.sqrtPriceX96.toString();
 
   // update jetton0 data
-  jetton0.volume = jetton0.volume + amount0Abs;
-  jetton0.volumeUSD = jetton0.volumeUSD + volumeUSD;
-  jetton0.feesUSD = jetton0.feesUSD + feesUSD;
-  jetton0.protocolFeesUSD = jetton0.protocolFeesUSD + protocolFeeAmounts.usd;
-  jetton0.txCount = jetton0.txCount + ONE_BI;
+  jetton0.volume = new BigDecimal(jetton0.volume).add(amount0Abs).toString();
+  jetton0.volumeUSD = new BigDecimal(jetton0.volumeUSD).add(volumeUSD).toString();
+  jetton0.feesUSD = new BigDecimal(jetton0.feesUSD).add(feesUSD).toString();
+  jetton0.protocolFeesUSD = new BigDecimal(jetton0.protocolFeesUSD)
+    .add(protocolFeeAmounts.usd)
+    .toString();
+  jetton0.txCount = (BigInt(jetton0.txCount) + ONE_BI).toString();
 
   // update jetton1 data
-  jetton1.volume = jetton1.volume + amount1Abs;
-  jetton1.volumeUSD = jetton1.volumeUSD + volumeUSD;
-  jetton1.feesUSD = jetton1.feesUSD + feesUSD;
-  jetton1.protocolFeesUSD = jetton1.protocolFeesUSD + protocolFeeAmounts.usd;
-  jetton1.txCount = jetton1.txCount + ONE_BI;
+  jetton1.volume = new BigDecimal(jetton1.volume).add(amount1Abs).toString();
+  jetton1.volumeUSD = new BigDecimal(jetton1.volumeUSD).add(volumeUSD).toString();
+  jetton1.feesUSD = new BigDecimal(jetton1.feesUSD).add(feesUSD).toString();
+  jetton1.protocolFeesUSD = new BigDecimal(jetton1.protocolFeesUSD)
+    .add(protocolFeeAmounts.usd)
+    .toString();
+  jetton1.txCount = (BigInt(jetton1.txCount) + ONE_BI).toString();
 
   // updated pool rates
-  let prices = sqrtPriceX96ToJettonPrices(pool.sqrtPrice, jetton0, jetton1);
+  let prices = sqrtPriceX96ToJettonPrices(BigInt(pool.sqrtPrice), jetton0, jetton1);
   pool.jetton0Price = prices[0].toString();
   pool.jetton1Price = prices[1].toString();
   await db
@@ -118,10 +128,14 @@ export const handleSwap = async (event: SwapEvent) => {
 
   // update TVL values
   let oldPoolTVLTon = pool.totalValueLockedTon;
-  pool.totalValueLockedJetton0 = pool.totalValueLockedJetton0 + amount0;
-  pool.totalValueLockedJetton1 = pool.totalValueLockedJetton1 + amount1;
-  jetton0.totalValueLocked = jetton0.totalValueLocked + amount0;
-  jetton1.totalValueLocked = jetton1.totalValueLocked + amount1;
+  pool.totalValueLockedJetton0 = new BigDecimal(pool.totalValueLockedJetton0)
+    .add(amount0)
+    .toString();
+  pool.totalValueLockedJetton1 = new BigDecimal(pool.totalValueLockedJetton1)
+    .add(amount1)
+    .toString();
+  jetton0.totalValueLocked = new BigDecimal(jetton0.totalValueLocked).add(amount0).toString();
+  jetton1.totalValueLocked = new BigDecimal(jetton1.totalValueLocked).add(amount1).toString();
   const updatedResults = await updateDerivedTVLAmounts(
     router,
     pool,
@@ -146,7 +160,7 @@ export const handleSwap = async (event: SwapEvent) => {
     recipient: event.recipient.toString(),
     sender: event.sender.toString(),
     origin: event.transaction.from.toString(),
-    sqrtPriceX96: event.sqrtPriceX96,
+    sqrtPriceX96: event.sqrtPriceX96.toString(),
     tick: event.tick,
     timestamp: new Date(event.block.timestamp),
     transactionId: transaction.id,
@@ -165,26 +179,34 @@ export const handleSwap = async (event: SwapEvent) => {
   let jetton1DayData = await updateJettonDayData(router, jetton1, event);
 
   // update volume metrics
-  routerDayData.volumeTon = routerDayData.volumeTon + volumeTon;
-  routerDayData.volumeUSD = routerDayData.volumeUSD + volumeUSD;
-  routerDayData.feesUSD = routerDayData.feesUSD + feesUSD;
-  routerDayData.protocolFeesUSD = routerDayData.protocolFeesUSD + protocolFeeAmounts.usd;
+  routerDayData.volumeTon = new BigDecimal(routerDayData.volumeTon).add(volumeTon).toString();
+  routerDayData.volumeUSD = new BigDecimal(routerDayData.volumeUSD).add(volumeUSD).toString();
+  routerDayData.feesUSD = new BigDecimal(routerDayData.feesUSD).add(feesUSD).toString();
+  routerDayData.protocolFeesUSD = new BigDecimal(routerDayData.protocolFeesUSD)
+    .add(protocolFeeAmounts.usd)
+    .toString();
 
-  poolDayData.volumeUSD = poolDayData.volumeUSD + volumeUSD;
-  poolDayData.volumeJetton0 = poolDayData.volumeJetton0 + amount0Abs;
-  poolDayData.volumeJetton1 = poolDayData.volumeJetton1 + amount1Abs;
-  poolDayData.feesUSD = poolDayData.feesUSD + feesUSD;
-  poolDayData.protocolFeesUSD = poolDayData.protocolFeesUSD + protocolFeeAmounts.usd;
+  poolDayData.volumeUSD = new BigDecimal(poolDayData.volumeUSD).add(volumeUSD).toString();
+  poolDayData.volumeJetton0 = new BigDecimal(poolDayData.volumeJetton0).add(amount0Abs).toString();
+  poolDayData.volumeJetton1 = new BigDecimal(poolDayData.volumeJetton1).add(amount1Abs).toString();
+  poolDayData.feesUSD = new BigDecimal(poolDayData.feesUSD).add(feesUSD).toString();
+  poolDayData.protocolFeesUSD = new BigDecimal(poolDayData.protocolFeesUSD)
+    .add(protocolFeeAmounts.usd)
+    .toString();
 
-  jetton0DayData.volume = jetton0DayData.volume + amount0Abs;
-  jetton0DayData.volumeUSD = jetton0DayData.volumeUSD + volumeUSD;
-  jetton0DayData.feesUSD = jetton0DayData.feesUSD + feesUSD;
-  jetton0DayData.protocolFeesUSD = jetton0DayData.protocolFeesUSD + protocolFeeAmounts.usd;
+  jetton0DayData.volume = new BigDecimal(jetton0DayData.volume).add(amount0Abs).toString();
+  jetton0DayData.volumeUSD = new BigDecimal(jetton0DayData.volumeUSD).add(volumeUSD).toString();
+  jetton0DayData.feesUSD = new BigDecimal(jetton0DayData.feesUSD).add(feesUSD).toString();
+  jetton0DayData.protocolFeesUSD = new BigDecimal(jetton0DayData.protocolFeesUSD)
+    .add(protocolFeeAmounts.usd)
+    .toString();
 
-  jetton1DayData.volume = jetton1DayData.volume + amount1Abs;
-  jetton1DayData.volumeUSD = jetton1DayData.volumeUSD + volumeUSD;
-  jetton1DayData.feesUSD = jetton1DayData.feesUSD + feesUSD;
-  jetton1DayData.protocolFeesUSD = jetton1DayData.protocolFeesUSD + protocolFeeAmounts.usd;
+  jetton1DayData.volume = new BigDecimal(jetton1DayData.volume).add(amount1Abs).toString();
+  jetton1DayData.volumeUSD = new BigDecimal(jetton1DayData.volumeUSD).add(volumeUSD).toString();
+  jetton1DayData.feesUSD = new BigDecimal(jetton1DayData.feesUSD).add(feesUSD).toString();
+  jetton1DayData.protocolFeesUSD = new BigDecimal(jetton1DayData.protocolFeesUSD)
+    .add(protocolFeeAmounts.usd)
+    .toString();
 
   await db.insert(schema.swap).values({ ...swap });
   await db

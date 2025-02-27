@@ -1,10 +1,10 @@
 import { TraceEvent } from '@src/@types';
-import { ONE_BD, ZERO_ADDRESS } from '@src/constants';
+import { ONE_BD, snakeToCamel, ZERO_ADDRESS } from '@src/constants';
 import { Jetton, Tick } from '@src/models';
 import { tonApiClient } from '@src/services/ton-api';
 import { setTimeout } from 'timers/promises';
 import * as schema from '@src/models';
-import { db } from '@src/db';
+import { DatabaseType, db } from '@src/db';
 import { eq } from 'drizzle-orm';
 
 export const getTonPrice = async (): Promise<number> => {
@@ -31,13 +31,12 @@ export const findTonPerJetton = async (jetton: Jetton): Promise<string> => {
       if (jetton.id === ZERO_ADDRESS) {
         return ONE_BD;
       }
+      const tokenId = snakeToCamel(jetton.id);
       const rateData = await tonApiClient.rates.getRates({
         tokens: [jetton.id],
         currencies: ['TON'],
       });
-      console.log(rateData.rates, jetton.id, Object.keys(rateData.rates).includes(jetton.id));
-      const tonRate = rateData.rates?.[jetton.id];
-      console.log('Yamete:', tonRate);
+      const tonRate = rateData.rates?.[tokenId];
       const jettonPricePerTon = tonRate.prices['TON'];
       return jettonPricePerTon.toString();
     } catch (err) {
@@ -47,20 +46,25 @@ export const findTonPerJetton = async (jetton: Jetton): Promise<string> => {
   }
 };
 
-export const updateTickFeeVarsAndSave = async (tick: Tick, event: TraceEvent) => {
+export const updateTickFeeVarsAndSave = async (
+  tick: Tick,
+  event: TraceEvent,
+  _db: DatabaseType = db,
+) => {
   // let poolAddress = event.address;
   // TODO: Fetch fee growth outside 0 and 1 from contract here
   // let tickResult = poolContract.ticks(tick.tickIdx.toI32());
   // tick.feeGrowthOutside0X128 = tickResult.value2;
   // tick.feeGrowthOutside1X128 = tickResult.value3;
   // tick.save();
-  await db
+  const { id, ...tickData } = tick;
+  await _db
     .insert(schema.tick)
     .values(tick)
     .onConflictDoUpdate({
       target: schema.tick.id,
       set: {
-        ...tick,
+        ...tickData,
       },
     });
 };

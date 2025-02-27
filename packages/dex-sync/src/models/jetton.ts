@@ -13,21 +13,9 @@ export const jetton = table('jettons', {
   name: t.text().notNull(),
   symbol: t.text().notNull(),
   decimals: t.integer().notNull(),
-  totalSupply: t
-    .bigint('total_supply', {
-      mode: 'bigint',
-    })
-    .notNull(),
-  poolCount: t
-    .bigint('pool_count', {
-      mode: 'bigint',
-    })
-    .notNull(),
-  txCount: t
-    .bigint('tx_count', {
-      mode: 'bigint',
-    })
-    .notNull(),
+  totalSupply: t.text('total_supply').notNull(),
+  poolCount: t.text('pool_count').notNull(),
+  txCount: t.text('tx_count').notNull(),
   volume: t.text().notNull(),
   volumeUSD: t.text('volume_usd').notNull(),
   feesUSD: t.text('fees_usd').notNull(),

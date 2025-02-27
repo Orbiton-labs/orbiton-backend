@@ -37,26 +37,10 @@ export const pool = table('pools', {
       mode: 'bigint',
     })
     .notNull(),
-  liquidity: t
-    .bigint({
-      mode: 'bigint',
-    })
-    .notNull(),
-  sqrtPrice: t
-    .bigint('sqrt_price', {
-      mode: 'bigint',
-    })
-    .notNull(),
-  feeGrowthGlobal0X128: t
-    .bigint('fee_growth_global_0x128', {
-      mode: 'bigint',
-    })
-    .notNull(),
-  feeGrowthGlobal1X128: t
-    .bigint('fee_growth_global_1x128', {
-      mode: 'bigint',
-    })
-    .notNull(),
+  liquidity: t.text().notNull(),
+  sqrtPrice: t.text('sqrt_price').notNull(),
+  feeGrowthGlobal0X128: t.text('fee_growth_global_0x128').notNull(),
+  feeGrowthGlobal1X128: t.text('fee_growth_global_1x128').notNull(),
   tick: t
     .bigint({
       mode: 'bigint',
@@ -76,16 +60,8 @@ export const pool = table('pools', {
   volumeJetton0: t.text('volume_jetton0').notNull(),
   volumeJetton1: t.text('volume_jetton1').notNull(),
   volumeUSD: t.text('volume_usd').notNull(),
-  txCount: t
-    .bigint('tx_count', {
-      mode: 'bigint',
-    })
-    .notNull(),
-  liquidityProviderCount: t
-    .bigint('liquidity_provider_count', {
-      mode: 'bigint',
-    })
-    .notNull(),
+  txCount: t.text('tx_count').notNull(),
+  liquidityProviderCount: t.text('liquidity_provider_count').notNull(),
   timestamp: t.timestamp('timestamp').notNull(),
 });
 

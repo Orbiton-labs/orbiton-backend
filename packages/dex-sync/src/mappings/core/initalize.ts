@@ -1,13 +1,13 @@
-import { Initialize } from '@src/@types/core.type';
+import { InitializeEvent } from '@src/@types/core.type';
 import { db } from '@src/db';
 import { eq } from 'drizzle-orm';
 import * as schema from '@src/models/index';
 import { getOrLoadJetton } from '../utils/jetton';
-import { Address } from '@ton/core';
 import { Router } from '@src/models/router';
 import { findTonPerJetton, getTonPrice } from '../utils/ton';
 import { updatePoolDayData } from '../utils/pool';
 import { ZERO_BD, ZERO_BI } from '@src/constants';
+import BigDecimal from 'js-big-decimal';
 
 function feeTierToProtocolFeeDefault(feeTier: bigint): bigint {
   if (feeTier === 10000n) {
@@ -25,13 +25,13 @@ function feeTierToProtocolFeeDefault(feeTier: bigint): bigint {
   return 209718400n;
 }
 
-export const handleInitialize = async (event: Initialize) => {
+export const handleInitialize = async (event: InitializeEvent) => {
   const tonPriceUSD = await getTonPrice();
   let router = (await db.query.router.findFirst({})) as Router | undefined;
   if (!router) {
     await db.insert(schema.router).values({
-      poolCount: ZERO_BI,
-      txCount: ZERO_BI,
+      poolCount: ZERO_BD,
+      txCount: ZERO_BD,
       tonPriceUSD: tonPriceUSD.toString(),
       totalFeesTon: ZERO_BD,
       totalFeesUSD: ZERO_BD,
@@ -44,7 +44,7 @@ export const handleInitialize = async (event: Initialize) => {
     });
     router = (await db.query.router.findFirst()) as Router;
   }
-  router.poolCount += 1n;
+  router.poolCount = (BigInt(router.poolCount) + 1n).toString();
 
   let jetton0 = await getOrLoadJetton(event.jetton0);
   let jetton1 = await getOrLoadJetton(event.jetton1);
@@ -67,22 +67,22 @@ export const handleInitialize = async (event: Initialize) => {
     collectedFeesJetton0: ZERO_BD,
     collectedFeesJetton1: ZERO_BD,
     collectedFeesUSD: ZERO_BD,
-    feeGrowthGlobal0X128: ZERO_BI,
-    feeGrowthGlobal1X128: ZERO_BI,
+    feeGrowthGlobal0X128: ZERO_BD,
+    feeGrowthGlobal1X128: ZERO_BD,
     feeProtocol: feeTierToProtocolFeeDefault(BigInt(feeTier)),
     feesUSD: ZERO_BD,
     protocolFeesUSD: ZERO_BD,
     jetton0Price: ZERO_BD,
     jetton1Price: ZERO_BD,
-    liquidity: ZERO_BI,
-    liquidityProviderCount: ZERO_BI,
-    sqrtPrice: ZERO_BI,
-    tick: ZERO_BI,
+    liquidity: ZERO_BD,
+    liquidityProviderCount: ZERO_BD,
+    sqrtPrice: event.sqrtPriceX96.toString(),
+    tick: event.tick,
     totalValueLockedJetton0: ZERO_BD,
     totalValueLockedJetton1: ZERO_BD,
     totalValueLockedTon: ZERO_BD,
     totalValueLockedUSD: ZERO_BD,
-    txCount: ZERO_BI,
+    txCount: ZERO_BD,
     volumeJetton0: ZERO_BD,
     volumeJetton1: ZERO_BD,
     transactionId: transaction.id,
@@ -101,9 +101,18 @@ export const handleInitialize = async (event: Initialize) => {
     event,
   );
   jetton0.derivedTon = await findTonPerJetton(jetton0);
+  jetton0.derivedUSD = new BigDecimal(jetton0.derivedTon)
+    .multiply(new BigDecimal(tonPriceUSD))
+    .getValue();
   jetton1.derivedTon = await findTonPerJetton(jetton1);
-  await Promise.all([
-    db.update(schema.jetton).set(jetton0).where(eq(schema.jetton, jetton0.id)),
-    db.update(schema.jetton).set(jetton1).where(eq(schema.jetton, jetton1.id)),
-  ]);
+  jetton1.derivedUSD = new BigDecimal(jetton1.derivedTon)
+    .multiply(new BigDecimal(tonPriceUSD))
+    .getValue();
+
+  await db.transaction(async (_db) => {
+    const { id, ...tmpRouter } = router;
+    await _db.update(schema.router).set(tmpRouter).where(eq(schema.router.id, router.id));
+    await _db.update(schema.jetton).set(jetton0).where(eq(schema.jetton.id, jetton0.id));
+    await _db.update(schema.jetton).set(jetton1).where(eq(schema.jetton.id, jetton1.id));
+  });
 };

@@ -9,12 +9,14 @@ export enum DatabaseMode {
   NORMAL,
 }
 
-let db: NodePgDatabase<typeof schema> & {
+export type DatabaseType = NodePgDatabase<typeof schema> & {
   $client: {
     schema: typeof schema;
     connection: any;
   };
-} = undefined;
+};
+
+let db: DatabaseType = undefined;
 
 export class Database {
   static instance: any;

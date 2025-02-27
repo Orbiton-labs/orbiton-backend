@@ -39,10 +39,10 @@ export const handleCollect = async (event: CollectEvent) => {
   pool.collectedFeesUSD = new BigDecimal(pool.collectedFeesUSD).add(amounts.usd).toString();
 
   // update transaction counts
-  router.txCount += ONE_BI;
-  jetton0.txCount += ONE_BI;
-  jetton1.txCount += ONE_BI;
-  pool.txCount += ONE_BI;
+  router.txCount = (BigInt(router.txCount) + ONE_BI).toString();
+  jetton0.txCount = (BigInt(jetton0.txCount) + ONE_BI).toString();
+  jetton1.txCount = (BigInt(jetton1.txCount) + ONE_BI).toString();
+  pool.txCount = (BigInt(pool.txCount) + ONE_BI).toString();
 
   let collectData = {
     transactionId: transaction.id,

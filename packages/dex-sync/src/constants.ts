@@ -18,3 +18,7 @@ export function intToIP(int: number) {
 
   return part4 + '.' + part3 + '.' + part2 + '.' + part1;
 }
+
+export function snakeToCamel(snakeCaseString: string) {
+  return snakeCaseString.replace(/(_\w)/g, (match) => match[1]?.toUpperCase() ?? '');
+}

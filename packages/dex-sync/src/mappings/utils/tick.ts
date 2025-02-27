@@ -13,9 +13,9 @@ export function createTick(tickId: string, tickIdx: bigint, pool: Pool, event: M
     collectedFeesJetton0: ZERO_BD,
     collectedFeesJetton1: ZERO_BD,
     collectedFeesUSD: ZERO_BD,
-    liquidityGross: ZERO_BI,
-    liquidityNet: ZERO_BI,
-    liquidityProviderCount: ZERO_BI,
+    liquidityGross: ZERO_BD,
+    liquidityNet: ZERO_BD,
+    liquidityProviderCount: ZERO_BD,
     price0: ONE_BD,
     price1: ONE_BD,
     volumeJetton0: ZERO_BD,
@@ -24,15 +24,15 @@ export function createTick(tickId: string, tickIdx: bigint, pool: Pool, event: M
     feesUSD: ZERO_BD,
     poolAddress: pool.address,
     poolId: pool.id,
-    feeGrowthOutside0X128: ZERO_BI,
-    feeGrowthOutside1X128: ZERO_BI,
+    feeGrowthOutside0X128: ZERO_BD,
+    feeGrowthOutside1X128: ZERO_BD,
     timestamp: new Date(event.block.timestamp),
   } as Tick;
 
   // 1.0001^tick is token1/token0.
   const price0 = bigDecimalExponated(new BigDecimal('1.0001'), BigInt(tickIdx));
-  tickData.price0 = price0.toString();
-  tickData.price1 = new BigDecimal(ONE_BD).divide(price0).toString();
+  tickData.price0 = price0.getValue();
+  tickData.price1 = new BigDecimal(ONE_BD).divide(price0).getValue();
   return tickData;
 }
 

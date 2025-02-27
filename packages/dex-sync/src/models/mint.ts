@@ -3,7 +3,7 @@ import { pgTable as table } from 'drizzle-orm/pg-core';
 import { pool } from './pool';
 import { jetton } from './jetton';
 import { transaction } from './transaction';
-import { relations } from 'drizzle-orm';
+import { InferSelectModel, relations } from 'drizzle-orm';
 
 export const mint = table('mints', {
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -20,13 +20,10 @@ export const mint = table('mints', {
     .references(() => jetton.id)
     .notNull(),
   sender: t.text().notNull(),
+  owner: t.text().notNull(),
   amount0: t.text().notNull(),
   amount1: t.text().notNull(),
-  amount: t
-    .bigint({
-      mode: 'bigint',
-    })
-    .notNull(),
+  amount: t.text().notNull(),
   amountUSD: t.text('amount_usd').notNull(),
   tickLower: t
     .bigint('tick_lower', {
@@ -65,3 +62,5 @@ export const mintRelations = relations(mint, ({ one, many }) => {
     }),
   };
 });
+
+export type Mint = InferSelectModel<typeof mint>;

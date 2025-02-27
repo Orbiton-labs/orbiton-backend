@@ -40,10 +40,10 @@ export const handleBurn = async (event: BurnEvent) => {
     );
 
   // tx update
-  router.txCount = router.txCount + ONE_BI;
-  jetton0.txCount = jetton0.txCount + ONE_BI;
-  jetton1.txCount = jetton1.txCount + ONE_BI;
-  pool.txCount = pool.txCount + ONE_BI;
+  router.txCount = (BigInt(router.txCount) + ONE_BI).toString();
+  jetton0.txCount = (BigInt(jetton0.txCount) + ONE_BI).toString();
+  jetton1.txCount = (BigInt(jetton1.txCount) + ONE_BI).toString();
+  pool.txCount = (BigInt(pool.txCount) + ONE_BI).toString();
 
   // update TVL values.
   let oldPoolTotalValueLockedTon = pool.totalValueLockedTon;
@@ -70,12 +70,12 @@ export const handleBurn = async (event: BurnEvent) => {
   // pools liquidity tracks the currently active liquidity given pools current tick.
   // we only want to update it on burn if the position being burnt includes the current tick.
   if (event.tickLower < pool.tick && event.tickUpper > pool.tick) {
-    pool.liquidity = pool.liquidity - event.amount;
+    pool.liquidity = (BigInt(pool.liquidity) - event.amount).toString();
   }
 
   let transaction = await loadTransaction(event);
   let burnData = {
-    amount: event.amount,
+    amount: event.amount.toString(),
     amount0: event.amount0.toString(),
     amount1: event.amount1.toString(),
     amountUSD: amountUSD.toString(),
@@ -103,10 +103,10 @@ export const handleBurn = async (event: BurnEvent) => {
   }
 
   let amount = event.amount;
-  lowerTick.liquidityGross = lowerTick.liquidityGross - amount;
-  lowerTick.liquidityNet = lowerTick.liquidityNet - amount;
-  upperTick.liquidityGross = upperTick.liquidityGross - amount;
-  upperTick.liquidityNet = upperTick.liquidityNet - amount;
+  lowerTick.liquidityGross = (BigInt(lowerTick.liquidityGross) - amount).toString();
+  lowerTick.liquidityNet = (BigInt(lowerTick.liquidityNet) - amount).toString();
+  upperTick.liquidityGross = (BigInt(upperTick.liquidityGross) - amount).toString();
+  upperTick.liquidityNet = (BigInt(upperTick.liquidityNet) - amount).toString();
 
   await updateRouterDayData(router, event);
   await updatePoolDayData(pool, event);

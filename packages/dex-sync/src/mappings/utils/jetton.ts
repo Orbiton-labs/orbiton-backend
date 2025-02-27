@@ -10,28 +10,33 @@ import { eq } from 'drizzle-orm';
 
 export const getOrLoadJetton = async (address: Address) => {
   //@ts-ignore
-  let jetton = (await db.query.jetton.findFirst()) as Jetton | undefined;
+  let jetton = await db.query.jetton.findFirst({
+    where: eq(schema.jetton.id, address.toString()),
+  });
   if (!jetton) {
     const jettonInfo = await tonApiClient.jettons.getJettonInfo(address);
-    await db.insert(schema.jetton).values({
-      id: jettonInfo.metadata.address.toString(),
-      name: jettonInfo.metadata.name,
-      symbol: jettonInfo.metadata.symbol,
-      decimals: Number(jettonInfo.metadata.decimals),
-      totalSupply: jettonInfo.totalSupply,
-      derivedTon: ZERO_BD,
-      derivedUSD: ZERO_BD,
-      feesUSD: ZERO_BD,
-      poolCount: ZERO_BI,
-      txCount: ZERO_BI,
-      protocolFeesUSD: ZERO_BD,
-      totalValueLocked: ZERO_BD,
-      totalValueLockedUSD: ZERO_BD,
-      volume: ZERO_BD,
-      volumeUSD: ZERO_BD,
-    });
-    //@ts-ignore
-    jetton = (await db.query.jetton.findFirst()) as Jetton;
+    jetton = (
+      await db
+        .insert(schema.jetton)
+        .values({
+          id: jettonInfo.metadata.address.toString(),
+          name: jettonInfo.metadata.name,
+          symbol: jettonInfo.metadata.symbol,
+          decimals: Number(jettonInfo.metadata.decimals),
+          totalSupply: jettonInfo.totalSupply.toString(),
+          derivedTon: ZERO_BD,
+          derivedUSD: ZERO_BD,
+          feesUSD: ZERO_BD,
+          poolCount: ZERO_BD,
+          txCount: ZERO_BD,
+          protocolFeesUSD: ZERO_BD,
+          totalValueLocked: ZERO_BD,
+          totalValueLockedUSD: ZERO_BD,
+          volume: ZERO_BD,
+          volumeUSD: ZERO_BD,
+        })
+        .returning()
+    )[0];
   }
   return jetton;
 };

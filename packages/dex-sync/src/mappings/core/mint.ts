@@ -21,16 +21,12 @@ export const handleMint = async (event: MintEvent) => {
   }
   let pool = await db.query.pool.findFirst({
     where: eq(schema.pool.address, event.address.toString()),
-    with: {
-      jetton0: true,
-      jetton1: true,
-    },
   });
   if (!pool) {
     return;
   }
-  let jetton0 = await getOrLoadJetton(Address.parse(pool.jetton0.id));
-  let jetton1 = await getOrLoadJetton(Address.parse(pool.jetton1.id));
+  let jetton0 = await getOrLoadJetton(Address.parse(pool.jetton0Id));
+  let jetton1 = await getOrLoadJetton(Address.parse(pool.jetton1Id));
   let amount0 = convertJettonToDecimal(event.amount0, jetton0);
   let amount1 = convertJettonToDecimal(event.amount1, jetton1);
   let amountUSD = amount0
@@ -40,15 +36,16 @@ export const handleMint = async (event: MintEvent) => {
         new BigDecimal(jetton1.derivedTon).multiply(new BigDecimal(router.tonPriceUSD)),
       ),
     );
+
   let oldPoolTVLTon = pool.totalValueLockedTon;
-  jetton0.totalValueLocked = new BigDecimal(jetton0.totalValueLocked).add(amount0).toString();
-  jetton1.totalValueLocked = new BigDecimal(jetton1.totalValueLocked).add(amount1).toString();
+  jetton0.totalValueLocked = new BigDecimal(jetton0.totalValueLocked).add(amount0).getValue();
+  jetton1.totalValueLocked = new BigDecimal(jetton1.totalValueLocked).add(amount1).getValue();
   pool.totalValueLockedJetton0 = new BigDecimal(pool.totalValueLockedJetton0)
     .add(amount0)
-    .toString();
+    .getValue();
   pool.totalValueLockedJetton1 = new BigDecimal(pool.totalValueLockedJetton1)
     .add(amount1)
-    .toString();
+    .getValue();
   const updatedResults = await updateDerivedTVLAmounts(
     router,
     pool,
@@ -61,20 +58,20 @@ export const handleMint = async (event: MintEvent) => {
   router = updatedResults.router;
   pool = { ...pool, ...updatedResults.pool };
 
-  router.txCount += ONE_BI;
-  jetton0.txCount += ONE_BI;
-  jetton1.txCount += ONE_BI;
-  pool.txCount += ONE_BI;
+  router.txCount = (BigInt(router.txCount) + ONE_BI).toString();
+  jetton0.txCount = (BigInt(jetton0.txCount) + ONE_BI).toString();
+  jetton1.txCount = (BigInt(jetton1.txCount) + ONE_BI).toString();
+  pool.txCount = (BigInt(pool.txCount) + ONE_BI).toString();
 
   // Pools liquidity tracks the currently active liquidity given pools current tick.
   // We only want to update it on mint if the new position includes the current tick.
   if (pool.tick > event.tickLower && pool.tick < event.tickUpper) {
-    pool.liquidity += event.amount;
+    pool.liquidity = (BigInt(pool.liquidity) + event.amount).toString();
   }
-  pool.liquidityProviderCount += ONE_BI;
+  pool.liquidityProviderCount = (BigInt(pool.liquidityProviderCount) + ONE_BI).toString();
   let transaction = await loadTransaction(event);
   let mintData = {
-    amount: event.amount,
+    amount: event.amount.toString(),
     amount0: event.amount0.toString(),
     amount1: event.amount1.toString(),
     amountUSD: amountUSD.toString(),
@@ -82,6 +79,7 @@ export const handleMint = async (event: MintEvent) => {
     jetton1Id: jetton1.id,
     poolId: pool.id,
     sender: event.sender.toString(),
+    owner: event.owner.toString(),
     tickLower: event.tickLower,
     tickUpper: event.tickUpper,
     transactionId: transaction.id,
@@ -102,28 +100,32 @@ export const handleMint = async (event: MintEvent) => {
   if (!lowerTick) {
     lowerTick = createTick(lowerTickId, lowerTickIdx, pool, event);
   }
-
   if (!upperTick) {
     upperTick = createTick(upperTickId, upperTickIdx, pool, event);
   }
 
   let amount = event.amount;
-  lowerTick.liquidityGross = lowerTick.liquidityGross + amount;
-  lowerTick.liquidityNet = lowerTick.liquidityNet + amount;
-  upperTick.liquidityGross = upperTick.liquidityGross + amount;
-  upperTick.liquidityNet = upperTick.liquidityNet - amount;
+  lowerTick.liquidityGross = (BigInt(lowerTick.liquidityGross) + amount).toString();
+  lowerTick.liquidityNet = (BigInt(lowerTick.liquidityNet) + amount).toString();
+  upperTick.liquidityGross = (BigInt(upperTick.liquidityGross) + amount).toString();
+  upperTick.liquidityNet = (BigInt(upperTick.liquidityNet) - amount).toString();
 
   await updateRouterDayData(router, event);
   await updatePoolDayData(pool, event);
   await updateJettonDayData(router, jetton0, event);
   await updateJettonDayData(router, jetton1, event);
 
-  await db.update(schema.jetton).set(jetton0).where(eq(schema.jetton.id, jetton0.id));
-  await db.update(schema.jetton).set(jetton1).where(eq(schema.jetton.id, jetton1.id));
-  await db.update(schema.pool).set(pool).where(eq(schema.pool.id, pool.id));
-  await db.update(schema.router).set(router).where(eq(schema.router.id, router.id));
-  await db.insert(schema.mint).values(mintData);
-
-  await updateTickFeeVarsAndSave(lowerTick, event);
-  await updateTickFeeVarsAndSave(upperTick, event);
+  await db.transaction(async (_db) => {
+    const { id: jettonId, ...jetton0Data } = jetton0;
+    await _db.update(schema.jetton).set(jetton0Data).where(eq(schema.jetton.id, jetton0.id));
+    const { id: jettonId1, ...jetton1Data } = jetton1;
+    await _db.update(schema.jetton).set(jetton1Data).where(eq(schema.jetton.id, jetton1.id));
+    const { id: poolId, ...poolData } = pool;
+    await _db.update(schema.pool).set(poolData).where(eq(schema.pool.id, pool.id));
+    const { id: routerId, ...routerData } = router;
+    await _db.update(schema.router).set(routerData).where(eq(schema.router.id, router.id));
+    await _db.insert(schema.mint).values(mintData);
+    await updateTickFeeVarsAndSave(lowerTick, event, _db as any);
+    await updateTickFeeVarsAndSave(upperTick, event, _db as any);
+  });
 };

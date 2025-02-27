@@ -25,11 +25,7 @@ export const swap = table('swaps', {
   amount1: t.text().notNull(),
   amountUSD: t.text('amount_usd').notNull(),
   amountFeeUSD: t.text('amount_fee_usd').notNull(),
-  sqrtPriceX96: t
-    .bigint('sqrt_price_x96', {
-      mode: 'bigint',
-    })
-    .notNull(),
+  sqrtPriceX96: t.text('sqrt_price_x96').notNull(),
   tick: t
     .bigint({
       mode: 'bigint',

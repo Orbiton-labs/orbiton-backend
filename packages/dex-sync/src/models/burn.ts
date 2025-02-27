@@ -23,11 +23,7 @@ export const burn = table('burns', {
   origin: t.text().notNull(),
   amount0: t.text().notNull(),
   amount1: t.text().notNull(),
-  amount: t
-    .bigint({
-      mode: 'bigint',
-    })
-    .notNull(),
+  amount: t.text().notNull(),
   amountUSD: t.text('amount_usd').notNull(),
   tickLower: t
     .bigint('tick_lower', {

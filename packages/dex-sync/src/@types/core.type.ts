@@ -1,7 +1,7 @@
 import { Address } from '@ton/core';
 import { TraceEvent } from '.';
 
-export type Initialize = TraceEvent & {
+export type InitializeEvent = TraceEvent & {
   jetton0: Address;
   jetton1: Address;
   fee: bigint;

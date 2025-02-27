@@ -51,10 +51,10 @@ export const handleCollectProtocol = async (event: CollectProtocolEvent) => {
   jetton1 = data.jetton1;
 
   // update transaction counts
-  router.txCount += ONE_BI;
-  jetton0.txCount += ONE_BI;
-  jetton1.txCount += ONE_BI;
-  pool.txCount += ONE_BI;
+  router.txCount = (BigInt(router.txCount) + ONE_BI).toString();
+  jetton0.txCount = (BigInt(jetton0.txCount) + ONE_BI).toString();
+  jetton1.txCount = (BigInt(jetton1.txCount) + ONE_BI).toString();
+  pool.txCount = (BigInt(pool.txCount) + ONE_BI).toString();
 
   await db.update(schema.pool).set(pool).where(eq(schema.pool.id, pool.id));
   await db.update(schema.router).set(router).where(eq(schema.router.id, router.id));
