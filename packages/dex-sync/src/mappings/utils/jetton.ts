@@ -63,7 +63,9 @@ export const updateJettonDayData = async (router: Router, jetton: Jetton, event:
       totalValueLockedUSD: ZERO_BD,
     };
   }
-  jettonDayData.priceUSD = jetton.derivedUSD;
+  jettonDayData.priceUSD = new BigDecimal(jetton.derivedTon)
+    .multiply(new BigDecimal(router.tonPriceUSD))
+    .getValue();
   jettonDayData.totalValueLocked = jetton.totalValueLocked;
   jettonDayData.totalValueLockedUSD = jetton.totalValueLockedUSD;
   await db
