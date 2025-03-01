@@ -43,7 +43,7 @@ export const getOrLoadJetton = async (address: Address) => {
 
 export const updateJettonDayData = async (router: Router, jetton: Jetton, event: TraceEvent) => {
   let timestamp = event.block.timestamp;
-  let dayID = timestamp / ONE_DAY_IN_MILLISECONDS;
+  let dayID = Math.floor(timestamp / ONE_DAY_IN_MILLISECONDS);
   let dayStartTimestamp = dayID * ONE_DAY_IN_MILLISECONDS;
   let jettonDayID = jetton.id.toString().concat('-').concat(dayID.toString());
   let jettonDayData = await db.query.jettonData.findFirst({

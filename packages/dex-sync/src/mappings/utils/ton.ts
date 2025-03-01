@@ -16,7 +16,7 @@ export const getTonPrice = async (): Promise<number> => {
       });
       const tonRate = rateData.rates['TON'];
       const tonPrice = tonRate.prices['USDT'];
-      return tonPrice;
+      return Number(tonPrice.toFixed(3));
     } catch (err) {
       console.log(err);
     }
@@ -38,7 +38,7 @@ export const findTonPerJetton = async (jetton: Jetton): Promise<string> => {
       });
       const tonRate = rateData.rates?.[tokenId];
       const jettonPricePerTon = tonRate.prices['TON'];
-      return jettonPricePerTon.toString();
+      return jettonPricePerTon.toFixed(3);
     } catch (err) {
       console.log(err, err.stack);
     }

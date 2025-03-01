@@ -2,13 +2,22 @@ import { handleMint } from '../../src/mappings/core/mint';
 import { Database, DatabaseMode, db } from '../../src/db';
 import { migrate } from 'drizzle-orm/pglite/migrator';
 import { Jetton, Pool, Router, Transaction } from '../../src/models';
-import { getMockInitializeEvent, getMockMintEventInsideCurrentTick } from './common';
+import {
+  getMockInitializeEvent,
+  getMockMintEventInsideCurrentTick,
+  getMockMintEventOutsideCurrentTick,
+} from './common';
 import { handleInitialize } from '../../src/mappings/core/initalize';
 import { convertJettonToDecimal } from '../../src/mappings/utils/jetton';
 import * as schema from '../../src/models';
+import { ONE_DAY_IN_MILLISECONDS } from '../../src/constants';
+import { eq } from 'drizzle-orm';
+import './__mocks__';
+//@ts-ignore
+import { describe, it, expect, beforeAll } from 'bun:test';
 
 describe('Test Handle Mint', () => {
-  beforeEach(async () => {
+  beforeAll(async () => {
     Database.init(DatabaseMode.IN_MEMORY);
     await migrate(db as any, {
       migrationsFolder: __dirname.split('/tests')[0] + '/drizzle',
@@ -17,12 +26,9 @@ describe('Test Handle Mint', () => {
     await handleInitialize(event);
   });
 
-  it('should handle mint event when it adds liquidity inside current tick', async () => {
+  it('#1 should handle mint event when it adds liquidity inside current tick', async () => {
     const event = getMockMintEventInsideCurrentTick();
-    await handleMint(event).catch((err) => {
-      // console.log(err);
-      console.log(err.stack);
-    });
+    await handleMint(event);
 
     //@ts-ignore
     let router = (await db.query.router.findFirst({})) as Router;
@@ -55,6 +61,9 @@ describe('Test Handle Mint', () => {
     expect(pool.txCount).toEqual('1');
     expect(pool.liquidity).toEqual('15000000');
     expect(pool.liquidityProviderCount).toEqual('1');
+    // Note: Mint Event does not update jetton0 and jetton1 price until it reachs swap function
+    expect(pool.jetton0Price).toEqual('0');
+    expect(pool.jetton1Price).toEqual('0');
 
     //@ts-ignore
     let txs = (await db.query.transaction.findMany({})) as Transaction[];
@@ -93,10 +102,43 @@ describe('Test Handle Mint', () => {
     expect(routerData.tvlUSD).toEqual(router.totalValueLockedUSD);
 
     //@ts-ignore
-    let poolDayData = (await db.query.poolData.findFirst({})) as schema.PoolDayData;
-    console.log({
-      poolDayData,
-      pool,
+    let timestamp = event.block.timestamp;
+    let dayID = Math.floor(timestamp / ONE_DAY_IN_MILLISECONDS);
+    let dayPoolID = event.transaction.hash.concat('-').concat(dayID.toString());
+    let poolDayData = await db.query.poolData.findFirst({
+      where: eq(schema.poolData.id, dayPoolID),
     });
+    expect(poolDayData.liquidity).toEqual(pool.liquidity);
+    expect(poolDayData.poolId).toEqual(pool.id);
+    expect(poolDayData.sqrtPrice).toEqual(pool.sqrtPrice);
+    expect(poolDayData.feeGrowthGlobal0X128).toEqual(pool.feeGrowthGlobal0X128);
+    expect(poolDayData.feeGrowthGlobal1X128).toEqual(pool.feeGrowthGlobal1X128);
+    expect(poolDayData.tick).toEqual(pool.tick);
+    expect(poolDayData.tvlUSD).toEqual(pool.totalValueLockedUSD);
+    expect(poolDayData.txCount).toEqual('1');
   }, 100000);
+
+  it('#2 should handle mint event when it adds liquidity outside current tick right after #1', async () => {
+    const event = getMockMintEventOutsideCurrentTick();
+    await handleMint(event);
+
+    //@ts-ignore
+    let router = (await db.query.router.findFirst({})) as Router;
+    expect(router.txCount).toEqual('2');
+
+    //@ts-ignore
+    let jettons = (await db.query.jetton.findMany({})) as Jetton[];
+    expect(jettons.length).toEqual(2);
+    expect(jettons[0].totalValueLocked).toEqual(
+      convertJettonToDecimal(20000000n, jettons[0]).getValue(),
+    );
+    expect(jettons[0].totalValueLockedUSD).not.toEqual('0');
+    expect(jettons[0].txCount).toEqual('2');
+    expect(jettons[1].totalValueLocked).toEqual(
+      convertJettonToDecimal(59000000n, jettons[1]).getValue(),
+    );
+    expect(jettons[1].totalValueLockedUSD).not.toEqual('0');
+    expect(jettons[1].txCount).toEqual('2');
+    console.log({ jettons });
+  });
 });

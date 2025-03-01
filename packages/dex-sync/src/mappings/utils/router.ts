@@ -7,7 +7,7 @@ import { eq } from 'drizzle-orm';
 
 export const updateRouterDayData = async (router: Router, event: TraceEvent) => {
   const timestamp = event.block.timestamp;
-  let dayID = timestamp / ONE_DAY_IN_MILLISECONDS;
+  let dayID = Math.floor(timestamp / ONE_DAY_IN_MILLISECONDS);
   let dayStartTimestamp = dayID * ONE_DAY_IN_MILLISECONDS;
   let routerDayData = await db.query.routerData.findFirst({
     where: eq(schema.routerData.id, dayID.toString()),
@@ -20,7 +20,7 @@ export const updateRouterDayData = async (router: Router, event: TraceEvent) => 
       volumeUSD: ZERO_BD,
       feesUSD: ZERO_BD,
       protocolFeesUSD: ZERO_BD,
-      txCount: ZERO_BI,
+      txCount: ZERO_BD,
       tvlUSD: ZERO_BD,
     };
   }

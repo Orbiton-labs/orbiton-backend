@@ -7,7 +7,7 @@ import { ONE_DAY_IN_MILLISECONDS, ZERO_BD } from '@src/constants';
 
 export const updatePoolDayData = async (pool: Pool, event: TraceEvent, _db: DatabaseType = db) => {
   let timestamp = event.block.timestamp;
-  let dayID = timestamp / ONE_DAY_IN_MILLISECONDS;
+  let dayID = Math.floor(timestamp / ONE_DAY_IN_MILLISECONDS);
   let dayStartTimestamp = dayID * ONE_DAY_IN_MILLISECONDS;
   let dayPoolID = event.transaction.hash.concat('-').concat(dayID.toString());
   let poolDayData = await _db.query.poolData.findFirst({
