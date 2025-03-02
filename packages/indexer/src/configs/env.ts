@@ -18,6 +18,9 @@ const envSchema = z
     TON_CENTER_API_KEY: z.string({
       required_error: 'TON_CENTER_API_KEY is required',
     }),
+    TON_API_KEY: z.string({
+      required_error: 'TON_API_KEY is required',
+    }),
   })
   .passthrough();
 
@@ -32,5 +35,8 @@ export default {
   tonCenter: {
     url: envVars.TON_CENTER_URL,
     apiKey: envVars.TON_CENTER_API_KEY,
+  },
+  tonApi: {
+    apiKey: envVars.TON_API_KEY,
   },
 };

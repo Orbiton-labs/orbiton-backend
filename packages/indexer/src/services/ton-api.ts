@@ -1,6 +1,20 @@
 import { TonApiClient } from '@ton-api/client';
+import env from '@src/configs/env';
 
-export const tonApiClient = new TonApiClient({
-  baseUrl: 'https://tonapi.io',
-  apiKey: 'AGSNOVUCGDJF32AAAAANN2LHR6HNAGLSAAHD4X3MNJGOJNJ45MAK4JNTWOT3V5RHGNJC5QY',
-});
+class TonApiService {
+  static instance: TonApiClient;
+
+  static init(): TonApiClient {
+    if (TonApiService.instance) {
+      return TonApiService.instance;
+    }
+    const client = new TonApiClient({
+      baseUrl: 'https://tonapi.io',
+      apiKey: env.tonApi.apiKey,
+    });
+    TonApiService.instance = client;
+    return TonApiService.instance;
+  }
+}
+
+export const tonApiClient = TonApiService.init();

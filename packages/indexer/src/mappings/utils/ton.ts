@@ -6,6 +6,8 @@ import { setTimeout } from 'timers/promises';
 import * as schema from '@src/models';
 import { DatabaseType, db } from '@src/db';
 import { eq } from 'drizzle-orm';
+import { tonClient } from '@src/services/ton-client';
+import { PoolWrapper } from '@orbiton_labs/v3-contracts-sdk';
 
 export const getTonPrice = async (): Promise<number> => {
   while (true) {
@@ -51,12 +53,11 @@ export const updateTickFeeVarsAndSave = async (
   event: TraceEvent,
   _db: DatabaseType = db,
 ) => {
-  // let poolAddress = event.address;
-  // TODO: Fetch fee growth outside 0 and 1 from contract here
-  // let tickResult = poolContract.ticks(tick.tickIdx.toI32());
-  // tick.feeGrowthOutside0X128 = tickResult.value2;
-  // tick.feeGrowthOutside1X128 = tickResult.value3;
-  // tick.save();
+  let poolAddress = event.address;
+  let poolContract = tonClient.open(PoolWrapper.PoolTest.createFromAddress(poolAddress));
+  let tickResult = poolContract.getFeesGrowthGlobalAtTick(BigInt(tick.tickIdx));
+  tick.feeGrowthOutside0X128 = tickResult[0];
+  tick.feeGrowthOutside1X128 = tickResult[1];
   const { id, ...tickData } = tick;
   await _db
     .insert(schema.tick)

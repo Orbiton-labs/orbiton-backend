@@ -11,6 +11,10 @@ export class LiteClientService {
   static instance: LiteClient;
 
   static async init(): Promise<LiteClient> {
+    if (LiteClientService.instance) {
+      return LiteClientService.instance;
+    }
+
     const { liteservers } = await fetch(
       `https://ton.org/${env.server.network == 'mainnet' ? '' : 'testnet-'}global.config.json`,
     ).then((data) => data.json());

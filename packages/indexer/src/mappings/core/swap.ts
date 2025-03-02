@@ -13,6 +13,8 @@ import { updateDerivedTVLAmounts } from '../utils/tvl';
 import { updateRouterDayData } from '../utils/router';
 import { updatePoolDayData } from '../utils/pool';
 import { Address } from '@ton/core';
+import { tonClient } from '@src/services/ton-client';
+import { PoolWrapper } from '@orbiton_labs/v3-contracts-sdk';
 
 export const handleSwap = async (event: SwapEvent) => {
   let router = (await db.query.router.findFirst({})) as Router | undefined;
@@ -167,10 +169,13 @@ export const handleSwap = async (event: SwapEvent) => {
   };
 
   // TODO: update fee frowth
-  // let feeGrowthGlobal0X128 = poolContract.feeGrowthGlobal0X128();
-  // let feeGrowthGlobal1X128 = poolContract.feeGrowthGlobal1X128();
-  // pool.feeGrowthGlobal0X128 = feeGrowthGlobal0X128 as BigInt;
-  // pool.feeGrowthGlobal1X128 = feeGrowthGlobal1X128 as BigInt;
+  let poolContract = tonClient.open(
+    PoolWrapper.PoolTest.createFromAddress(Address.parse(pool.address)),
+  );
+  const [feeGrowthGlobal0X128, feeGrowthGlobal1X128, ..._dump] =
+    await poolContract.getFeesGrowthGlobal();
+  pool.feeGrowthGlobal0X128 = (feeGrowthGlobal0X128 as BigInt).toString();
+  pool.feeGrowthGlobal1X128 = (feeGrowthGlobal1X128 as BigInt).toString();
 
   // interval data
   let routerDayData = await updateRouterDayData(router, event);

@@ -17,3 +17,14 @@ mock.module('../../src/mappings/utils/ton', () => {
     }),
   };
 });
+
+mock.module('@src/services/ton-client', () => {
+  return {
+    tonClient: {
+      open: () => ({
+        getFeesGrowthGlobalAtTick: jest.fn(() => ['10000', '20000']),
+        getFeesGrowthGlobal: jest.fn(() => ['10000', '20000']),
+      }),
+    },
+  };
+});

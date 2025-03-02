@@ -118,12 +118,16 @@ describe('Test Handle Mint', () => {
     expect(ticks[0].price0).not.toEqual('0');
     expect(ticks[0].price1).not.toEqual('0');
     expect(ticks[0].poolAddress).toEqual(event.address.toString());
+    expect(ticks[0].feeGrowthOutside0X128).toEqual('10000');
+    expect(ticks[0].feeGrowthOutside1X128).toEqual('20000');
 
     expect(ticks[1].liquidityGross).toEqual('15000000');
     expect(ticks[1].liquidityNet).toEqual('-15000000');
     expect(ticks[1].price0).not.toEqual('0');
     expect(ticks[1].price1).not.toEqual('0');
     expect(ticks[1].poolAddress).toEqual(event.address.toString());
+    expect(ticks[0].feeGrowthOutside0X128).toEqual('10000');
+    expect(ticks[0].feeGrowthOutside1X128).toEqual('20000');
 
     //@ts-ignore
     let routerData = (await db.query.routerData.findFirst({})) as schema.RouterData;
