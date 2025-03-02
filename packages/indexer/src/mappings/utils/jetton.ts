@@ -1,4 +1,4 @@
-import { db } from '@src/db';
+import { DatabaseType, db } from '@src/db';
 import { Jetton, Router } from '@src/models';
 import { Address } from '@ton/core';
 import { tonApiClient } from '@src/services/ton-api';
@@ -41,12 +41,17 @@ export const getOrLoadJetton = async (address: Address) => {
   return jetton;
 };
 
-export const updateJettonDayData = async (router: Router, jetton: Jetton, event: TraceEvent) => {
+export const updateJettonDayData = async (
+  router: Router,
+  jetton: Jetton,
+  event: TraceEvent,
+  _db: DatabaseType = db,
+) => {
   let timestamp = event.block.timestamp;
   let dayID = Math.floor(timestamp / ONE_DAY_IN_MILLISECONDS);
   let dayStartTimestamp = dayID * ONE_DAY_IN_MILLISECONDS;
   let jettonDayID = jetton.id.toString().concat('-').concat(dayID.toString());
-  let jettonDayData = await db.query.jettonData.findFirst({
+  let jettonDayData = await _db.query.jettonData.findFirst({
     where: eq(schema.jettonData.id, jettonDayID),
   });
   if (!jettonDayData) {
@@ -68,7 +73,7 @@ export const updateJettonDayData = async (router: Router, jetton: Jetton, event:
     .getValue();
   jettonDayData.totalValueLocked = jetton.totalValueLocked;
   jettonDayData.totalValueLockedUSD = jetton.totalValueLockedUSD;
-  await db
+  await _db
     .insert(schema.jettonData)
     .values({ ...jettonDayData })
     .onConflictDoUpdate({

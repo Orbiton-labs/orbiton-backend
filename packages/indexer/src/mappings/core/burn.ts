@@ -11,6 +11,7 @@ import { updateDerivedTVLAmounts } from '../utils/tvl';
 import { loadTransaction } from '../utils';
 import { updateRouterDayData } from '../utils/router';
 import { updatePoolDayData } from '../utils/pool';
+import { updateTickFeeVarsAndSave } from '../utils/ton';
 
 export const handleBurn = async (event: BurnEvent) => {
   let router = (await db.query.router.findFirst({})) as Router | undefined;
@@ -47,14 +48,14 @@ export const handleBurn = async (event: BurnEvent) => {
 
   // update TVL values.
   let oldPoolTotalValueLockedTon = pool.totalValueLockedTon;
-  jetton0.totalValueLocked = new BigDecimal(jetton0.totalValueLocked).subtract(amount0).toString();
-  jetton1.totalValueLocked = new BigDecimal(jetton1.totalValueLocked).subtract(amount1).toString();
+  jetton0.totalValueLocked = new BigDecimal(jetton0.totalValueLocked).subtract(amount0).getValue();
+  jetton1.totalValueLocked = new BigDecimal(jetton1.totalValueLocked).subtract(amount1).getValue();
   pool.totalValueLockedJetton0 = new BigDecimal(pool.totalValueLockedJetton0)
     .subtract(amount0)
-    .toString();
+    .getValue();
   pool.totalValueLockedJetton1 = new BigDecimal(pool.totalValueLockedJetton1)
     .subtract(amount1)
-    .toString();
+    .getValue();
   const data = await updateDerivedTVLAmounts(
     router,
     pool,
@@ -73,23 +74,6 @@ export const handleBurn = async (event: BurnEvent) => {
     pool.liquidity = (BigInt(pool.liquidity) - event.amount).toString();
   }
 
-  let transaction = await loadTransaction(event);
-  let burnData = {
-    amount: event.amount.toString(),
-    amount0: event.amount0.toString(),
-    amount1: event.amount1.toString(),
-    amountUSD: amountUSD.toString(),
-    jetton0Id: jetton0.id,
-    jetton1Id: jetton1.id,
-    poolId: pool.id,
-    transactionId: transaction.id,
-    timestamp: new Date(event.block.timestamp),
-    owner: event.owner.toString(),
-    origin: event.transaction.from.toString(),
-    tickLower: event.tickLower,
-    tickUpper: event.tickUpper,
-  } as BurnWithoutId;
-
   let lowerTickId = `${poolAddress}#${event.tickLower.toString()}`;
   let lowerUpperId = `${poolAddress}#${event.tickUpper.toString()}`;
   let lowerTick = await db.query.tick.findFirst({
@@ -106,16 +90,41 @@ export const handleBurn = async (event: BurnEvent) => {
   lowerTick.liquidityGross = (BigInt(lowerTick.liquidityGross) - amount).toString();
   lowerTick.liquidityNet = (BigInt(lowerTick.liquidityNet) - amount).toString();
   upperTick.liquidityGross = (BigInt(upperTick.liquidityGross) - amount).toString();
-  upperTick.liquidityNet = (BigInt(upperTick.liquidityNet) - amount).toString();
+  upperTick.liquidityNet = (BigInt(upperTick.liquidityNet) + amount).toString();
 
-  await updateRouterDayData(router, event);
-  await updatePoolDayData(pool, event);
-  await updateJettonDayData(router, jetton0, event);
-  await updateJettonDayData(router, jetton1, event);
+  await db.transaction(async (_db) => {
+    let transaction = await loadTransaction(event, _db as any);
+    let burnData = {
+      amount: event.amount.toString(),
+      amount0: event.amount0.toString(),
+      amount1: event.amount1.toString(),
+      amountUSD: amountUSD.getValue(),
+      jetton0Id: jetton0.id,
+      jetton1Id: jetton1.id,
+      poolId: pool.id,
+      transactionId: transaction.id,
+      timestamp: new Date(event.block.timestamp),
+      owner: event.owner.toString(),
+      origin: event.transaction.from.toString(),
+      tickLower: event.tickLower,
+      tickUpper: event.tickUpper,
+    } as BurnWithoutId;
 
-  await db.update(schema.jetton).set(jetton0).where(eq(schema.jetton.id, jetton0.id));
-  await db.update(schema.jetton).set(jetton1).where(eq(schema.jetton.id, jetton1.id));
-  await db.update(schema.pool).set(pool).where(eq(schema.pool.id, pool.id));
-  await db.update(schema.router).set(router).where(eq(schema.router.id, router.id));
-  await db.insert(schema.burn).values(burnData);
+    await updateRouterDayData(router, event, _db as any);
+    await updatePoolDayData(pool, event, _db as any);
+    await updateJettonDayData(router, jetton0, event, _db as any);
+    await updateJettonDayData(router, jetton1, event, _db as any);
+
+    const { id: jetton0Id, ...jetton0Data } = jetton0;
+    await _db.update(schema.jetton).set(jetton0Data).where(eq(schema.jetton.id, jetton0.id));
+    const { id: jetton1Id, ...jetton1Data } = jetton1;
+    await _db.update(schema.jetton).set(jetton1Data).where(eq(schema.jetton.id, jetton1.id));
+    const { id: poolId, ...poolData } = pool;
+    await _db.update(schema.pool).set(poolData).where(eq(schema.pool.id, pool.id));
+    const { id: routerId, ...routerData } = router;
+    await _db.update(schema.router).set(routerData).where(eq(schema.router.id, router.id));
+    await _db.insert(schema.burn).values(burnData);
+    await updateTickFeeVarsAndSave(lowerTick, event, _db as any);
+    await updateTickFeeVarsAndSave(upperTick, event, _db as any);
+  });
 };

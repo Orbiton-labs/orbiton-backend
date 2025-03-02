@@ -51,5 +51,5 @@ server.listen(PORT, async () => {
   const liteClient = await LiteClientService.init();
   const blockHandler = new BlockTransactionHandler(liteClient);
   const blockScanner = new BlockScanner(liteClient, blockHandler);
-  await blockScanner.run();
+  await blockScanner.run(45447770);
 });

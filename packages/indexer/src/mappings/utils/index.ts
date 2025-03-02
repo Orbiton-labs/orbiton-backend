@@ -1,6 +1,6 @@
 import { TraceEvent } from '@src/@types';
 import { ONE_BD, ONE_BI, ZERO_BD, ZERO_BI } from '@src/constants';
-import { db } from '@src/db';
+import { DatabaseType, db } from '@src/db';
 import { Transaction } from '@src/models';
 import * as schema from '@src/models';
 import { BigIntHelper } from '@src/utils/bigint';
@@ -24,17 +24,20 @@ export const bigDecimalExponated = (value: BigDecimal, power: bigint): BigDecima
   return result;
 };
 
-export const loadTransaction = async (event: TraceEvent): Promise<Transaction> => {
-  let transaction = await db.query.transaction.findFirst({
+export const loadTransaction = async (
+  event: TraceEvent,
+  _db: DatabaseType = db,
+): Promise<Transaction> => {
+  let transaction = await _db.query.transaction.findFirst({
     where: eq(schema.transaction.hash, event.transaction.hash),
   });
   if (!transaction) {
-    await db.insert(schema.transaction).values({
+    await _db.insert(schema.transaction).values({
       hash: event.transaction.hash,
       block: event.block.id,
       timestamp: new Date(event.block.timestamp),
     });
-    transaction = await db.query.transaction.findFirst({
+    transaction = await _db.query.transaction.findFirst({
       where: eq(schema.transaction.hash, event.transaction.hash),
     });
   }

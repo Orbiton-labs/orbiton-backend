@@ -69,22 +69,6 @@ export const handleMint = async (event: MintEvent) => {
     pool.liquidity = (BigInt(pool.liquidity) + event.amount).toString();
   }
   pool.liquidityProviderCount = (BigInt(pool.liquidityProviderCount) + ONE_BI).toString();
-  let transaction = await loadTransaction(event);
-  let mintData = {
-    amount: event.amount.toString(),
-    amount0: event.amount0.toString(),
-    amount1: event.amount1.toString(),
-    amountUSD: amountUSD.toString(),
-    jetton0Id: jetton0.id,
-    jetton1Id: jetton1.id,
-    poolId: pool.id,
-    sender: event.sender.toString(),
-    owner: event.owner.toString(),
-    tickLower: event.tickLower,
-    tickUpper: event.tickUpper,
-    transactionId: transaction.id,
-    timestamp: new Date(event.block.timestamp),
-  };
 
   let lowerTickIdx = event.tickLower;
   let upperTickIdx = event.tickUpper;
@@ -110,12 +94,29 @@ export const handleMint = async (event: MintEvent) => {
   upperTick.liquidityGross = (BigInt(upperTick.liquidityGross) + amount).toString();
   upperTick.liquidityNet = (BigInt(upperTick.liquidityNet) - amount).toString();
 
-  await updateRouterDayData(router, event);
-  await updatePoolDayData(pool, event);
-  await updateJettonDayData(router, jetton0, event);
-  await updateJettonDayData(router, jetton1, event);
-
   await db.transaction(async (_db) => {
+    const transaction = await loadTransaction(event, _db as any);
+    let mintData = {
+      amount: event.amount.toString(),
+      amount0: event.amount0.toString(),
+      amount1: event.amount1.toString(),
+      amountUSD: amountUSD.toString(),
+      jetton0Id: jetton0.id,
+      jetton1Id: jetton1.id,
+      poolId: pool.id,
+      sender: event.sender.toString(),
+      owner: event.owner.toString(),
+      tickLower: event.tickLower,
+      tickUpper: event.tickUpper,
+      transactionId: transaction.id,
+      timestamp: new Date(event.block.timestamp),
+    };
+
+    await updateRouterDayData(router, event, _db as any);
+    await updatePoolDayData(pool, event, _db as any);
+    await updateJettonDayData(router, jetton0, event, _db as any);
+    await updateJettonDayData(router, jetton1, event, _db as any);
+
     const { id: jettonId, ...jetton0Data } = jetton0;
     await _db.update(schema.jetton).set(jetton0Data).where(eq(schema.jetton.id, jetton0.id));
     const { id: jettonId1, ...jetton1Data } = jetton1;
