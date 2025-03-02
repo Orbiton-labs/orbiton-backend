@@ -1,5 +1,5 @@
 {
-  "name": "@orbiton/ton-sdk",
+  "name": "@orbiton_labs/ton-sdk",
   "version": "1.0.0",
   "main": "build/index.js",
   "license": "MIT",

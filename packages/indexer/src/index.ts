@@ -46,7 +46,6 @@ app.use((err: any, req: any, res: any, next: any) => {
 });
 
 const PORT = env.server.port;
-
 server.listen(PORT, async () => {
   // setup lite engine server
   const liteClient = await LiteClientService.init();

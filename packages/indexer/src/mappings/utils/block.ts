@@ -1,4 +1,4 @@
-import { tonNode_blockIdExt } from '@orbiton/ton-lite-client/dist/schema';
+import { tonNode_blockIdExt } from '@orbiton_labs/ton-lite-client/dist/schema';
 
 export const encodeBlockId = (blockId: tonNode_blockIdExt): string => {
   let encodeHexShard = BigInt(blockId.shard) & 0xffffffffffffffffn;

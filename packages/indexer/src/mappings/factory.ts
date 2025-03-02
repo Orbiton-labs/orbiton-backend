@@ -7,7 +7,7 @@
 // import { eq } from 'drizzle-orm';
 // import { getTonPrice } from './utils/ton';
 // import { tonApiClient } from '@src/services/ton-api';
-// import { tonNode_BlockIdExt } from '@orbiton/ton-lite-client/dist/schema';
+// import { tonNode_BlockIdExt } from '@orbiton_labs/ton-lite-client/dist/schema';
 // import { encodeBlockId } from './utils/block';
 
 // function feeTierToProtocolFeeDefault(feeTier: bigint): bigint {

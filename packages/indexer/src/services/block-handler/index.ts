@@ -1,6 +1,6 @@
-import { tonNode_blockIdExt } from '@orbiton/ton-lite-client/dist/schema';
+import { tonNode_blockIdExt } from '@orbiton_labs/ton-lite-client/dist/schema';
 import BaseBlockHandler from './base-block-handler.service';
-import { LiteClient } from '@orbiton/ton-lite-client';
+import { LiteClient } from '@orbiton_labs/ton-lite-client';
 import { tonApiClient } from '../ton-api';
 import { encodeBlockId } from '@src/mappings/utils/block';
 const fs = require('fs');

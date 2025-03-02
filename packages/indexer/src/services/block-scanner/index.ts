@@ -1,12 +1,12 @@
 import { setTimeout } from 'timers/promises';
-import { LiteClient } from '@orbiton/ton-lite-client';
+import { LiteClient } from '@orbiton_labs/ton-lite-client';
 import {
   Functions,
   liteServer_BlockData,
   tonNode_blockIdExt,
-} from '@orbiton/ton-lite-client/dist/schema';
+} from '@orbiton_labs/ton-lite-client/dist/schema';
 import { Mutex } from 'async-mutex';
-import TonRocks, { Block } from '@orbiton/ton-sdk';
+import TonRocks, { Block } from '@orbiton_labs/ton-sdk';
 import BaseBlockHandler from '@src/services/block-handler/base-block-handler.service';
 import { EventEmitter } from 'stream';
 

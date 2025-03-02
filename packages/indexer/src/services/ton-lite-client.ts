@@ -3,7 +3,7 @@ import {
   LiteEngine,
   LiteRoundRobinEngine,
   LiteSingleEngine,
-} from '@orbiton/ton-lite-client';
+} from '@orbiton_labs/ton-lite-client';
 import { intToIP } from '@src/constants';
 import env from '@src/configs/env';
 
