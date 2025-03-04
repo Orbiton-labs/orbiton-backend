@@ -11,8 +11,8 @@ mock.module('../../src/mappings/utils/ton', () => {
       switch (jetton.id) {
         case 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs':
           return '0.5';
-        case 'EQAJ8uWd7EBqsmpSWaRdf_I-8R8-XHwh3gsNKhy-UrdrPcUo':
-          return '0.01';
+        case 'EQB-MPwrd1G6WKNkLz_VnV6WqBDd142KMQv-g1O-8QUA3728':
+          return '0.5';
       }
     }),
   };

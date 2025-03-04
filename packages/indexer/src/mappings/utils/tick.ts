@@ -31,8 +31,8 @@ export function createTick(tickId: string, tickIdx: bigint, pool: Pool, event: M
 
   // 1.0001^tick is token1/token0.
   const price0 = bigDecimalExponated(new BigDecimal('1.0001'), BigInt(tickIdx));
-  tickData.price0 = price0.getValue();
-  tickData.price1 = new BigDecimal(ONE_BD).divide(price0).getValue();
+  tickData.price0 = price0.stripTrailingZero().getValue();
+  tickData.price1 = new BigDecimal(ONE_BD).divide(price0).stripTrailingZero().getValue();
   return tickData;
 }
 

@@ -35,7 +35,7 @@ export const getMockInitializeEvent = () => {
     fee: 500n,
     tickSpacing: 60n,
     jetton0: Address.parse('EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs'),
-    jetton1: Address.parse('EQAJ8uWd7EBqsmpSWaRdf_I-8R8-XHwh3gsNKhy-UrdrPcUo'),
+    jetton1: Address.parse('EQB-MPwrd1G6WKNkLz_VnV6WqBDd142KMQv-g1O-8QUA3728'),
   } as InitializeEvent;
   return event;
 };
@@ -148,34 +148,40 @@ export const getMockBurnEvent = () => {
   return event;
 };
 
-// export const getMockSwapEvent = () => {
-//   const event = {
-//     address: Address.parse('EQC-aFP0rJXwTgKZQJPbPfTSpBFc8wxOgKHWD9cPvOl_DnaY'),
-//     block: {
-//       timestamp: 1740671545000,
-//       id: {
-//         fileHash: Buffer.from(
-//           '3138a79c5be7f099c44dd4bc6adbabf48d2a227ea9c41ef9b11677123f7b78aa',
-//           'hex',
-//         ),
-//         kind: 'tonNode.blockIdExt',
-//         rootHash: Buffer.from(
-//           '5664b4edc8d57a8578f3613132129ec5ddf006ab64f0197256c0bf2c78bd7a48',
-//           'hex',
-//         ),
-//         seqno: 50051188,
-//         shard: 'e000000000000000',
-//         workchain: 0,
-//       },
-//     },
-//     transaction: {
-//       from: Address.parse('UQDIfz58KSx9PFo10uS_3HJSJ_leYsIicIjMGO3d94peClZX'),
-//       to: Address.parse('EQC-aFP0rJXwTgKZQJPbPfTSpBFc8wxOgKHWD9cPvOl_DnaY'),
-//       hash: 'd83cc716680c2d2907c40b239bde1a62709cbf92ba3cf9365106e5b79a43a536',
-//     },
-//     amount0: -500000n,
-//     amount1: 499999n,
-//     liquidity:
-//   } as SwapEvent;
-//   return event;
-// };
+export const getMockSwapEvent = () => {
+  const event = {
+    address: Address.parse('EQC-aFP0rJXwTgKZQJPbPfTSpBFc8wxOgKHWD9cPvOl_DnaY'),
+    block: {
+      timestamp: 1740671545000,
+      id: {
+        fileHash: Buffer.from(
+          '3138a79c5be7f099c44dd4bc6adbabf48d2a227ea9c41ef9b11677123f7b78aa',
+          'hex',
+        ),
+        kind: 'tonNode.blockIdExt',
+        rootHash: Buffer.from(
+          '5664b4edc8d57a8578f3613132129ec5ddf006ab64f0197256c0bf2c78bd7a48',
+          'hex',
+        ),
+        seqno: 50051188,
+        shard: 'e000000000000000',
+        workchain: 0,
+      },
+    },
+    transaction: {
+      from: Address.parse('UQDIfz58KSx9PFo10uS_3HJSJ_leYsIicIjMGO3d94peClZX'),
+      to: Address.parse('EQC-aFP0rJXwTgKZQJPbPfTSpBFc8wxOgKHWD9cPvOl_DnaY'),
+      hash: 'd83cc716680c2d2907c40b239bde1a62709cbf92ba3cf9365106e5b79a43a536',
+    },
+    amount0: -500000n,
+    amount1: 499999n,
+    liquidity: 18000000n,
+    protocolFeesJetton0: 100000n,
+    protocolFeesJetton1: 200000n,
+    recipient: Address.parse('EQBDYpOew7_senlP8SzANhgeqOqGts0AySHQQ6UCQbO2NO6u'),
+    sender: Address.parse('EQBDYpOew7_senlP8SzANhgeqOqGts0AySHQQ6UCQbO2NO6u'),
+    sqrtPriceX96: encodePriceSqrt(1n, 2n),
+    tick: BigInt(TickMath.getTickAtSqrtRatio(encodePriceSqrt(1n, 2n))),
+  } as SwapEvent;
+  return event;
+};

@@ -24,6 +24,7 @@ export function getAdjustedAmounts(
     ton = amount0.multiply(new BigDecimal(jetton0.derivedTon)).multiply(new BigDecimal('2'));
   }
   let usd = ton.multiply(new BigDecimal(router.tonPriceUSD));
+
   return { ton, usd };
 }
 

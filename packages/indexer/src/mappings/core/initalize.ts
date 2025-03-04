@@ -8,6 +8,7 @@ import { findTonPerJetton, getTonPrice } from '../utils/ton';
 import { updatePoolDayData } from '../utils/pool';
 import { ZERO_BD, ZERO_BI } from '@src/constants';
 import BigDecimal from 'js-big-decimal';
+import { objectWithoutId } from '../common';
 
 function feeTierToProtocolFeeDefault(feeTier: bigint): bigint {
   if (feeTier === 10000n) {
@@ -53,10 +54,12 @@ export const handleInitialize = async (event: InitializeEvent) => {
   jetton0.derivedTon = await findTonPerJetton(jetton0);
   jetton0.derivedUSD = new BigDecimal(jetton0.derivedTon)
     .multiply(new BigDecimal(tonPriceUSD))
+    .stripTrailingZero()
     .getValue();
   jetton1.derivedTon = await findTonPerJetton(jetton1);
   jetton1.derivedUSD = new BigDecimal(jetton1.derivedTon)
     .multiply(new BigDecimal(tonPriceUSD))
+    .stripTrailingZero()
     .getValue();
 
   await db.transaction(async (_db) => {
@@ -113,9 +116,17 @@ export const handleInitialize = async (event: InitializeEvent) => {
       _db as any,
     );
 
-    const { id, ...tmpRouter } = router;
-    await _db.update(schema.router).set(tmpRouter).where(eq(schema.router.id, router.id));
-    await _db.update(schema.jetton).set(jetton0).where(eq(schema.jetton.id, jetton0.id));
-    await _db.update(schema.jetton).set(jetton1).where(eq(schema.jetton.id, jetton1.id));
+    await _db
+      .update(schema.router)
+      .set(objectWithoutId(router))
+      .where(eq(schema.router.id, router.id));
+    await _db
+      .update(schema.jetton)
+      .set(objectWithoutId(jetton0))
+      .where(eq(schema.jetton.id, jetton0.id));
+    await _db
+      .update(schema.jetton)
+      .set(objectWithoutId(jetton1))
+      .where(eq(schema.jetton.id, jetton1.id));
   });
 };

@@ -8,6 +8,7 @@ import { DatabaseType, db } from '@src/db';
 import { eq } from 'drizzle-orm';
 import { tonClient } from '@src/services/ton-client';
 import { PoolWrapper } from '@orbiton_labs/v3-contracts-sdk';
+import { objectWithoutId } from '../common';
 
 export const getTonPrice = async (): Promise<number> => {
   while (true) {
@@ -58,14 +59,13 @@ export const updateTickFeeVarsAndSave = async (
   let tickResult = poolContract.getFeesGrowthGlobalAtTick(BigInt(tick.tickIdx));
   tick.feeGrowthOutside0X128 = tickResult[0];
   tick.feeGrowthOutside1X128 = tickResult[1];
-  const { id, ...tickData } = tick;
   await _db
     .insert(schema.tick)
     .values(tick)
     .onConflictDoUpdate({
       target: schema.tick.id,
       set: {
-        ...tickData,
+        ...objectWithoutId(tick),
       },
     });
 };

@@ -70,6 +70,7 @@ export const updateJettonDayData = async (
   }
   jettonDayData.priceUSD = new BigDecimal(jetton.derivedTon)
     .multiply(new BigDecimal(router.tonPriceUSD))
+    .stripTrailingZero()
     .getValue();
   jettonDayData.totalValueLocked = jetton.totalValueLocked;
   jettonDayData.totalValueLockedUSD = jetton.totalValueLockedUSD;

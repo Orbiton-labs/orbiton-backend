@@ -1,7 +1,7 @@
 import * as t from 'drizzle-orm/pg-core';
 import { pgTable as table } from 'drizzle-orm/pg-core';
 import { jetton } from './jetton';
-import { relations } from 'drizzle-orm';
+import { relations, InferSelectModel } from 'drizzle-orm';
 
 export const jettonData = table('jetton_data', {
   id: t.text().primaryKey().notNull(),
@@ -27,3 +27,5 @@ export const jettonDataRelations = relations(jettonData, ({ one }) => {
     }),
   };
 });
+
+export type JettonData = InferSelectModel<typeof jettonData>;

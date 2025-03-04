@@ -54,15 +54,16 @@ describe('Test Handle Initialize', () => {
     expect(transaction.hash).toEqual(event.transaction.hash);
     //@ts-ignore
     let jettons = (await db.query.jetton.findMany({})) as Jetton[];
+    console.log(jettons);
     expect(jettons[0].name).toBe('Tether USD');
     expect(jettons[0].decimals).toBe(6);
     expect(jettons[0].totalSupply).toBe('1429976002510000');
     expect(jettons[0].derivedTon).toBe('0.5');
     expect(jettons[0].derivedUSD).toBe('1');
-    expect(jettons[1].name).toBe('Hamster Kombat');
-    expect(jettons[1].decimals).toBe(9);
-    expect(jettons[1].totalSupply).toBe('99999999666660000000');
-    expect(jettons[1].derivedTon).toBe('0.01');
-    expect(jettons[1].derivedUSD).toBe('0.02');
+    expect(jettons[1].name).toBe('jUSDC');
+    expect(jettons[1].decimals).toBe(6);
+    expect(jettons[1].totalSupply).toBe('89310060454');
+    expect(jettons[1].derivedTon).toBe('0.5');
+    expect(jettons[1].derivedUSD).toBe('1');
   }, 100000);
 });

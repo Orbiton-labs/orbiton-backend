@@ -8,6 +8,7 @@ import { Address } from '@ton/core';
 import BigDecimal from 'js-big-decimal';
 import { updateDerivedTVLAmounts } from '../utils/tvl';
 import { ONE_BI } from '@src/constants';
+import { objectWithoutId } from '../common';
 
 export const handleCollectProtocol = async (event: CollectProtocolEvent) => {
   let pool = await db.query.pool.findFirst({
@@ -32,12 +33,20 @@ export const handleCollectProtocol = async (event: CollectProtocolEvent) => {
   let oldPoolTVLTon = pool.totalValueLockedTon;
   pool.totalValueLockedJetton0 = new BigDecimal(pool.totalValueLockedJetton0)
     .subtract(amount0)
-    .toString();
+    .stripTrailingZero()
+    .getValue();
   pool.totalValueLockedJetton1 = new BigDecimal(pool.totalValueLockedJetton1)
     .subtract(amount1)
-    .toString();
-  jetton0.totalValueLocked = new BigDecimal(jetton0.totalValueLocked).subtract(amount0).toString();
-  jetton1.totalValueLocked = new BigDecimal(jetton1.totalValueLocked).subtract(amount1).toString();
+    .stripTrailingZero()
+    .getValue();
+  jetton0.totalValueLocked = new BigDecimal(jetton0.totalValueLocked)
+    .subtract(amount0)
+    .stripTrailingZero()
+    .getValue();
+  jetton1.totalValueLocked = new BigDecimal(jetton1.totalValueLocked)
+    .subtract(amount1)
+    .stripTrailingZero()
+    .getValue();
   const data = await updateDerivedTVLAmounts(
     router,
     pool,
@@ -56,8 +65,17 @@ export const handleCollectProtocol = async (event: CollectProtocolEvent) => {
   jetton1.txCount = (BigInt(jetton1.txCount) + ONE_BI).toString();
   pool.txCount = (BigInt(pool.txCount) + ONE_BI).toString();
 
-  await db.update(schema.pool).set(pool).where(eq(schema.pool.id, pool.id));
-  await db.update(schema.router).set(router).where(eq(schema.router.id, router.id));
-  await db.update(schema.jetton).set(jetton0).where(eq(schema.jetton.id, jetton0.id));
-  await db.update(schema.jetton).set(jetton1).where(eq(schema.jetton.id, jetton1.id));
+  await db.update(schema.pool).set(objectWithoutId(pool)).where(eq(schema.pool.id, pool.id));
+  await db
+    .update(schema.router)
+    .set(objectWithoutId(router))
+    .where(eq(schema.router.id, router.id));
+  await db
+    .update(schema.jetton)
+    .set(objectWithoutId(jetton0))
+    .where(eq(schema.jetton.id, jetton0.id));
+  await db
+    .update(schema.jetton)
+    .set(objectWithoutId(jetton1))
+    .where(eq(schema.jetton.id, jetton1.id));
 };

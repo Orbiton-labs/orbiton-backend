@@ -13,6 +13,7 @@ import { createTick } from '../utils/tick';
 import { updateRouterDayData } from '../utils/router';
 import { updatePoolDayData } from '../utils/pool';
 import { updateTickFeeVarsAndSave } from '../utils/ton';
+import { objectWithoutId } from '../common';
 
 export const handleMint = async (event: MintEvent) => {
   let router = (await db.query.router.findFirst({})) as Router | undefined;
@@ -38,13 +39,21 @@ export const handleMint = async (event: MintEvent) => {
     );
 
   let oldPoolTVLTon = pool.totalValueLockedTon;
-  jetton0.totalValueLocked = new BigDecimal(jetton0.totalValueLocked).add(amount0).getValue();
-  jetton1.totalValueLocked = new BigDecimal(jetton1.totalValueLocked).add(amount1).getValue();
+  jetton0.totalValueLocked = new BigDecimal(jetton0.totalValueLocked)
+    .add(amount0)
+    .stripTrailingZero()
+    .getValue();
+  jetton1.totalValueLocked = new BigDecimal(jetton1.totalValueLocked)
+    .add(amount1)
+    .stripTrailingZero()
+    .getValue();
   pool.totalValueLockedJetton0 = new BigDecimal(pool.totalValueLockedJetton0)
     .add(amount0)
+    .stripTrailingZero()
     .getValue();
   pool.totalValueLockedJetton1 = new BigDecimal(pool.totalValueLockedJetton1)
     .add(amount1)
+    .stripTrailingZero()
     .getValue();
   const updatedResults = await updateDerivedTVLAmounts(
     router,
@@ -117,14 +126,19 @@ export const handleMint = async (event: MintEvent) => {
     await updateJettonDayData(router, jetton0, event, _db as any);
     await updateJettonDayData(router, jetton1, event, _db as any);
 
-    const { id: jettonId, ...jetton0Data } = jetton0;
-    await _db.update(schema.jetton).set(jetton0Data).where(eq(schema.jetton.id, jetton0.id));
-    const { id: jettonId1, ...jetton1Data } = jetton1;
-    await _db.update(schema.jetton).set(jetton1Data).where(eq(schema.jetton.id, jetton1.id));
-    const { id: poolId, ...poolData } = pool;
-    await _db.update(schema.pool).set(poolData).where(eq(schema.pool.id, pool.id));
-    const { id: routerId, ...routerData } = router;
-    await _db.update(schema.router).set(routerData).where(eq(schema.router.id, router.id));
+    await _db
+      .update(schema.jetton)
+      .set(objectWithoutId(jetton0))
+      .where(eq(schema.jetton.id, jetton0.id));
+    await _db
+      .update(schema.jetton)
+      .set(objectWithoutId(jetton1))
+      .where(eq(schema.jetton.id, jetton1.id));
+    await _db.update(schema.pool).set(objectWithoutId(pool)).where(eq(schema.pool.id, pool.id));
+    await _db
+      .update(schema.router)
+      .set(objectWithoutId(router))
+      .where(eq(schema.router.id, router.id));
     await _db.insert(schema.mint).values(mintData);
     await updateTickFeeVarsAndSave(lowerTick, event, _db as any);
     await updateTickFeeVarsAndSave(upperTick, event, _db as any);

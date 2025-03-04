@@ -32,10 +32,12 @@ export async function updateDerivedTVLAmounts(
   jetton0.totalValueLockedUSD = new BigDecimal(jetton0.totalValueLocked)
     .multiply(new BigDecimal(jetton0.derivedTon))
     .multiply(new BigDecimal(router.tonPriceUSD))
+    .stripTrailingZero()
     .getValue();
   jetton1.totalValueLockedUSD = new BigDecimal(jetton1.totalValueLocked)
     .multiply(new BigDecimal(jetton1.derivedTon))
     .multiply(new BigDecimal(router.tonPriceUSD))
+    .stripTrailingZero()
     .getValue();
   let amounts: AmountType = getAdjustedAmounts(
     router,
@@ -45,8 +47,8 @@ export async function updateDerivedTVLAmounts(
     jetton1,
   );
   // Update pool TVL values.
-  pool.totalValueLockedTon = amounts.ton.getValue();
-  pool.totalValueLockedUSD = amounts.usd.getValue();
+  pool.totalValueLockedTon = amounts.ton.stripTrailingZero().getValue();
+  pool.totalValueLockedUSD = amounts.usd.stripTrailingZero().getValue();
 
   /**
    * ----- RESET ------
@@ -54,12 +56,12 @@ export async function updateDerivedTVLAmounts(
    */
   router.totalValueLockedTon = new BigDecimal(router.totalValueLockedTon)
     .subtract(oldPoolTotalValueLockedTon)
-    .getValue();
-  router.totalValueLockedTon = new BigDecimal(router.totalValueLockedTon)
     .add(amounts.ton)
+    .stripTrailingZero()
     .getValue();
   router.totalValueLockedUSD = new BigDecimal(router.totalValueLockedTon)
     .multiply(new BigDecimal(router.tonPriceUSD))
+    .stripTrailingZero()
     .getValue();
 
   const { id: jetton0Id, ...jetton0Data } = jetton0;
