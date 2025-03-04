@@ -185,3 +185,41 @@ export const getMockSwapEvent = () => {
   } as SwapEvent;
   return event;
 };
+
+export const getSecondMockSwapEvent = () => {
+  const event = {
+    address: Address.parse('EQC-aFP0rJXwTgKZQJPbPfTSpBFc8wxOgKHWD9cPvOl_DnaY'),
+    block: {
+      timestamp: 1740671545000,
+      id: {
+        fileHash: Buffer.from(
+          '3138a79c5be7f099c44dd4bc6adbabf48d2a227ea9c41ef9b11677123f7b78aa',
+          'hex',
+        ),
+        kind: 'tonNode.blockIdExt',
+        rootHash: Buffer.from(
+          '5664b4edc8d57a8578f3613132129ec5ddf006ab64f0197256c0bf2c78bd7a48',
+          'hex',
+        ),
+        seqno: 50051188,
+        shard: 'e000000000000000',
+        workchain: 0,
+      },
+    },
+    transaction: {
+      from: Address.parse('UQDIfz58KSx9PFo10uS_3HJSJ_leYsIicIjMGO3d94peClZX'),
+      to: Address.parse('EQC-aFP0rJXwTgKZQJPbPfTSpBFc8wxOgKHWD9cPvOl_DnaY'),
+      hash: '77a825ea31c2e2d8ad4d841f9d2df173aa234b9a6b13aa04f4ae45bed60d0eed',
+    },
+    amount0: -1000000n,
+    amount1: 499999n,
+    liquidity: 20000000n,
+    protocolFeesJetton0: 100000n,
+    protocolFeesJetton1: 200000n,
+    recipient: Address.parse('EQBDYpOew7_senlP8SzANhgeqOqGts0AySHQQ6UCQbO2NO6u'),
+    sender: Address.parse('EQBDYpOew7_senlP8SzANhgeqOqGts0AySHQQ6UCQbO2NO6u'),
+    sqrtPriceX96: encodePriceSqrt(1n, 3n),
+    tick: BigInt(TickMath.getTickAtSqrtRatio(encodePriceSqrt(1n, 3n))),
+  } as SwapEvent;
+  return event;
+};
