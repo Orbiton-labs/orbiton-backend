@@ -155,176 +155,180 @@ export const handleSwap = async (event: SwapEvent) => {
     .getValue();
 
   await db.transaction(async (_db) => {
-    let transaction = await loadTransaction(event, _db as any);
+    try {
+      let transaction = await loadTransaction(event, _db as any);
 
-    // update TVL values
-    let oldPoolTVLTon = pool.totalValueLockedTon;
-    pool.totalValueLockedJetton0 = new BigDecimal(pool.totalValueLockedJetton0)
-      .add(amount0)
-      .stripTrailingZero()
-      .getValue();
-    pool.totalValueLockedJetton1 = new BigDecimal(pool.totalValueLockedJetton1)
-      .add(amount1)
-      .stripTrailingZero()
-      .getValue();
-    jetton0.totalValueLocked = new BigDecimal(jetton0.totalValueLocked)
-      .add(amount0)
-      .stripTrailingZero()
-      .getValue();
-    jetton1.totalValueLocked = new BigDecimal(jetton1.totalValueLocked)
-      .add(amount1)
-      .stripTrailingZero()
-      .getValue();
-    const updatedResults = await updateDerivedTVLAmounts(
-      router,
-      pool,
-      jetton0,
-      jetton1,
-      new BigDecimal(oldPoolTVLTon),
-      _db as any,
-    );
+      // update TVL values
+      let oldPoolTVLTon = pool.totalValueLockedTon;
+      pool.totalValueLockedJetton0 = new BigDecimal(pool.totalValueLockedJetton0)
+        .add(amount0)
+        .stripTrailingZero()
+        .getValue();
+      pool.totalValueLockedJetton1 = new BigDecimal(pool.totalValueLockedJetton1)
+        .add(amount1)
+        .stripTrailingZero()
+        .getValue();
+      jetton0.totalValueLocked = new BigDecimal(jetton0.totalValueLocked)
+        .add(amount0)
+        .stripTrailingZero()
+        .getValue();
+      jetton1.totalValueLocked = new BigDecimal(jetton1.totalValueLocked)
+        .add(amount1)
+        .stripTrailingZero()
+        .getValue();
+      const updatedResults = await updateDerivedTVLAmounts(
+        router,
+        pool,
+        jetton0,
+        jetton1,
+        new BigDecimal(oldPoolTVLTon),
+        _db as any,
+      );
 
-    jetton0 = updatedResults.jetton0;
-    jetton1 = updatedResults.jetton1;
-    router = updatedResults.router;
-    pool = { ...pool, ...updatedResults.pool };
+      jetton0 = updatedResults.jetton0;
+      jetton1 = updatedResults.jetton1;
+      router = updatedResults.router;
+      pool = { ...pool, ...updatedResults.pool };
 
-    // create Swap event
-    let swap = {
-      amount0: amount0.stripTrailingZero().getValue(),
-      amount1: amount1.stripTrailingZero().getValue(),
-      amountUSD: volumeUSD.stripTrailingZero().getValue(),
-      amountFeeUSD: protocolFeeAmounts.usd.stripTrailingZero().getValue(),
-      poolId: pool.id,
-      jetton0Id: jetton0.id,
-      jetton1Id: jetton1.id,
-      recipient: event.recipient.toString(),
-      sender: event.sender.toString(),
-      origin: event.transaction.from.toString(),
-      sqrtPriceX96: event.sqrtPriceX96.toString(),
-      tick: event.tick,
-      timestamp: new Date(event.block.timestamp),
-      transactionId: transaction.id,
-    };
+      // create Swap event
+      let swap = {
+        amount0: amount0.stripTrailingZero().getValue(),
+        amount1: amount1.stripTrailingZero().getValue(),
+        amountUSD: volumeUSD.stripTrailingZero().getValue(),
+        amountFeeUSD: protocolFeeAmounts.usd.stripTrailingZero().getValue(),
+        poolId: pool.id,
+        jetton0Id: jetton0.id,
+        jetton1Id: jetton1.id,
+        recipient: event.recipient.toString(),
+        sender: event.sender.toString(),
+        origin: event.transaction.from.toString(),
+        sqrtPriceX96: event.sqrtPriceX96.toString(),
+        tick: event.tick,
+        timestamp: new Date(event.block.timestamp),
+        transactionId: transaction.id,
+      };
 
-    // TODO: update fee frowth
-    let poolContract = tonClient.open(
-      PoolWrapper.PoolTest.createFromAddress(Address.parse(pool.address)),
-    );
-    const [feeGrowthGlobal0X128, feeGrowthGlobal1X128, ..._dump] =
-      await poolContract.getFeesGrowthGlobal();
-    pool.feeGrowthGlobal0X128 = (feeGrowthGlobal0X128 as BigInt).toString();
-    pool.feeGrowthGlobal1X128 = (feeGrowthGlobal1X128 as BigInt).toString();
+      // TODO: update fee frowth
+      let poolContract = tonClient.open(
+        PoolWrapper.PoolTest.createFromAddress(Address.parse(pool.address)),
+      );
+      const [feeGrowthGlobal0X128, feeGrowthGlobal1X128, ..._dump] =
+        await poolContract.getFeesGrowthGlobal();
+      pool.feeGrowthGlobal0X128 = (feeGrowthGlobal0X128 as BigInt).toString();
+      pool.feeGrowthGlobal1X128 = (feeGrowthGlobal1X128 as BigInt).toString();
 
-    // interval data
-    let routerDayData = await updateRouterDayData(router, event, _db as any);
-    let poolDayData = await updatePoolDayData(pool, event, _db as any);
-    let jetton0DayData = await updateJettonDayData(router, jetton0, event, _db as any);
-    let jetton1DayData = await updateJettonDayData(router, jetton1, event, _db as any);
+      // interval data
+      let routerDayData = await updateRouterDayData(router, event, _db as any);
+      let poolDayData = await updatePoolDayData(pool, event, _db as any);
+      let jetton0DayData = await updateJettonDayData(router, jetton0, event, _db as any);
+      let jetton1DayData = await updateJettonDayData(router, jetton1, event, _db as any);
 
-    // update volume metrics
-    routerDayData.volumeTon = new BigDecimal(routerDayData.volumeTon)
-      .add(volumeTon)
-      .stripTrailingZero()
-      .getValue();
-    routerDayData.volumeUSD = new BigDecimal(routerDayData.volumeUSD)
-      .add(volumeUSD)
-      .stripTrailingZero()
-      .getValue();
-    routerDayData.feesUSD = new BigDecimal(routerDayData.feesUSD)
-      .add(feesUSD)
-      .stripTrailingZero()
-      .getValue();
-    routerDayData.protocolFeesUSD = new BigDecimal(routerDayData.protocolFeesUSD)
-      .add(protocolFeeAmounts.usd)
-      .stripTrailingZero()
-      .getValue();
+      // update volume metrics
+      routerDayData.volumeTon = new BigDecimal(routerDayData.volumeTon)
+        .add(volumeTon)
+        .stripTrailingZero()
+        .getValue();
+      routerDayData.volumeUSD = new BigDecimal(routerDayData.volumeUSD)
+        .add(volumeUSD)
+        .stripTrailingZero()
+        .getValue();
+      routerDayData.feesUSD = new BigDecimal(routerDayData.feesUSD)
+        .add(feesUSD)
+        .stripTrailingZero()
+        .getValue();
+      routerDayData.protocolFeesUSD = new BigDecimal(routerDayData.protocolFeesUSD)
+        .add(protocolFeeAmounts.usd)
+        .stripTrailingZero()
+        .getValue();
 
-    poolDayData.volumeUSD = new BigDecimal(poolDayData.volumeUSD)
-      .add(volumeUSD)
-      .stripTrailingZero()
-      .getValue();
-    poolDayData.volumeJetton0 = new BigDecimal(poolDayData.volumeJetton0)
-      .add(amount0Abs)
-      .stripTrailingZero()
-      .getValue();
-    poolDayData.volumeJetton1 = new BigDecimal(poolDayData.volumeJetton1)
-      .add(amount1Abs)
-      .stripTrailingZero()
-      .getValue();
-    poolDayData.feesUSD = new BigDecimal(poolDayData.feesUSD)
-      .add(feesUSD)
-      .stripTrailingZero()
-      .getValue();
-    poolDayData.protocolFeesUSD = new BigDecimal(poolDayData.protocolFeesUSD)
-      .add(protocolFeeAmounts.usd)
-      .stripTrailingZero()
-      .getValue();
+      poolDayData.volumeUSD = new BigDecimal(poolDayData.volumeUSD)
+        .add(volumeUSD)
+        .stripTrailingZero()
+        .getValue();
+      poolDayData.volumeJetton0 = new BigDecimal(poolDayData.volumeJetton0)
+        .add(amount0Abs)
+        .stripTrailingZero()
+        .getValue();
+      poolDayData.volumeJetton1 = new BigDecimal(poolDayData.volumeJetton1)
+        .add(amount1Abs)
+        .stripTrailingZero()
+        .getValue();
+      poolDayData.feesUSD = new BigDecimal(poolDayData.feesUSD)
+        .add(feesUSD)
+        .stripTrailingZero()
+        .getValue();
+      poolDayData.protocolFeesUSD = new BigDecimal(poolDayData.protocolFeesUSD)
+        .add(protocolFeeAmounts.usd)
+        .stripTrailingZero()
+        .getValue();
 
-    jetton0DayData.volume = new BigDecimal(jetton0DayData.volume)
-      .add(amount0Abs)
-      .stripTrailingZero()
-      .getValue();
-    jetton0DayData.volumeUSD = new BigDecimal(jetton0DayData.volumeUSD)
-      .add(volumeUSD)
-      .stripTrailingZero()
-      .getValue();
-    jetton0DayData.feesUSD = new BigDecimal(jetton0DayData.feesUSD)
-      .add(feesUSD)
-      .stripTrailingZero()
-      .getValue();
-    jetton0DayData.protocolFeesUSD = new BigDecimal(jetton0DayData.protocolFeesUSD)
-      .add(protocolFeeAmounts.usd)
-      .stripTrailingZero()
-      .getValue();
+      jetton0DayData.volume = new BigDecimal(jetton0DayData.volume)
+        .add(amount0Abs)
+        .stripTrailingZero()
+        .getValue();
+      jetton0DayData.volumeUSD = new BigDecimal(jetton0DayData.volumeUSD)
+        .add(volumeUSD)
+        .stripTrailingZero()
+        .getValue();
+      jetton0DayData.feesUSD = new BigDecimal(jetton0DayData.feesUSD)
+        .add(feesUSD)
+        .stripTrailingZero()
+        .getValue();
+      jetton0DayData.protocolFeesUSD = new BigDecimal(jetton0DayData.protocolFeesUSD)
+        .add(protocolFeeAmounts.usd)
+        .stripTrailingZero()
+        .getValue();
 
-    jetton1DayData.volume = new BigDecimal(jetton1DayData.volume)
-      .add(amount1Abs)
-      .stripTrailingZero()
-      .getValue();
-    jetton1DayData.volumeUSD = new BigDecimal(jetton1DayData.volumeUSD)
-      .add(volumeUSD)
-      .stripTrailingZero()
-      .getValue();
-    jetton1DayData.feesUSD = new BigDecimal(jetton1DayData.feesUSD)
-      .add(feesUSD)
-      .stripTrailingZero()
-      .getValue();
-    jetton1DayData.protocolFeesUSD = new BigDecimal(jetton1DayData.protocolFeesUSD)
-      .add(protocolFeeAmounts.usd)
-      .stripTrailingZero()
-      .getValue();
+      jetton1DayData.volume = new BigDecimal(jetton1DayData.volume)
+        .add(amount1Abs)
+        .stripTrailingZero()
+        .getValue();
+      jetton1DayData.volumeUSD = new BigDecimal(jetton1DayData.volumeUSD)
+        .add(volumeUSD)
+        .stripTrailingZero()
+        .getValue();
+      jetton1DayData.feesUSD = new BigDecimal(jetton1DayData.feesUSD)
+        .add(feesUSD)
+        .stripTrailingZero()
+        .getValue();
+      jetton1DayData.protocolFeesUSD = new BigDecimal(jetton1DayData.protocolFeesUSD)
+        .add(protocolFeeAmounts.usd)
+        .stripTrailingZero()
+        .getValue();
 
-    await _db.insert(schema.swap).values({ ...swap });
-    await _db
-      .update(schema.router)
-      .set(objectWithoutId(router))
-      .where(eq(schema.router.id, router.id));
-    await _db.update(schema.pool).set(objectWithoutId(pool)).where(eq(schema.pool.id, pool.id));
-    await _db
-      .update(schema.jetton)
-      .set(objectWithoutId(jetton0))
-      .where(eq(schema.jetton.id, jetton0.id));
-    await _db
-      .update(schema.jetton)
-      .set(objectWithoutId(jetton1))
-      .where(eq(schema.jetton.id, jetton1.id));
-    await _db
-      .update(schema.routerData)
-      .set(objectWithoutId(routerDayData))
-      .where(eq(schema.routerData.id, routerDayData.id));
-    await _db
-      .update(schema.poolData)
-      .set(objectWithoutId(poolDayData))
-      .where(eq(schema.poolData.id, poolDayData.id));
-    await _db
-      .update(schema.jettonData)
-      .set(objectWithoutId(jetton0DayData))
-      .where(eq(schema.jettonData.id, jetton0DayData.id));
-    await _db
-      .update(schema.jettonData)
-      .set(objectWithoutId(jetton1DayData))
-      .where(eq(schema.jettonData.id, jetton1DayData.id));
+      await _db.insert(schema.swap).values({ ...swap });
+      await _db
+        .update(schema.router)
+        .set(objectWithoutId(router))
+        .where(eq(schema.router.id, router.id));
+      await _db.update(schema.pool).set(objectWithoutId(pool)).where(eq(schema.pool.id, pool.id));
+      await _db
+        .update(schema.jetton)
+        .set(objectWithoutId(jetton0))
+        .where(eq(schema.jetton.id, jetton0.id));
+      await _db
+        .update(schema.jetton)
+        .set(objectWithoutId(jetton1))
+        .where(eq(schema.jetton.id, jetton1.id));
+      await _db
+        .update(schema.routerData)
+        .set(objectWithoutId(routerDayData))
+        .where(eq(schema.routerData.id, routerDayData.id));
+      await _db
+        .update(schema.poolData)
+        .set(objectWithoutId(poolDayData))
+        .where(eq(schema.poolData.id, poolDayData.id));
+      await _db
+        .update(schema.jettonData)
+        .set(objectWithoutId(jetton0DayData))
+        .where(eq(schema.jettonData.id, jetton0DayData.id));
+      await _db
+        .update(schema.jettonData)
+        .set(objectWithoutId(jetton1DayData))
+        .where(eq(schema.jettonData.id, jetton1DayData.id));
+    } catch (err) {
+      _db.rollback();
+    }
   });
 
   // TODO: write a job here which will update all ticks from previous current tick to current tick

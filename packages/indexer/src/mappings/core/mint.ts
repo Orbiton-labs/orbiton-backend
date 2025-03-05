@@ -104,43 +104,47 @@ export const handleMint = async (event: MintEvent) => {
   upperTick.liquidityNet = (BigInt(upperTick.liquidityNet) - amount).toString();
 
   await db.transaction(async (_db) => {
-    const transaction = await loadTransaction(event, _db as any);
-    let mintData = {
-      amount: event.amount.toString(),
-      amount0: event.amount0.toString(),
-      amount1: event.amount1.toString(),
-      amountUSD: amountUSD.toString(),
-      jetton0Id: jetton0.id,
-      jetton1Id: jetton1.id,
-      poolId: pool.id,
-      sender: event.sender.toString(),
-      owner: event.owner.toString(),
-      tickLower: event.tickLower,
-      tickUpper: event.tickUpper,
-      transactionId: transaction.id,
-      timestamp: new Date(event.block.timestamp),
-    };
+    try {
+      const transaction = await loadTransaction(event, _db as any);
+      let mintData = {
+        amount: event.amount.toString(),
+        amount0: event.amount0.toString(),
+        amount1: event.amount1.toString(),
+        amountUSD: amountUSD.toString(),
+        jetton0Id: jetton0.id,
+        jetton1Id: jetton1.id,
+        poolId: pool.id,
+        sender: event.sender.toString(),
+        owner: event.owner.toString(),
+        tickLower: event.tickLower,
+        tickUpper: event.tickUpper,
+        transactionId: transaction.id,
+        timestamp: new Date(event.block.timestamp),
+      };
 
-    await updateRouterDayData(router, event, _db as any);
-    await updatePoolDayData(pool, event, _db as any);
-    await updateJettonDayData(router, jetton0, event, _db as any);
-    await updateJettonDayData(router, jetton1, event, _db as any);
+      await updateRouterDayData(router, event, _db as any);
+      await updatePoolDayData(pool, event, _db as any);
+      await updateJettonDayData(router, jetton0, event, _db as any);
+      await updateJettonDayData(router, jetton1, event, _db as any);
 
-    await _db
-      .update(schema.jetton)
-      .set(objectWithoutId(jetton0))
-      .where(eq(schema.jetton.id, jetton0.id));
-    await _db
-      .update(schema.jetton)
-      .set(objectWithoutId(jetton1))
-      .where(eq(schema.jetton.id, jetton1.id));
-    await _db.update(schema.pool).set(objectWithoutId(pool)).where(eq(schema.pool.id, pool.id));
-    await _db
-      .update(schema.router)
-      .set(objectWithoutId(router))
-      .where(eq(schema.router.id, router.id));
-    await _db.insert(schema.mint).values(mintData);
-    await updateTickFeeVarsAndSave(lowerTick, event, _db as any);
-    await updateTickFeeVarsAndSave(upperTick, event, _db as any);
+      await _db
+        .update(schema.jetton)
+        .set(objectWithoutId(jetton0))
+        .where(eq(schema.jetton.id, jetton0.id));
+      await _db
+        .update(schema.jetton)
+        .set(objectWithoutId(jetton1))
+        .where(eq(schema.jetton.id, jetton1.id));
+      await _db.update(schema.pool).set(objectWithoutId(pool)).where(eq(schema.pool.id, pool.id));
+      await _db
+        .update(schema.router)
+        .set(objectWithoutId(router))
+        .where(eq(schema.router.id, router.id));
+      await _db.insert(schema.mint).values(mintData);
+      await updateTickFeeVarsAndSave(lowerTick, event, _db as any);
+      await updateTickFeeVarsAndSave(upperTick, event, _db as any);
+    } catch (err) {
+      _db.rollback();
+    }
   });
 };

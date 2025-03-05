@@ -63,70 +63,74 @@ export const handleInitialize = async (event: InitializeEvent) => {
     .getValue();
 
   await db.transaction(async (_db) => {
-    await _db.insert(schema.transaction).values({
-      hash: event.transaction.hash,
-      block: event.block.id,
-      timestamp: new Date(event.block.timestamp),
-    });
-    let transaction = await _db.query.transaction.findFirst({
-      where: eq(schema.transaction.hash, event.transaction.hash),
-    });
+    try {
+      await _db.insert(schema.transaction).values({
+        hash: event.transaction.hash,
+        block: event.block.id,
+        timestamp: new Date(event.block.timestamp),
+      });
+      let transaction = await _db.query.transaction.findFirst({
+        where: eq(schema.transaction.hash, event.transaction.hash),
+      });
 
-    let poolData = {
-      address: event.address.toString(),
-      jetton0Id: jetton0.id,
-      jetton1Id: jetton1.id,
-      feeTier,
-      collectedFeesJetton0: ZERO_BD,
-      collectedFeesJetton1: ZERO_BD,
-      collectedFeesUSD: ZERO_BD,
-      feeGrowthGlobal0X128: ZERO_BD,
-      feeGrowthGlobal1X128: ZERO_BD,
-      feeProtocol: feeTierToProtocolFeeDefault(BigInt(feeTier)),
-      feesUSD: ZERO_BD,
-      protocolFeesUSD: ZERO_BD,
-      jetton0Price: ZERO_BD,
-      jetton1Price: ZERO_BD,
-      liquidity: ZERO_BD,
-      liquidityProviderCount: ZERO_BD,
-      sqrtPrice: event.sqrtPriceX96.toString(),
-      tick: event.tick,
-      totalValueLockedJetton0: ZERO_BD,
-      totalValueLockedJetton1: ZERO_BD,
-      totalValueLockedTon: ZERO_BD,
-      totalValueLockedUSD: ZERO_BD,
-      txCount: ZERO_BD,
-      volumeJetton0: ZERO_BD,
-      volumeJetton1: ZERO_BD,
-      transactionId: transaction.id,
-      volumeUSD: ZERO_BD,
-      timestamp: new Date(event.block.timestamp),
-    };
+      let poolData = {
+        address: event.address.toString(),
+        jetton0Id: jetton0.id,
+        jetton1Id: jetton1.id,
+        feeTier,
+        collectedFeesJetton0: ZERO_BD,
+        collectedFeesJetton1: ZERO_BD,
+        collectedFeesUSD: ZERO_BD,
+        feeGrowthGlobal0X128: ZERO_BD,
+        feeGrowthGlobal1X128: ZERO_BD,
+        feeProtocol: feeTierToProtocolFeeDefault(BigInt(feeTier)),
+        feesUSD: ZERO_BD,
+        protocolFeesUSD: ZERO_BD,
+        jetton0Price: ZERO_BD,
+        jetton1Price: ZERO_BD,
+        liquidity: ZERO_BD,
+        liquidityProviderCount: ZERO_BD,
+        sqrtPrice: event.sqrtPriceX96.toString(),
+        tick: event.tick,
+        totalValueLockedJetton0: ZERO_BD,
+        totalValueLockedJetton1: ZERO_BD,
+        totalValueLockedTon: ZERO_BD,
+        totalValueLockedUSD: ZERO_BD,
+        txCount: ZERO_BD,
+        volumeJetton0: ZERO_BD,
+        volumeJetton1: ZERO_BD,
+        transactionId: transaction.id,
+        volumeUSD: ZERO_BD,
+        timestamp: new Date(event.block.timestamp),
+      };
 
-    const results = await _db
-      .insert(schema.pool)
-      .values({ ...poolData })
-      .returning({ id: schema.pool.id });
-    await updatePoolDayData(
-      {
-        ...poolData,
-        id: results[0].id,
-      },
-      event,
-      _db as any,
-    );
+      const results = await _db
+        .insert(schema.pool)
+        .values({ ...poolData })
+        .returning({ id: schema.pool.id });
+      await updatePoolDayData(
+        {
+          ...poolData,
+          id: results[0].id,
+        },
+        event,
+        _db as any,
+      );
 
-    await _db
-      .update(schema.router)
-      .set(objectWithoutId(router))
-      .where(eq(schema.router.id, router.id));
-    await _db
-      .update(schema.jetton)
-      .set(objectWithoutId(jetton0))
-      .where(eq(schema.jetton.id, jetton0.id));
-    await _db
-      .update(schema.jetton)
-      .set(objectWithoutId(jetton1))
-      .where(eq(schema.jetton.id, jetton1.id));
+      await _db
+        .update(schema.router)
+        .set(objectWithoutId(router))
+        .where(eq(schema.router.id, router.id));
+      await _db
+        .update(schema.jetton)
+        .set(objectWithoutId(jetton0))
+        .where(eq(schema.jetton.id, jetton0.id));
+      await _db
+        .update(schema.jetton)
+        .set(objectWithoutId(jetton1))
+        .where(eq(schema.jetton.id, jetton1.id));
+    } catch (err) {
+      _db.rollback();
+    }
   });
 };
