@@ -9,47 +9,69 @@ import env from './configs/env';
 import BlockScanner from '@services/block-scanner';
 import BlockTransactionHandler from '@services/block-handler';
 import { LiteClientService } from './services/ton-lite-client';
-
+import { buildSchema } from 'drizzle-graphql';
+import { Database, DatabaseMode, db } from './db';
+import { createYoga } from 'graphql-yoga';
 dotenv.config();
 
+Database.init(DatabaseMode.NORMAL);
 const app = express();
-const server = http.createServer(app);
-app.use(morgan.successHandler);
-app.use(morgan.errorHandler);
-app.use(helmet());
-app.use(
-  cors({
-    origin: '*',
-  }),
-);
-app.use(express.json());
-app.use(compression());
-app.use((err: any, req: any, res: any, next: any) => {
-  const status = err.status || 500;
-  const message = err.message || 'Something went wrong';
-  return res.status(status).json({
-    status,
-    message,
-    success: false,
-    stack: env.server.env == 'development' ? err.stack : null,
-  });
-});
-app.use((err: any, req: any, res: any, next: any) => {
-  const status = err.status || 500;
-  const message = err.message || 'Something went wrong';
-  return res.status(status).json({
-    status,
-    message,
-    success: false,
-    stack: env.server.env == 'development' ? err.stack : null,
-  });
-});
 
-const PORT = env.server.port;
-server.listen(PORT, async () => {
-  // setup lite engine server
-  const liteClient = await LiteClientService.init();
-  const blockHandler = new BlockTransactionHandler(liteClient);
-  const blockScanner = new BlockScanner(liteClient, blockHandler);
-  await blockScanner.run(45447770);
-});
+const bootstrapServer = async () => {
+  app.use(morgan.successHandler);
+  app.use(morgan.errorHandler);
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          'style-src': ["'self'", 'unpkg.com'],
+          'script-src': ["'self'", 'unpkg.com', "'unsafe-inline'"],
+          'img-src': ["'self'", 'raw.githubusercontent.com'],
+        },
+      },
+    }),
+  );
+  app.use(
+    cors({
+      origin: '*',
+    }),
+  );
+  app.use(express.json());
+  app.use(compression());
+  app.use((err: any, req: any, res: any, next: any) => {
+    const status = err.status || 500;
+    const message = err.message || 'Something went wrong';
+    return res.status(status).json({
+      status,
+      message,
+      success: false,
+      stack: env.server.env == 'development' ? err.stack : null,
+    });
+  });
+
+  const { schema } = buildSchema(db);
+  const yoga = createYoga({ schema });
+  app.use(yoga.graphqlEndpoint, yoga);
+
+  app.use((err: any, req: any, res: any, next: any) => {
+    const status = err.status || 500;
+    const message = err.message || 'Something went wrong';
+    return res.status(status).json({
+      status,
+      message,
+      success: false,
+      stack: env.server.env == 'development' ? err.stack : null,
+    });
+  });
+
+  const server = http.createServer(app);
+  const PORT = env.server.port;
+  server.listen(PORT, async () => {
+    const liteClient = await LiteClientService.init();
+    const blockHandler = new BlockTransactionHandler(liteClient);
+    const blockScanner = new BlockScanner(liteClient, blockHandler);
+    await blockScanner.run(45447770);
+  });
+};
+
+bootstrapServer();
