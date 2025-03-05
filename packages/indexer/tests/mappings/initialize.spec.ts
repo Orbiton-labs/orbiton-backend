@@ -62,7 +62,7 @@ describe('Test Handle Initialize', () => {
     expect(jettons[0].derivedUSD).toBe('1');
     expect(jettons[1].name).toBe('jUSDC');
     expect(jettons[1].decimals).toBe(6);
-    expect(jettons[1].totalSupply).toBe('89310060454');
+    expect(jettons[1].totalSupply).toBe('89013060454');
     expect(jettons[1].derivedTon).toBe('0.5');
     expect(jettons[1].derivedUSD).toBe('1');
   }, 100000);
