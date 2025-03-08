@@ -5,11 +5,13 @@ import * as schema from '@src/models';
 import { Router } from '@src/models';
 import { convertJettonToDecimal, getOrLoadJetton } from '../utils/jetton';
 import { Address } from '@ton/core';
-import BigDecimal from 'js-big-decimal';
+import BigDecimal from 'decimal.js';
 import { updateDerivedTVLAmounts } from '../utils/tvl';
 import { ONE_BI } from '@src/constants';
 import { objectWithoutId } from '../common';
+import { BigDecimalConfig } from '../constant';
 
+BigDecimal.set(BigDecimalConfig);
 export const handleCollectProtocol = async (event: CollectProtocolEvent) => {
   let pool = await db.query.pool.findFirst({
     where: eq(schema.pool.address, event.address.toString()),
@@ -32,21 +34,21 @@ export const handleCollectProtocol = async (event: CollectProtocolEvent) => {
   // adjust pool TVL based on amount collected
   let oldPoolTVLTon = pool.totalValueLockedTon;
   pool.totalValueLockedJetton0 = new BigDecimal(pool.totalValueLockedJetton0)
-    .subtract(amount0)
-    .stripTrailingZero()
-    .getValue();
+    .sub(amount0)
+
+    .toString();
   pool.totalValueLockedJetton1 = new BigDecimal(pool.totalValueLockedJetton1)
-    .subtract(amount1)
-    .stripTrailingZero()
-    .getValue();
+    .sub(amount1)
+
+    .toString();
   jetton0.totalValueLocked = new BigDecimal(jetton0.totalValueLocked)
-    .subtract(amount0)
-    .stripTrailingZero()
-    .getValue();
+    .sub(amount0)
+
+    .toString();
   jetton1.totalValueLocked = new BigDecimal(jetton1.totalValueLocked)
-    .subtract(amount1)
-    .stripTrailingZero()
-    .getValue();
+    .sub(amount1)
+
+    .toString();
   const data = await updateDerivedTVLAmounts(
     router,
     pool,

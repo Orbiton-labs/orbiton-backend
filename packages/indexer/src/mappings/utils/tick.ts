@@ -3,7 +3,7 @@ import { MintEvent } from '@src/@types/core.type';
 import { ONE_BD, ZERO_BD, ZERO_BI } from '../../constants';
 import { Tick } from '@src/models/tick';
 import { Pool } from '@src/models/pool';
-import BigDecimal from 'js-big-decimal';
+import BigDecimal from 'decimal.js';
 import { bigDecimalExponated } from '.';
 
 export function createTick(tickId: string, tickIdx: bigint, pool: Pool, event: MintEvent): Tick {
@@ -31,8 +31,8 @@ export function createTick(tickId: string, tickIdx: bigint, pool: Pool, event: M
 
   // 1.0001^tick is token1/token0.
   const price0 = bigDecimalExponated(new BigDecimal('1.0001'), BigInt(tickIdx));
-  tickData.price0 = price0.stripTrailingZero().getValue();
-  tickData.price1 = new BigDecimal(ONE_BD).divide(price0).stripTrailingZero().getValue();
+  tickData.price0 = price0.toString();
+  tickData.price1 = new BigDecimal(ONE_BD).div(price0).toString();
   return tickData;
 }
 

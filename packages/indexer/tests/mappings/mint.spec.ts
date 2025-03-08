@@ -12,12 +12,14 @@ import { convertJettonToDecimal } from '../../src/mappings/utils/jetton';
 import * as schema from '../../src/models';
 import { ONE_DAY_IN_MILLISECONDS } from '../../src/constants';
 import { eq } from 'drizzle-orm';
-import BigDecimal from 'js-big-decimal';
+import BigDecimal from 'decimal.js';
 import './__mocks__';
 //@ts-ignore
 import { describe, it, expect, beforeAll } from 'bun:test';
 import { bigDecimalExponated } from '../../src/mappings/utils';
+import { BigDecimalConfig } from '../../src/mappings/constant';
 
+BigDecimal.set(BigDecimalConfig);
 describe('Test Handle Mint', () => {
   beforeAll(async () => {
     Database.init(DatabaseMode.IN_MEMORY);
@@ -40,26 +42,26 @@ describe('Test Handle Mint', () => {
     let jettons = (await db.query.jetton.findMany({})) as Jetton[];
     expect(jettons.length).toEqual(2);
     expect(jettons[0].totalValueLocked).toEqual(
-      convertJettonToDecimal(17000000n, jettons[0]).stripTrailingZero().getValue(),
+      convertJettonToDecimal(17000000n, jettons[0]).toString(),
     );
     expect(jettons[0].totalValueLockedUSD).toEqual(
       convertJettonToDecimal(17000000n, jettons[0])
-        .multiply(new BigDecimal(jettons[0].derivedTon))
-        .multiply(new BigDecimal(router.tonPriceUSD))
-        .stripTrailingZero()
-        .getValue(),
+        .mul(new BigDecimal(jettons[0].derivedTon))
+        .mul(new BigDecimal(router.tonPriceUSD))
+
+        .toString(),
     );
     expect(jettons[0].totalValueLockedUSD).not.toEqual('0');
     expect(jettons[0].txCount).toEqual('1');
     expect(jettons[1].totalValueLocked).toEqual(
-      convertJettonToDecimal(9000000n, jettons[1]).stripTrailingZero().getValue(),
+      convertJettonToDecimal(9000000n, jettons[1]).toString(),
     );
     expect(jettons[1].totalValueLockedUSD).toEqual(
       convertJettonToDecimal(9000000n, jettons[1])
-        .multiply(new BigDecimal(jettons[1].derivedTon))
-        .multiply(new BigDecimal(router.tonPriceUSD))
-        .stripTrailingZero()
-        .getValue(),
+        .mul(new BigDecimal(jettons[1].derivedTon))
+        .mul(new BigDecimal(router.tonPriceUSD))
+
+        .toString(),
     );
     expect(jettons[1].totalValueLockedUSD).not.toEqual('0');
     expect(jettons[1].txCount).toEqual('1');
@@ -67,10 +69,10 @@ describe('Test Handle Mint', () => {
     //@ts-ignore
     let pool = (await db.query.pool.findFirst({})) as Pool;
     expect(pool.totalValueLockedJetton0).toEqual(
-      convertJettonToDecimal(17000000n, jettons[0]).stripTrailingZero().getValue(),
+      convertJettonToDecimal(17000000n, jettons[0]).toString(),
     );
     expect(pool.totalValueLockedJetton1).toEqual(
-      convertJettonToDecimal(9000000n, jettons[1]).stripTrailingZero().getValue(),
+      convertJettonToDecimal(9000000n, jettons[1]).toString(),
     );
     expect(pool.txCount).toEqual('1');
     expect(pool.liquidity).toEqual('15000000');
@@ -80,20 +82,18 @@ describe('Test Handle Mint', () => {
     expect(pool.jetton1Price).toEqual('0');
     expect(pool.totalValueLockedTon).toEqual(
       new BigDecimal(pool.totalValueLockedJetton0)
-        .multiply(new BigDecimal(jettons[0].derivedTon))
+        .mul(new BigDecimal(jettons[0].derivedTon))
         .add(
-          new BigDecimal(pool.totalValueLockedJetton1).multiply(
-            new BigDecimal(jettons[1].derivedTon),
-          ),
+          new BigDecimal(pool.totalValueLockedJetton1).mul(new BigDecimal(jettons[1].derivedTon)),
         )
-        .stripTrailingZero()
-        .getValue(),
+
+        .toString(),
     );
     expect(pool.totalValueLockedUSD).toEqual(
       new BigDecimal(pool.totalValueLockedTon)
-        .multiply(new BigDecimal(2))
-        .stripTrailingZero()
-        .getValue(),
+        .mul(new BigDecimal(2))
+
+        .toString(),
     );
     expect(pool.totalValueLockedTon).not.toEqual('0');
     expect(pool.totalValueLockedUSD).not.toEqual('0');
@@ -163,9 +163,9 @@ describe('Test Handle Mint', () => {
     });
     expect(jetton0DayData.priceUSD).toEqual(
       new BigDecimal(jettons[0].derivedTon)
-        .multiply(new BigDecimal(router.tonPriceUSD))
-        .stripTrailingZero()
-        .getValue(),
+        .mul(new BigDecimal(router.tonPriceUSD))
+
+        .toString(),
     );
     expect(jetton0DayData.totalValueLocked).toEqual(jettons[0].totalValueLocked);
     expect(jetton0DayData.totalValueLockedUSD).toEqual(jettons[0].totalValueLockedUSD);
@@ -176,9 +176,9 @@ describe('Test Handle Mint', () => {
     });
     expect(jetton1DayData.priceUSD).toEqual(
       new BigDecimal(jettons[1].derivedTon)
-        .multiply(new BigDecimal(router.tonPriceUSD))
-        .stripTrailingZero()
-        .getValue(),
+        .mul(new BigDecimal(router.tonPriceUSD))
+
+        .toString(),
     );
     expect(jetton1DayData.totalValueLocked).toEqual(jettons[1].totalValueLocked);
     expect(jetton1DayData.totalValueLockedUSD).toEqual(jettons[1].totalValueLockedUSD);
@@ -197,57 +197,55 @@ describe('Test Handle Mint', () => {
     let jettons = (await db.query.jetton.findMany({})) as Jetton[];
     expect(jettons.length).toEqual(2);
     expect(jettons[0].totalValueLocked).toEqual(
-      convertJettonToDecimal(20000000n, jettons[0]).stripTrailingZero().getValue(),
+      convertJettonToDecimal(20000000n, jettons[0]).toString(),
     );
     expect(jettons[0].totalValueLockedUSD).not.toEqual('0');
     expect(jettons[0].txCount).toEqual('2');
     expect(jettons[0].totalValueLockedUSD).toEqual(
       convertJettonToDecimal(20000000n, jettons[0])
-        .multiply(new BigDecimal(jettons[0].derivedTon))
-        .multiply(new BigDecimal(router.tonPriceUSD))
-        .stripTrailingZero()
-        .getValue(),
+        .mul(new BigDecimal(jettons[0].derivedTon))
+        .mul(new BigDecimal(router.tonPriceUSD))
+
+        .toString(),
     );
     expect(jettons[1].totalValueLocked).toEqual(
-      convertJettonToDecimal(59000000n, jettons[1]).stripTrailingZero().getValue(),
+      convertJettonToDecimal(59000000n, jettons[1]).toString(),
     );
     expect(jettons[1].totalValueLockedUSD).not.toEqual('0');
     expect(jettons[1].txCount).toEqual('2');
     expect(jettons[1].totalValueLockedUSD).toEqual(
       convertJettonToDecimal(59000000n, jettons[1])
-        .multiply(new BigDecimal(jettons[1].derivedTon))
-        .multiply(new BigDecimal(router.tonPriceUSD))
-        .stripTrailingZero()
-        .getValue(),
+        .mul(new BigDecimal(jettons[1].derivedTon))
+        .mul(new BigDecimal(router.tonPriceUSD))
+
+        .toString(),
     );
 
     //@ts-ignore
     let pool = (await db.query.pool.findFirst({})) as Pool;
     expect(pool.totalValueLockedJetton0).toEqual(
-      convertJettonToDecimal(20000000n, jettons[0]).stripTrailingZero().getValue(),
+      convertJettonToDecimal(20000000n, jettons[0]).toString(),
     );
     expect(pool.totalValueLockedJetton1).toEqual(
-      convertJettonToDecimal(59000000n, jettons[1]).stripTrailingZero().getValue(),
+      convertJettonToDecimal(59000000n, jettons[1]).toString(),
     );
     // this will not change because outside of current tick
     expect(pool.liquidity).toEqual('15000000');
     expect(pool.txCount).toEqual('2');
     expect(pool.totalValueLockedTon).toEqual(
       new BigDecimal(pool.totalValueLockedJetton0)
-        .multiply(new BigDecimal(jettons[0].derivedTon))
+        .mul(new BigDecimal(jettons[0].derivedTon))
         .add(
-          new BigDecimal(pool.totalValueLockedJetton1).multiply(
-            new BigDecimal(jettons[1].derivedTon),
-          ),
+          new BigDecimal(pool.totalValueLockedJetton1).mul(new BigDecimal(jettons[1].derivedTon)),
         )
-        .stripTrailingZero()
-        .getValue(),
+
+        .toString(),
     );
     expect(pool.totalValueLockedUSD).toEqual(
       new BigDecimal(pool.totalValueLockedTon)
-        .multiply(new BigDecimal(2))
-        .stripTrailingZero()
-        .getValue(),
+        .mul(new BigDecimal(2))
+
+        .toString(),
     );
     expect(pool.totalValueLockedTon).not.toEqual('0');
     expect(pool.totalValueLockedUSD).not.toEqual('0');
@@ -261,17 +259,17 @@ describe('Test Handle Mint', () => {
     expect(mint.amount).toEqual('14000000');
     expect(mint.amount0).toEqual('3000000');
     expect(mint.amount1).toEqual('50000000');
-    expect(mint.amountUSD).not.toEqual(
+    expect(mint.amountUSD).toEqual(
       convertJettonToDecimal(3000000n, jettons[0])
-        .multiply(new BigDecimal(jettons[0].derivedTon))
-        .multiply(new BigDecimal(router.tonPriceUSD))
+        .mul(new BigDecimal(jettons[0].derivedTon))
+        .mul(new BigDecimal(router.tonPriceUSD))
         .add(
           convertJettonToDecimal(50000000n, jettons[1])
-            .multiply(new BigDecimal(jettons[1].derivedTon))
-            .multiply(new BigDecimal(router.tonPriceUSD)),
+            .mul(new BigDecimal(jettons[1].derivedTon))
+            .mul(new BigDecimal(router.tonPriceUSD)),
         )
-        .stripTrailingZero()
-        .getValue(),
+
+        .toString(),
     );
     expect(mint.poolId).toEqual(pool.id);
     expect(mint.sender).toEqual(event.sender.toString());
@@ -284,28 +282,24 @@ describe('Test Handle Mint', () => {
     expect(ticks.length).toEqual(3);
     expect(ticks[1].liquidityGross).toEqual('14000000');
     expect(ticks[1].liquidityNet).toEqual('14000000');
-    expect(ticks[1].price0).toEqual(
-      bigDecimalExponated(new BigDecimal('1.0001'), 1n).stripTrailingZero().getValue(),
-    );
+    expect(ticks[1].price0).toEqual(bigDecimalExponated(new BigDecimal('1.0001'), 1n).toString());
     expect(ticks[1].price1).toEqual(
       new BigDecimal('1')
-        .divide(bigDecimalExponated(new BigDecimal('1.0001'), 1n))
-        .stripTrailingZero()
-        .getValue(),
+        .div(bigDecimalExponated(new BigDecimal('1.0001'), 1n))
+
+        .toString(),
     );
     expect(ticks[1].poolAddress).toEqual(event.address.toString());
 
     // this will be accumulated results since colliding tick index
     expect(ticks[2].liquidityGross).toEqual('29000000');
     expect(ticks[2].liquidityNet).toEqual('-29000000');
-    expect(ticks[2].price0).toEqual(
-      bigDecimalExponated(new BigDecimal('1.0001'), 10n).stripTrailingZero().getValue(),
-    );
+    expect(ticks[2].price0).toEqual(bigDecimalExponated(new BigDecimal('1.0001'), 10n).toString());
     expect(ticks[2].price1).toEqual(
       new BigDecimal('1')
-        .divide(bigDecimalExponated(new BigDecimal('1.0001'), 10n))
-        .stripTrailingZero()
-        .getValue(),
+        .div(bigDecimalExponated(new BigDecimal('1.0001'), 10n))
+
+        .toString(),
     );
     expect(ticks[2].poolAddress).toEqual(event.address.toString());
 
@@ -337,9 +331,9 @@ describe('Test Handle Mint', () => {
     });
     expect(jetton0DayData.priceUSD).toEqual(
       new BigDecimal(jettons[0].derivedTon)
-        .multiply(new BigDecimal(router.tonPriceUSD))
-        .stripTrailingZero()
-        .getValue(),
+        .mul(new BigDecimal(router.tonPriceUSD))
+
+        .toString(),
     );
     expect(jetton0DayData.totalValueLocked).toEqual(jettons[0].totalValueLocked);
     expect(jetton0DayData.totalValueLockedUSD).toEqual(jettons[0].totalValueLockedUSD);
@@ -350,9 +344,9 @@ describe('Test Handle Mint', () => {
     });
     expect(jetton1DayData.priceUSD).toEqual(
       new BigDecimal(jettons[1].derivedTon)
-        .multiply(new BigDecimal(router.tonPriceUSD))
-        .stripTrailingZero()
-        .getValue(),
+        .mul(new BigDecimal(router.tonPriceUSD))
+
+        .toString(),
     );
     expect(jetton1DayData.totalValueLocked).toEqual(jettons[1].totalValueLocked);
     expect(jetton1DayData.totalValueLockedUSD).toEqual(jettons[1].totalValueLockedUSD);

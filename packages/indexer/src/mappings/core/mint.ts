@@ -5,7 +5,7 @@ import * as schema from '@src/models/index';
 import { convertJettonToDecimal, getOrLoadJetton, updateJettonDayData } from '../utils/jetton';
 import { Address } from '@ton/core';
 import { Router } from '@src/models/router';
-import BigDecimal from 'js-big-decimal';
+import BigDecimal from 'decimal.js';
 import { updateDerivedTVLAmounts } from '../utils/tvl';
 import { ONE_BI } from '@src/constants';
 import { loadTransaction } from '../utils';
@@ -14,7 +14,9 @@ import { updateRouterDayData } from '../utils/router';
 import { updatePoolDayData } from '../utils/pool';
 import { updateTickFeeVarsAndSave } from '../utils/ton';
 import { objectWithoutId } from '../common';
+import { BigDecimalConfig } from '../constant';
 
+BigDecimal.set(BigDecimalConfig);
 export const handleMint = async (event: MintEvent) => {
   let router = (await db.query.router.findFirst({})) as Router | undefined;
   if (!router) {
@@ -31,30 +33,26 @@ export const handleMint = async (event: MintEvent) => {
   let amount0 = convertJettonToDecimal(event.amount0, jetton0);
   let amount1 = convertJettonToDecimal(event.amount1, jetton1);
   let amountUSD = amount0
-    .multiply(new BigDecimal(jetton0.derivedTon).multiply(new BigDecimal(router.tonPriceUSD)))
-    .add(
-      amount1.multiply(
-        new BigDecimal(jetton1.derivedTon).multiply(new BigDecimal(router.tonPriceUSD)),
-      ),
-    );
+    .mul(new BigDecimal(jetton0.derivedTon).mul(new BigDecimal(router.tonPriceUSD)))
+    .add(amount1.mul(new BigDecimal(jetton1.derivedTon).mul(new BigDecimal(router.tonPriceUSD))));
 
   let oldPoolTVLTon = pool.totalValueLockedTon;
   jetton0.totalValueLocked = new BigDecimal(jetton0.totalValueLocked)
     .add(amount0)
-    .stripTrailingZero()
-    .getValue();
+
+    .toString();
   jetton1.totalValueLocked = new BigDecimal(jetton1.totalValueLocked)
     .add(amount1)
-    .stripTrailingZero()
-    .getValue();
+
+    .toString();
   pool.totalValueLockedJetton0 = new BigDecimal(pool.totalValueLockedJetton0)
     .add(amount0)
-    .stripTrailingZero()
-    .getValue();
+
+    .toString();
   pool.totalValueLockedJetton1 = new BigDecimal(pool.totalValueLockedJetton1)
     .add(amount1)
-    .stripTrailingZero()
-    .getValue();
+
+    .toString();
   const updatedResults = await updateDerivedTVLAmounts(
     router,
     pool,

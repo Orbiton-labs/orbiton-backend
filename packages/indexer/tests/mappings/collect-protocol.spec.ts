@@ -14,8 +14,10 @@ import './__mocks__';
 import { describe, it, expect, beforeAll } from 'bun:test';
 import { getAdjustedAmounts } from '../../src/mappings/utils/pricing';
 import { handleCollectProtocol } from '../../src/mappings/core/collect-protocol';
-import BigDecimal from 'js-big-decimal';
+import BigDecimal from 'decimal.js';
+import { BigDecimalConfig } from '../../src/mappings/constant';
 
+BigDecimal.set(BigDecimalConfig);
 describe('Test Handle Collect Protocol', () => {
   beforeAll(async () => {
     Database.init(DatabaseMode.IN_MEMORY);
@@ -40,12 +42,12 @@ describe('Test Handle Collect Protocol', () => {
     let pool = (await db.query.pool.findFirst({})) as Pool;
 
     expect(jettons[0].totalValueLocked).toEqual(
-      convertJettonToDecimal(16900000n, jettons[0]).stripTrailingZero().getValue(),
+      convertJettonToDecimal(16900000n, jettons[0]).toString(),
     );
     expect(jettons[0].totalValueLockedUSD).toEqual('16.9');
     expect(jettons[0].txCount).toEqual('2');
     expect(jettons[1].totalValueLocked).toEqual(
-      convertJettonToDecimal(8800000n, jettons[1]).stripTrailingZero().getValue(),
+      convertJettonToDecimal(8800000n, jettons[1]).toString(),
     );
     expect(jettons[1].totalValueLockedUSD).toEqual('8.8');
     expect(jettons[1].txCount).toEqual('2');
@@ -58,17 +60,17 @@ describe('Test Handle Collect Protocol', () => {
       jettons[1],
     );
     expect(pool.totalValueLockedJetton0).toEqual(
-      convertJettonToDecimal(16900000n, jettons[0]).stripTrailingZero().getValue(),
+      convertJettonToDecimal(16900000n, jettons[0]).toString(),
     );
     expect(pool.totalValueLockedJetton1).toEqual(
-      convertJettonToDecimal(8800000n, jettons[1]).stripTrailingZero().getValue(),
+      convertJettonToDecimal(8800000n, jettons[1]).toString(),
     );
-    expect(pool.totalValueLockedTon).toEqual(amounts.ton.stripTrailingZero().getValue());
-    expect(pool.totalValueLockedUSD).toEqual(amounts.usd.stripTrailingZero().getValue());
+    expect(pool.totalValueLockedTon).toEqual(amounts.ton.toString());
+    expect(pool.totalValueLockedUSD).toEqual(amounts.usd.toString());
     expect(pool.txCount).toEqual('2');
 
-    expect(router.totalValueLockedTon).toEqual(amounts.ton.stripTrailingZero().getValue());
-    expect(router.totalValueLockedUSD).toEqual(amounts.usd.stripTrailingZero().getValue());
+    expect(router.totalValueLockedTon).toEqual(amounts.ton.toString());
+    expect(router.totalValueLockedUSD).toEqual(amounts.usd.toString());
     expect(router.txCount).toEqual('2');
   });
 });

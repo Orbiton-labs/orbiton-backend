@@ -5,7 +5,7 @@ import { Transaction } from '@src/models';
 import * as schema from '@src/models';
 import { BigIntHelper } from '@src/utils/bigint';
 import { eq } from 'drizzle-orm';
-import BigDecimal from 'js-big-decimal';
+import BigDecimal from 'decimal.js';
 
 export const bigDecimalExponated = (value: BigDecimal, power: bigint): BigDecimal => {
   if (power == ZERO_BI) {
@@ -15,11 +15,11 @@ export const bigDecimalExponated = (value: BigDecimal, power: bigint): BigDecima
   let result = new BigDecimal(ZERO_BD).add(value);
   let powerAbs = BigIntHelper.abs(power);
   for (let i = ONE_BI; i < powerAbs; i = i + ONE_BI) {
-    result = result.multiply(value);
+    result = result.mul(value);
   }
 
   if (negativePower) {
-    result = new BigDecimal(ONE_BD).divide(result);
+    result = new BigDecimal(ONE_BD).div(result);
   }
   return result;
 };

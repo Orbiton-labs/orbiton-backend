@@ -4,7 +4,7 @@ import { Address } from '@ton/core';
 import { tonApiClient } from '@src/services/ton-api';
 import * as schema from '@src/models';
 import { ONE_BI, ONE_DAY_IN_MILLISECONDS, ZERO_BD, ZERO_BI } from '@src/constants';
-import BigDecimal from 'js-big-decimal';
+import BigDecimal from 'decimal.js';
 import { TraceEvent } from '@src/@types';
 import { eq } from 'drizzle-orm';
 
@@ -69,9 +69,9 @@ export const updateJettonDayData = async (
     };
   }
   jettonDayData.priceUSD = new BigDecimal(jetton.derivedTon)
-    .multiply(new BigDecimal(router.tonPriceUSD))
-    .stripTrailingZero()
-    .getValue();
+    .mul(new BigDecimal(router.tonPriceUSD))
+
+    .toString();
   jettonDayData.totalValueLocked = jetton.totalValueLocked;
   jettonDayData.totalValueLockedUSD = jetton.totalValueLockedUSD;
   await _db
@@ -98,15 +98,13 @@ export function convertJettonToDecimal(tokenAmount: bigint, jetton: Jetton | nul
   if (jetton === null || ZERO_BI === BigInt(jetton.decimals)) {
     return new BigDecimal(tokenAmount.toString());
   }
-  return new BigDecimal(tokenAmount.toString()).divide(
-    exponentToBigDecimal(BigInt(jetton.decimals)),
-  );
+  return new BigDecimal(tokenAmount.toString()).div(exponentToBigDecimal(BigInt(jetton.decimals)));
 }
 
 export function exponentToBigDecimal(decimals: bigint): BigDecimal {
   let bd = new BigDecimal('1');
   for (let i = ZERO_BI; i < decimals; i = i + ONE_BI) {
-    bd = bd.multiply(new BigDecimal('10'));
+    bd = bd.mul(new BigDecimal('10'));
   }
   return bd;
 }

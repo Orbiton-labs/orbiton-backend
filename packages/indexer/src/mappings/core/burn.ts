@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 import * as schema from '@src/models';
 import { convertJettonToDecimal, getOrLoadJetton, updateJettonDayData } from '../utils/jetton';
 import { Address } from '@ton/core';
-import BigDecimal from 'js-big-decimal';
+import BigDecimal from 'decimal.js';
 import { ONE_BI } from '@src/constants';
 import { updateDerivedTVLAmounts } from '../utils/tvl';
 import { loadTransaction } from '../utils';
@@ -13,7 +13,9 @@ import { updateRouterDayData } from '../utils/router';
 import { updatePoolDayData } from '../utils/pool';
 import { updateTickFeeVarsAndSave } from '../utils/ton';
 import { objectWithoutId } from '../common';
+import { BigDecimalConfig } from '../constant';
 
+BigDecimal.set(BigDecimalConfig);
 export const handleBurn = async (event: BurnEvent) => {
   let router = (await db.query.router.findFirst({})) as Router | undefined;
   if (!router) {
@@ -34,12 +36,8 @@ export const handleBurn = async (event: BurnEvent) => {
   let amount1 = convertJettonToDecimal(event.amount1, jetton1);
 
   let amountUSD = amount0
-    .multiply(new BigDecimal(jetton0.derivedTon).multiply(new BigDecimal(router.tonPriceUSD)))
-    .add(
-      amount1.multiply(
-        new BigDecimal(jetton1.derivedTon).multiply(new BigDecimal(router.tonPriceUSD)),
-      ),
-    );
+    .mul(new BigDecimal(jetton0.derivedTon).mul(new BigDecimal(router.tonPriceUSD)))
+    .add(amount1.mul(new BigDecimal(jetton1.derivedTon).mul(new BigDecimal(router.tonPriceUSD))));
 
   // tx update
   router.txCount = (BigInt(router.txCount) + ONE_BI).toString();
@@ -50,21 +48,21 @@ export const handleBurn = async (event: BurnEvent) => {
   // update TVL values.
   let oldPoolTotalValueLockedTon = pool.totalValueLockedTon;
   jetton0.totalValueLocked = new BigDecimal(jetton0.totalValueLocked)
-    .subtract(amount0)
-    .stripTrailingZero()
-    .getValue();
+    .sub(amount0)
+
+    .toString();
   jetton1.totalValueLocked = new BigDecimal(jetton1.totalValueLocked)
-    .subtract(amount1)
-    .stripTrailingZero()
-    .getValue();
+    .sub(amount1)
+
+    .toString();
   pool.totalValueLockedJetton0 = new BigDecimal(pool.totalValueLockedJetton0)
-    .subtract(amount0)
-    .stripTrailingZero()
-    .getValue();
+    .sub(amount0)
+
+    .toString();
   pool.totalValueLockedJetton1 = new BigDecimal(pool.totalValueLockedJetton1)
-    .subtract(amount1)
-    .stripTrailingZero()
-    .getValue();
+    .sub(amount1)
+
+    .toString();
   const data = await updateDerivedTVLAmounts(
     router,
     pool,
@@ -108,7 +106,7 @@ export const handleBurn = async (event: BurnEvent) => {
         amount: event.amount.toString(),
         amount0: event.amount0.toString(),
         amount1: event.amount1.toString(),
-        amountUSD: amountUSD.stripTrailingZero().getValue(),
+        amountUSD: amountUSD.toString(),
         jetton0Id: jetton0.id,
         jetton1Id: jetton1.id,
         poolId: pool.id,

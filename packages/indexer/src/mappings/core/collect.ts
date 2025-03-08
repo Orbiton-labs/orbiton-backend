@@ -7,11 +7,13 @@ import { convertJettonToDecimal, getOrLoadJetton } from '../utils/jetton';
 import { Address } from '@ton/core';
 import { loadTransaction } from '../utils';
 import { getAdjustedAmounts } from '../utils/pricing';
-import BigDecimal from 'js-big-decimal';
+import BigDecimal from 'decimal.js';
 import { ONE_BI } from '@src/constants';
 import { CollectWithoutId } from '@src/models/collect';
 import { objectWithoutId } from '../common';
+import { BigDecimalConfig } from '../constant';
 
+BigDecimal.set(BigDecimalConfig);
 export const handleCollect = async (event: CollectEvent) => {
   let router = (await db.query.router.findFirst({})) as Router | undefined;
   if (!router) {
@@ -37,16 +39,16 @@ export const handleCollect = async (event: CollectEvent) => {
 
   pool.collectedFeesJetton0 = new BigDecimal(pool.collectedFeesJetton0)
     .add(amount0)
-    .stripTrailingZero()
-    .getValue();
+
+    .toString();
   pool.collectedFeesJetton1 = new BigDecimal(pool.collectedFeesJetton1)
     .add(amount1)
-    .stripTrailingZero()
-    .getValue();
+
+    .toString();
   pool.collectedFeesUSD = new BigDecimal(pool.collectedFeesUSD)
     .add(amounts.usd)
-    .stripTrailingZero()
-    .getValue();
+
+    .toString();
 
   // update transaction counts
   router.txCount = (BigInt(router.txCount) + ONE_BI).toString();
@@ -59,9 +61,9 @@ export const handleCollect = async (event: CollectEvent) => {
     poolId: pool.id,
     jetton0Id: jetton0.id,
     jetton1Id: jetton1.id,
-    amount0: amount0.stripTrailingZero().getValue(),
-    amount1: amount1.stripTrailingZero().getValue(),
-    amountUSD: amounts.usd.stripTrailingZero().getValue(),
+    amount0: amount0.toString(),
+    amount1: amount1.toString(),
+    amountUSD: amounts.usd.toString(),
     owner: event.owner.toString(),
     tickLower: event.tickLower,
     tickUpper: event.tickUpper,

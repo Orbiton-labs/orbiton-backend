@@ -1,5 +1,5 @@
 import { Jetton, Pool, Router } from '@src/models';
-import BigDecimal from 'js-big-decimal';
+import BigDecimal from 'decimal.js';
 import { AmountType, getAdjustedAmounts } from './pricing';
 import { DatabaseType, db } from '@src/db';
 import * as schema from '@src/models';
@@ -30,15 +30,15 @@ export async function updateDerivedTVLAmounts(
   jetton1: Jetton;
 }> {
   jetton0.totalValueLockedUSD = new BigDecimal(jetton0.totalValueLocked)
-    .multiply(new BigDecimal(jetton0.derivedTon))
-    .multiply(new BigDecimal(router.tonPriceUSD))
-    .stripTrailingZero()
-    .getValue();
+    .mul(new BigDecimal(jetton0.derivedTon))
+    .mul(new BigDecimal(router.tonPriceUSD))
+
+    .toString();
   jetton1.totalValueLockedUSD = new BigDecimal(jetton1.totalValueLocked)
-    .multiply(new BigDecimal(jetton1.derivedTon))
-    .multiply(new BigDecimal(router.tonPriceUSD))
-    .stripTrailingZero()
-    .getValue();
+    .mul(new BigDecimal(jetton1.derivedTon))
+    .mul(new BigDecimal(router.tonPriceUSD))
+
+    .toString();
   let amounts: AmountType = getAdjustedAmounts(
     router,
     new BigDecimal(pool.totalValueLockedJetton0),
@@ -47,22 +47,22 @@ export async function updateDerivedTVLAmounts(
     jetton1,
   );
   // Update pool TVL values.
-  pool.totalValueLockedTon = amounts.ton.stripTrailingZero().getValue();
-  pool.totalValueLockedUSD = amounts.usd.stripTrailingZero().getValue();
+  pool.totalValueLockedTon = amounts.ton.toString();
+  pool.totalValueLockedUSD = amounts.usd.toString();
 
   /**
    * ----- RESET ------
    * We need to reset router values before updating with new amounts.
    */
   router.totalValueLockedTon = new BigDecimal(router.totalValueLockedTon)
-    .subtract(oldPoolTotalValueLockedTon)
+    .sub(oldPoolTotalValueLockedTon)
     .add(amounts.ton)
-    .stripTrailingZero()
-    .getValue();
+
+    .toString();
   router.totalValueLockedUSD = new BigDecimal(router.totalValueLockedTon)
-    .multiply(new BigDecimal(router.tonPriceUSD))
-    .stripTrailingZero()
-    .getValue();
+    .mul(new BigDecimal(router.tonPriceUSD))
+
+    .toString();
 
   const { id: jetton0Id, ...jetton0Data } = jetton0;
   await _db.update(schema.jetton).set(jetton0Data).where(eq(schema.jetton.id, jetton0.id));

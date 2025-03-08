@@ -42,9 +42,9 @@ describe('Test Handle Collect', () => {
     let amount1 = convertJettonToDecimal(event.amount1, jettons[1]);
     let amounts = getAdjustedAmounts(router, amount0, jettons[0], amount1, jettons[1]);
 
-    expect(pool.collectedFeesJetton0).toEqual(amount0.stripTrailingZero().getValue());
-    expect(pool.collectedFeesJetton1).toEqual(amount1.stripTrailingZero().getValue());
-    expect(pool.collectedFeesUSD).toEqual(amounts.usd.stripTrailingZero().getValue());
+    expect(pool.collectedFeesJetton0).toEqual(amount0.toString());
+    expect(pool.collectedFeesJetton1).toEqual(amount1.toString());
+    expect(pool.collectedFeesUSD).toEqual(amounts.usd.toString());
     expect(router.txCount).toEqual('2');
     expect(jettons[0].txCount).toEqual('2');
     expect(jettons[1].txCount).toEqual('2');
@@ -52,11 +52,11 @@ describe('Test Handle Collect', () => {
 
     //@ts-ignore
     let collect = (await db.query.collect.findFirst({})) as Collect;
-    expect(collect.amount0).toEqual(amount0.stripTrailingZero().getValue());
-    expect(collect.amount1).toEqual(amount1.stripTrailingZero().getValue());
+    expect(collect.amount0).toEqual(amount0.toString());
+    expect(collect.amount1).toEqual(amount1.toString());
     expect(collect.poolId).toEqual(pool.id);
     expect(collect.transactionId).toBeDefined();
-    expect(collect.amountUSD).toEqual(amounts.usd.stripTrailingZero().getValue());
+    expect(collect.amountUSD).toEqual(amounts.usd.toString());
     expect(collect.tickLower).toEqual(event.tickLower);
     expect(collect.tickUpper).toEqual(event.tickUpper);
   });

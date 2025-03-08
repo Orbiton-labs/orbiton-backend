@@ -7,9 +7,11 @@ import { Router } from '@src/models/router';
 import { findTonPerJetton, getTonPrice } from '../utils/ton';
 import { updatePoolDayData } from '../utils/pool';
 import { ZERO_BD, ZERO_BI } from '@src/constants';
-import BigDecimal from 'js-big-decimal';
+import BigDecimal from 'decimal.js';
 import { objectWithoutId } from '../common';
+import { BigDecimalConfig } from '../constant';
 
+BigDecimal.set(BigDecimalConfig);
 function feeTierToProtocolFeeDefault(feeTier: bigint): bigint {
   if (feeTier === 10000n) {
     return 209718400n;
@@ -53,14 +55,14 @@ export const handleInitialize = async (event: InitializeEvent) => {
 
   jetton0.derivedTon = await findTonPerJetton(jetton0);
   jetton0.derivedUSD = new BigDecimal(jetton0.derivedTon)
-    .multiply(new BigDecimal(tonPriceUSD))
-    .stripTrailingZero()
-    .getValue();
+    .mul(new BigDecimal(tonPriceUSD))
+
+    .toString();
   jetton1.derivedTon = await findTonPerJetton(jetton1);
   jetton1.derivedUSD = new BigDecimal(jetton1.derivedTon)
-    .multiply(new BigDecimal(tonPriceUSD))
-    .stripTrailingZero()
-    .getValue();
+    .mul(new BigDecimal(tonPriceUSD))
+
+    .toString();
 
   await db.transaction(async (_db) => {
     try {
