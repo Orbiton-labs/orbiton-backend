@@ -10,6 +10,7 @@ import { ZERO_BD, ZERO_BI } from '@src/constants';
 import BigDecimal from 'decimal.js';
 import { objectWithoutId } from '../common';
 import { BigDecimalConfig } from '../constant';
+import { loadTransaction } from '../utils';
 
 BigDecimal.set(BigDecimalConfig);
 function feeTierToProtocolFeeDefault(feeTier: bigint): bigint {
@@ -66,17 +67,13 @@ export const handleInitialize = async (event: InitializeEvent) => {
 
   await db.transaction(async (_db) => {
     try {
-      await _db.insert(schema.transaction).values({
-        hash: event.transaction.hash,
-        block: event.block.id,
-        timestamp: new Date(event.block.timestamp),
-      });
-      let transaction = await _db.query.transaction.findFirst({
-        where: eq(schema.transaction.hash, event.transaction.hash),
-      });
-
+      let [transaction, existed] = await loadTransaction(event, _db as any);
+      if (existed) {
+        console.log(`<handleInitialize> Transaction ${transaction.hash} already existed`);
+        return;
+      }
       let poolData = {
-        address: event.address.toString(),
+        address: event.transaction.from.toString(), // since it is tx called from pool to router
         jetton0Id: jetton0.id,
         jetton1Id: jetton1.id,
         feeTier,
@@ -132,6 +129,7 @@ export const handleInitialize = async (event: InitializeEvent) => {
         .set(objectWithoutId(jetton1))
         .where(eq(schema.jetton.id, jetton1.id));
     } catch (err) {
+      console.log(err);
       _db.rollback();
     }
   });

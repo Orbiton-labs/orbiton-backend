@@ -21,7 +21,7 @@ export const getTonPrice = async (): Promise<number> => {
       const tonPrice = tonRate.prices['USDT'];
       return Number(tonPrice.toFixed(3));
     } catch (err) {
-      console.log(err);
+      console.log('getTonPrice', err);
     }
     await setTimeout(500);
   }
@@ -55,7 +55,7 @@ export const updateTickFeeVarsAndSave = async (
   _db: DatabaseType = db,
 ) => {
   let poolAddress = event.address;
-  let poolContract = tonClient.open(PoolWrapper.PoolTest.createFromAddress(poolAddress));
+  let poolContract = tonClient.open(PoolWrapper.Pool.createFromAddress(poolAddress));
   let tickResult = poolContract.getFeesGrowthGlobalAtTick(BigInt(tick.tickIdx));
   tick.feeGrowthOutside0X128 = tickResult[0];
   tick.feeGrowthOutside1X128 = tickResult[1];

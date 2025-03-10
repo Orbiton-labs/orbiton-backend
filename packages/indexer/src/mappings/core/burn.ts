@@ -101,7 +101,12 @@ export const handleBurn = async (event: BurnEvent) => {
 
   await db.transaction(async (_db) => {
     try {
-      let transaction = await loadTransaction(event, _db as any);
+      let [transaction, existed] = await loadTransaction(event, _db as any);
+      if (existed) {
+        console.log(`<handleBurn> Transaction ${transaction.id} already existed`);
+        return;
+      }
+
       let burnData = {
         amount: event.amount.toString(),
         amount0: event.amount0.toString(),

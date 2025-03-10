@@ -30,7 +30,6 @@ export const handleCollect = async (event: CollectEvent) => {
 
   let jetton0 = await getOrLoadJetton(Address.parse(pool.jetton0Id));
   let jetton1 = await getOrLoadJetton(Address.parse(pool.jetton1Id));
-  let transaction = await loadTransaction(event);
 
   // get formatted amounts collected
   let amount0 = convertJettonToDecimal(event.amount0, jetton0);
@@ -56,32 +55,38 @@ export const handleCollect = async (event: CollectEvent) => {
   jetton1.txCount = (BigInt(jetton1.txCount) + ONE_BI).toString();
   pool.txCount = (BigInt(pool.txCount) + ONE_BI).toString();
 
-  let collectData = {
-    transactionId: transaction.id,
-    poolId: pool.id,
-    jetton0Id: jetton0.id,
-    jetton1Id: jetton1.id,
-    amount0: amount0.toString(),
-    amount1: amount1.toString(),
-    amountUSD: amounts.usd.toString(),
-    owner: event.owner.toString(),
-    tickLower: event.tickLower,
-    tickUpper: event.tickUpper,
-    timestamp: new Date(event.block.timestamp),
-  } as CollectWithoutId;
+  await db.transaction(async (_db: any) => {
+    let [transaction, existed] = await loadTransaction(event, _db);
+    if (existed) {
+      return;
+    }
+    let collectData = {
+      transactionId: transaction.id,
+      poolId: pool.id,
+      jetton0Id: jetton0.id,
+      jetton1Id: jetton1.id,
+      amount0: amount0.toString(),
+      amount1: amount1.toString(),
+      amountUSD: amounts.usd.toString(),
+      owner: event.owner.toString(),
+      tickLower: event.tickLower,
+      tickUpper: event.tickUpper,
+      timestamp: new Date(event.block.timestamp),
+    } as CollectWithoutId;
 
-  await db
-    .update(schema.router)
-    .set(objectWithoutId(router))
-    .where(eq(schema.router.id, router.id));
-  await db
-    .update(schema.jetton)
-    .set(objectWithoutId(jetton0))
-    .where(eq(schema.jetton.id, jetton0.id));
-  await db
-    .update(schema.jetton)
-    .set(objectWithoutId(jetton1))
-    .where(eq(schema.jetton.id, jetton1.id));
-  await db.update(schema.pool).set(objectWithoutId(pool)).where(eq(schema.pool.id, pool.id));
-  await db.insert(schema.collect).values(collectData);
+    await _db
+      .update(schema.router)
+      .set(objectWithoutId(router))
+      .where(eq(schema.router.id, router.id));
+    await _db
+      .update(schema.jetton)
+      .set(objectWithoutId(jetton0))
+      .where(eq(schema.jetton.id, jetton0.id));
+    await _db
+      .update(schema.jetton)
+      .set(objectWithoutId(jetton1))
+      .where(eq(schema.jetton.id, jetton1.id));
+    await _db.update(schema.pool).set(objectWithoutId(pool)).where(eq(schema.pool.id, pool.id));
+    await _db.insert(schema.collect).values(collectData);
+  });
 };

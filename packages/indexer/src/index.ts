@@ -12,11 +12,14 @@ import { LiteClientService } from './services/ton-lite-client';
 import { buildSchema } from 'drizzle-graphql';
 import { Database, DatabaseMode, db } from './db';
 import { createYoga } from 'graphql-yoga';
+import { Meta } from './models';
+import { tonNode_blockIdExt } from '@orbiton_labs/ton-lite-client/dist/schema';
+import { updateMeta } from './mappings/utils/meta';
 dotenv.config();
 
 Database.init(DatabaseMode.NORMAL);
-const app = express();
 
+const app = express();
 const bootstrapServer = async () => {
   app.use(morgan.successHandler);
   app.use(morgan.errorHandler);
@@ -70,7 +73,12 @@ const bootstrapServer = async () => {
     const liteClient = await LiteClientService.init();
     const blockHandler = new BlockTransactionHandler(liteClient);
     const blockScanner = new BlockScanner(liteClient, blockHandler);
-    await blockScanner.run(45447770);
+    const meta = (await db.query.meta.findFirst({})) as Meta | undefined;
+    blockScanner.on('mc_block', async (data: tonNode_blockIdExt) => {
+      console.log('seqno:', data.seqno);
+      await updateMeta(data);
+    });
+    await blockScanner.run(meta.seqno);
   });
 };
 

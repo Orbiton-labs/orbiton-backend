@@ -10,6 +10,7 @@ import { updateDerivedTVLAmounts } from '../utils/tvl';
 import { ONE_BI } from '@src/constants';
 import { objectWithoutId } from '../common';
 import { BigDecimalConfig } from '../constant';
+import { loadTransaction } from '../utils';
 
 BigDecimal.set(BigDecimalConfig);
 export const handleCollectProtocol = async (event: CollectProtocolEvent) => {
@@ -67,17 +68,24 @@ export const handleCollectProtocol = async (event: CollectProtocolEvent) => {
   jetton1.txCount = (BigInt(jetton1.txCount) + ONE_BI).toString();
   pool.txCount = (BigInt(pool.txCount) + ONE_BI).toString();
 
-  await db.update(schema.pool).set(objectWithoutId(pool)).where(eq(schema.pool.id, pool.id));
-  await db
-    .update(schema.router)
-    .set(objectWithoutId(router))
-    .where(eq(schema.router.id, router.id));
-  await db
-    .update(schema.jetton)
-    .set(objectWithoutId(jetton0))
-    .where(eq(schema.jetton.id, jetton0.id));
-  await db
-    .update(schema.jetton)
-    .set(objectWithoutId(jetton1))
-    .where(eq(schema.jetton.id, jetton1.id));
+  await db.transaction(async (_db) => {
+    const [transaction, existed] = await loadTransaction(event, _db as any);
+    if (existed) {
+      console.log(`<handleCollectProtocol> Transaction ${transaction.id} already existed`);
+      return;
+    }
+    await _db.update(schema.pool).set(objectWithoutId(pool)).where(eq(schema.pool.id, pool.id));
+    await _db
+      .update(schema.router)
+      .set(objectWithoutId(router))
+      .where(eq(schema.router.id, router.id));
+    await _db
+      .update(schema.jetton)
+      .set(objectWithoutId(jetton0))
+      .where(eq(schema.jetton.id, jetton0.id));
+    await _db
+      .update(schema.jetton)
+      .set(objectWithoutId(jetton1))
+      .where(eq(schema.jetton.id, jetton1.id));
+  });
 };

@@ -27,10 +27,11 @@ export const bigDecimalExponated = (value: BigDecimal, power: bigint): BigDecima
 export const loadTransaction = async (
   event: TraceEvent,
   _db: DatabaseType = db,
-): Promise<Transaction> => {
+): Promise<[Transaction, boolean]> => {
   let transaction = await _db.query.transaction.findFirst({
     where: eq(schema.transaction.hash, event.transaction.hash),
   });
+  let existed = true;
   if (!transaction) {
     await _db.insert(schema.transaction).values({
       hash: event.transaction.hash,
@@ -40,6 +41,7 @@ export const loadTransaction = async (
     transaction = await _db.query.transaction.findFirst({
       where: eq(schema.transaction.hash, event.transaction.hash),
     });
+    existed = false;
   }
-  return transaction as Transaction;
+  return [transaction, existed];
 };

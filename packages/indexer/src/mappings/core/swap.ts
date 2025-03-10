@@ -158,26 +158,22 @@ export const handleSwap = async (event: SwapEvent) => {
 
   await db.transaction(async (_db) => {
     try {
-      let transaction = await loadTransaction(event, _db as any);
+      let [transaction, existed] = await loadTransaction(event, _db as any);
+      if (existed) {
+        console.log(`<handleSwap> Transaction ${transaction.id} already existed`);
+        return;
+      }
 
       // update TVL values
       let oldPoolTVLTon = pool.totalValueLockedTon;
       pool.totalValueLockedJetton0 = new BigDecimal(pool.totalValueLockedJetton0)
         .add(amount0)
-
         .toString();
       pool.totalValueLockedJetton1 = new BigDecimal(pool.totalValueLockedJetton1)
         .add(amount1)
-
         .toString();
-      jetton0.totalValueLocked = new BigDecimal(jetton0.totalValueLocked)
-        .add(amount0)
-
-        .toString();
-      jetton1.totalValueLocked = new BigDecimal(jetton1.totalValueLocked)
-        .add(amount1)
-
-        .toString();
+      jetton0.totalValueLocked = new BigDecimal(jetton0.totalValueLocked).add(amount0).toString();
+      jetton1.totalValueLocked = new BigDecimal(jetton1.totalValueLocked).add(amount1).toString();
       const updatedResults = await updateDerivedTVLAmounts(
         router,
         pool,
@@ -212,7 +208,7 @@ export const handleSwap = async (event: SwapEvent) => {
 
       // TODO: update fee frowth
       let poolContract = tonClient.open(
-        PoolWrapper.PoolTest.createFromAddress(Address.parse(pool.address)),
+        PoolWrapper.Pool.createFromAddress(Address.parse(pool.address)),
       );
       const [feeGrowthGlobal0X128, feeGrowthGlobal1X128, ..._dump] =
         await poolContract.getFeesGrowthGlobal();

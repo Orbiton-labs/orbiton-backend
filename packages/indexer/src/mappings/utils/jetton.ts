@@ -7,6 +7,7 @@ import { ONE_BI, ONE_DAY_IN_MILLISECONDS, ZERO_BD, ZERO_BI } from '@src/constant
 import BigDecimal from 'decimal.js';
 import { TraceEvent } from '@src/@types';
 import { eq } from 'drizzle-orm';
+import env from '@src/configs/env';
 
 export const getOrLoadJetton = async (address: Address) => {
   //@ts-ignore

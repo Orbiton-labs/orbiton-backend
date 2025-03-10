@@ -1,26 +1,17 @@
-import { tonApiClient } from './services/ton-api';
-import { snakeToCamel } from './constants';
-// import BigDecimal from 'decimal.js';
-import BigDecimal from 'decimal.js';
-
-function formatNumber(value: string): string {
-  return value.replace(/\.0+$|(\.\d*[1-9])0+$/, '$1');
-}
+import { JettonWalletWrapper } from '@orbiton_labs/v3-contracts-sdk';
+import { tonClient } from './services/ton-client';
+import { Address } from '@ton/core';
+import { LiteClientService } from './services/ton-lite-client';
 
 const main = async () => {
-  // const tokenId = snakeToCamel('EQB-MPwrd1G6WKNkLz_VnV6WqBDd142KMQv-g1O-8QUA3728');
-  // const rateData = await tonApiClient.rates.getRates({
-  //   tokens: ['EQB-MPwrd1G6WKNkLz_VnV6WqBDd142KMQv-g1O-8QUA3728'],
-  //   currencies: ['TON'],
-  // });
-  // const tonRate = rateData.rates?.[tokenId];
-  // const jettonPricePerTon = tonRate.prices['TON'];
-  // console.log(jettonPricePerTon.toFixed(3));
-
-  BigDecimal.set({ precision: 40, rounding: 4, toExpPos: 40, toExpNeg: -40 });
-  console.log(new BigDecimal('100.01'));
-  console.log(new BigDecimal('100.0000000'));
-  console.log(new BigDecimal('409358093405').mul(new BigDecimal('189237190238091283901')));
-  console.log(new BigDecimal('10').div(new BigDecimal('3')));
+  console.time('ok');
+  const liteClient = await LiteClientService.init();
+  const data = await liteClient.getFullBlock(28949647);
+  const shards = data.shards;
+  shards.forEach((shard) => {
+    console.log(shard);
+  });
+  console.timeEnd('ok');
 };
+
 main();

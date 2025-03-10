@@ -9,7 +9,7 @@ class TonApiService {
       return TonApiService.instance;
     }
     const client = new TonApiClient({
-      baseUrl: 'https://tonapi.io',
+      baseUrl: `https://${env.server.network === 'mainnet' ? '' : 'testnet.'}tonapi.io`,
       apiKey: env.tonApi.apiKey,
     });
     TonApiService.instance = client;

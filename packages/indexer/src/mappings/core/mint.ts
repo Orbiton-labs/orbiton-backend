@@ -22,6 +22,7 @@ export const handleMint = async (event: MintEvent) => {
   if (!router) {
     return;
   }
+
   let pool = await db.query.pool.findFirst({
     where: eq(schema.pool.address, event.address.toString()),
   });
@@ -37,21 +38,13 @@ export const handleMint = async (event: MintEvent) => {
     .add(amount1.mul(new BigDecimal(jetton1.derivedTon).mul(new BigDecimal(router.tonPriceUSD))));
 
   let oldPoolTVLTon = pool.totalValueLockedTon;
-  jetton0.totalValueLocked = new BigDecimal(jetton0.totalValueLocked)
-    .add(amount0)
-
-    .toString();
-  jetton1.totalValueLocked = new BigDecimal(jetton1.totalValueLocked)
-    .add(amount1)
-
-    .toString();
+  jetton0.totalValueLocked = new BigDecimal(jetton0.totalValueLocked).add(amount0).toString();
+  jetton1.totalValueLocked = new BigDecimal(jetton1.totalValueLocked).add(amount1).toString();
   pool.totalValueLockedJetton0 = new BigDecimal(pool.totalValueLockedJetton0)
     .add(amount0)
-
     .toString();
   pool.totalValueLockedJetton1 = new BigDecimal(pool.totalValueLockedJetton1)
     .add(amount1)
-
     .toString();
   const updatedResults = await updateDerivedTVLAmounts(
     router,
@@ -103,7 +96,11 @@ export const handleMint = async (event: MintEvent) => {
 
   await db.transaction(async (_db) => {
     try {
-      const transaction = await loadTransaction(event, _db as any);
+      const [transaction, existed] = await loadTransaction(event, _db as any);
+      if (existed) {
+        console.log(`<handleMint> Transaction ${transaction.hash} already handled`);
+        return;
+      }
       let mintData = {
         amount: event.amount.toString(),
         amount0: event.amount0.toString(),
@@ -142,6 +139,7 @@ export const handleMint = async (event: MintEvent) => {
       await updateTickFeeVarsAndSave(lowerTick, event, _db as any);
       await updateTickFeeVarsAndSave(upperTick, event, _db as any);
     } catch (err) {
+      console.log(err);
       _db.rollback();
     }
   });

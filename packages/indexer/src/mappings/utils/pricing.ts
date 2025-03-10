@@ -39,7 +39,7 @@ export function sqrtPriceX96ToJettonPrices(
   let price1 = num
     .div(denom)
     .mul(exponentToBigDecimal(BigInt(jetton0.decimals)))
-    .mul(exponentToBigDecimal(BigInt(jetton1.decimals)));
+    .div(exponentToBigDecimal(BigInt(jetton1.decimals)));
 
   let price0 = new BigDecimal('1').div(price1);
   return [price0, price1];

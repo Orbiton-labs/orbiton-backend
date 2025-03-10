@@ -13,3 +13,4 @@ export * from './router';
 export * from './tick';
 export * from './router-data';
 export * from './collect';
+export * from './meta';
