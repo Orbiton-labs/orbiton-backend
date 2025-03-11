@@ -40,8 +40,8 @@ export function feeTierToTickSpacing(feeTier: bigint): bigint {
   if (feeTier == 10000n) {
     return 200n;
   }
-  if (feeTier == 2500n) {
-    return 50n;
+  if (feeTier == 3000n) {
+    return 60n;
   }
   if (feeTier == 500n) {
     return 10n;

@@ -7,7 +7,7 @@ import { convertJettonToDecimal, getOrLoadJetton, updateJettonDayData } from '..
 import BigDecimal from 'decimal.js';
 import { getAdjustedAmounts, sqrtPriceX96ToJettonPrices } from '../utils/pricing';
 import { ONE_BI, TWO_BD } from '@src/constants';
-import { getTonPrice } from '../utils/ton';
+import { getTonPrice, loadTickUpdateFeeVarsAndSave } from '../utils/ton';
 import { loadTransaction } from '../utils';
 import { updateDerivedTVLAmounts } from '../utils/tvl';
 import { updateRouterDayData } from '../utils/router';
@@ -17,8 +17,12 @@ import { tonClient } from '@src/services/ton-client';
 import { PoolWrapper } from '@orbiton_labs/v3-contracts-sdk';
 import { objectWithoutId } from '../common';
 import { BigDecimalConfig } from '../constant';
+import { feeTierToTickSpacing } from '../utils/tick';
+import Queue from 'queue';
 
 BigDecimal.set(BigDecimalConfig);
+
+const tickQueue = new Queue({ autostart: true, concurrency: 1 });
 export const handleSwap = async (event: SwapEvent) => {
   let router = (await db.query.router.findFirst({})) as Router | undefined;
   if (!router) {
@@ -32,6 +36,7 @@ export const handleSwap = async (event: SwapEvent) => {
   }
   let jetton0 = await getOrLoadJetton(Address.parse(pool.jetton0Id));
   let jetton1 = await getOrLoadJetton(Address.parse(pool.jetton1Id));
+  let oldTick = pool.tick!;
   let amount0 = convertJettonToDecimal(event.amount0, jetton0);
   let amount1 = convertJettonToDecimal(event.amount1, jetton1);
   let protocolFeesAmount0 = convertJettonToDecimal(event.protocolFeesJetton0, jetton0);
@@ -330,4 +335,25 @@ export const handleSwap = async (event: SwapEvent) => {
   });
 
   // TODO: write a job here which will update all ticks from previous current tick to current tick
+  let newTick = pool.tick!;
+  let tickSpacing = feeTierToTickSpacing(pool.feeTier);
+  let modulo = newTick % tickSpacing;
+
+  if (modulo === 0n) {
+    tickQueue.push(async () => {
+      await loadTickUpdateFeeVarsAndSave(newTick, event);
+    });
+  }
+
+  let numIters = oldTick - newTick / tickSpacing;
+  numIters = numIters < 0 ? -numIters : numIters;
+
+  let start: bigint, end: bigint;
+  [start, end] = oldTick < newTick ? [oldTick, newTick] : [newTick, oldTick];
+
+  for (let i = start; i <= end; i += tickSpacing) {
+    tickQueue.push(async () => {
+      await loadTickUpdateFeeVarsAndSave(i, event);
+    });
+  }
 };

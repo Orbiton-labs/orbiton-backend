@@ -15,6 +15,9 @@ mock.module('../../src/mappings/utils/ton', () => {
           return '0.5';
       }
     }),
+    getFeesGrowthGlobalAtTick: jest.fn().mockImplementation((_: bigint) => {
+      return ['10000', '20000'];
+    }),
   };
 });
 

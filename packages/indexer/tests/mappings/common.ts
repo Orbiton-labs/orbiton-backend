@@ -33,7 +33,7 @@ export const getMockInitializeEvent = () => {
       },
     },
     transaction: {
-      from: Address.parse('EQBDYpOew7_senlP8SzANhgeqOqGts0AySHQQ6UCQbO2NO6u'),
+      from: Address.parse('EQC-aFP0rJXwTgKZQJPbPfTSpBFc8wxOgKHWD9cPvOl_DnaY'),
       to: Address.parse('EQC-aFP0rJXwTgKZQJPbPfTSpBFc8wxOgKHWD9cPvOl_DnaY'),
       hash: '3760ef15eb462b281b639bc501d1bd027205bc9d0ce02face5477e70392849bf',
     },
@@ -68,7 +68,7 @@ export const getMockMintEventInsideCurrentTick = () => {
       },
     },
     transaction: {
-      from: Address.parse('UQDIfz58KSx9PFo10uS_3HJSJ_leYsIicIjMGO3d94peClZX'),
+      from: Address.parse('EQC-aFP0rJXwTgKZQJPbPfTSpBFc8wxOgKHWD9cPvOl_DnaY'),
       to: Address.parse('EQC-aFP0rJXwTgKZQJPbPfTSpBFc8wxOgKHWD9cPvOl_DnaY'),
       hash: '45f0985e1e413bf9c39a60bc09878147c26f13833d52eea592c3b205922f1025',
     },
@@ -104,7 +104,7 @@ export const getMockMintEventOutsideCurrentTick = () => {
       },
     },
     transaction: {
-      from: Address.parse('UQDIfz58KSx9PFo10uS_3HJSJ_leYsIicIjMGO3d94peClZX'),
+      from: Address.parse('EQC-aFP0rJXwTgKZQJPbPfTSpBFc8wxOgKHWD9cPvOl_DnaY'),
       to: Address.parse('EQC-aFP0rJXwTgKZQJPbPfTSpBFc8wxOgKHWD9cPvOl_DnaY'),
       hash: '43902193a7065bda7089b1a74562df2fa9b4162368ef0412762a0d8135598f51',
     },
@@ -140,7 +140,7 @@ export const getMockBurnEvent = () => {
       },
     },
     transaction: {
-      from: Address.parse('UQDIfz58KSx9PFo10uS_3HJSJ_leYsIicIjMGO3d94peClZX'),
+      from: Address.parse('EQC-aFP0rJXwTgKZQJPbPfTSpBFc8wxOgKHWD9cPvOl_DnaY'),
       to: Address.parse('EQC-aFP0rJXwTgKZQJPbPfTSpBFc8wxOgKHWD9cPvOl_DnaY'),
       hash: 'd83cc716680c2d2907c40b239bde1a62709cbf92ba3cf9365106e5b79a43a536',
     },
@@ -176,7 +176,7 @@ export const getMockSwapEvent = () => {
       },
     },
     transaction: {
-      from: Address.parse('UQDIfz58KSx9PFo10uS_3HJSJ_leYsIicIjMGO3d94peClZX'),
+      from: Address.parse('EQC-aFP0rJXwTgKZQJPbPfTSpBFc8wxOgKHWD9cPvOl_DnaY'),
       to: Address.parse('EQC-aFP0rJXwTgKZQJPbPfTSpBFc8wxOgKHWD9cPvOl_DnaY'),
       hash: 'd83cc716680c2d2907c40b239bde1a62709cbf92ba3cf9365106e5b79a43a536',
     },

@@ -63,6 +63,10 @@ export const handleMint = async (event: MintEvent) => {
   jetton1.txCount = (BigInt(jetton1.txCount) + ONE_BI).toString();
   pool.txCount = (BigInt(pool.txCount) + ONE_BI).toString();
 
+  console.log({
+    router,
+  });
+
   // Pools liquidity tracks the currently active liquidity given pools current tick.
   // We only want to update it on mint if the new position includes the current tick.
   if (pool.tick > event.tickLower && pool.tick < event.tickUpper) {
