@@ -31,3 +31,16 @@ mock.module('@src/services/ton-client', () => {
     },
   };
 });
+
+mock.module('@src/mappings/utils/pool', () => {
+  const funcs = require('../../src/mappings/utils/pool');
+  return {
+    ...funcs,
+    getJettonsMasterOnchain: jest
+      .fn()
+      .mockImplementation(() => [
+        'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs',
+        'EQB-MPwrd1G6WKNkLz_VnV6WqBDd142KMQv-g1O-8QUA3728',
+      ]),
+  };
+});

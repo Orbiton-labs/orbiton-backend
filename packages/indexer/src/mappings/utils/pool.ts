@@ -4,6 +4,9 @@ import { DatabaseType, db } from '@src/db';
 import * as schema from '@src/models';
 import { eq } from 'drizzle-orm';
 import { ONE_DAY_IN_MILLISECONDS, ZERO_BD } from '@src/constants';
+import { Address } from '@ton/core';
+import { tonClient } from '@src/services/ton-client';
+import { JettonWalletWrapper, PoolWrapper } from '@orbiton_labs/v3-contracts-sdk';
 
 export const updatePoolDayData = async (pool: Pool, event: TraceEvent, _db: DatabaseType = db) => {
   let timestamp = event.block.timestamp;
@@ -63,4 +66,17 @@ export const updatePoolDayData = async (pool: Pool, event: TraceEvent, _db: Data
       },
     });
   return poolDayData;
+};
+
+export const getJettonsMasterOnchain = async (poolAddress: Address) => {
+  const poolContract = tonClient.open(PoolWrapper.Pool.createFromAddress(poolAddress));
+  const [jetton0Wallet, jetton1Wallet] = await poolContract.getJettonsWallet();
+  const [jetton0WalletContract, jetton1WalletContract] = [
+    tonClient.open(JettonWalletWrapper.JettonWallet.createFromAddress(jetton0Wallet)),
+    tonClient.open(JettonWalletWrapper.JettonWallet.createFromAddress(jetton1Wallet)),
+  ];
+  const [jetton0WalletData, jetton1WalletData] = await Promise.all(
+    [jetton0WalletContract, jetton1WalletContract].map((wallet) => wallet.getWalletData()),
+  );
+  return [jetton0WalletData.jettonMasterAddress, jetton1WalletData.jettonMasterAddress];
 };

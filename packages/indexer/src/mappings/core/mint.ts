@@ -11,12 +11,13 @@ import { ONE_BI } from '@src/constants';
 import { loadTransaction } from '../utils';
 import { createTick } from '../utils/tick';
 import { updateRouterDayData } from '../utils/router';
-import { updatePoolDayData } from '../utils/pool';
+import { getJettonsMasterOnchain, updatePoolDayData } from '../utils/pool';
 import { updateTickFeeVarsAndSave } from '../utils/ton';
 import { objectWithoutId } from '../common';
 import { BigDecimalConfig } from '../constant';
 
 BigDecimal.set(BigDecimalConfig);
+
 export const handleMint = async (event: MintEvent) => {
   let router = (await db.query.router.findFirst({})) as Router | undefined;
   if (!router) {
@@ -29,8 +30,11 @@ export const handleMint = async (event: MintEvent) => {
   if (!pool) {
     return;
   }
-  let jetton0 = await getOrLoadJetton(Address.parse(pool.jetton0Id));
-  let jetton1 = await getOrLoadJetton(Address.parse(pool.jetton1Id));
+  const [jetton0MasterAddress, jetton1MasterAddress] = await getJettonsMasterOnchain(
+    Address.parse(pool.address),
+  );
+  let jetton0 = await getOrLoadJetton(jetton0MasterAddress);
+  let jetton1 = await getOrLoadJetton(jetton1MasterAddress);
   let amount0 = convertJettonToDecimal(event.amount0, jetton0);
   let amount1 = convertJettonToDecimal(event.amount1, jetton1);
   let amountUSD = amount0
@@ -40,6 +44,8 @@ export const handleMint = async (event: MintEvent) => {
   let oldPoolTVLTon = pool.totalValueLockedTon;
   jetton0.totalValueLocked = new BigDecimal(jetton0.totalValueLocked).add(amount0).toString();
   jetton1.totalValueLocked = new BigDecimal(jetton1.totalValueLocked).add(amount1).toString();
+  pool.jetton0Id = jetton0.id;
+  pool.jetton1Id = jetton1.id;
   pool.totalValueLockedJetton0 = new BigDecimal(pool.totalValueLockedJetton0)
     .add(amount0)
     .toString();
