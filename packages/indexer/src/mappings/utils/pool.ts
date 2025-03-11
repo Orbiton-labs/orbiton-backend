@@ -69,8 +69,13 @@ export const updatePoolDayData = async (pool: Pool, event: TraceEvent, _db: Data
 };
 
 export const getJettonsMasterOnchain = async (poolAddress: Address) => {
+  console.log(poolAddress);
   const poolContract = tonClient.open(PoolWrapper.Pool.createFromAddress(poolAddress));
   const [jetton0Wallet, jetton1Wallet] = await poolContract.getJettonsWallet();
+  console.log({
+    jetton0Wallet,
+    jetton1Wallet,
+  });
   const [jetton0WalletContract, jetton1WalletContract] = [
     tonClient.open(JettonWalletWrapper.JettonWallet.createFromAddress(jetton0Wallet)),
     tonClient.open(JettonWalletWrapper.JettonWallet.createFromAddress(jetton1Wallet)),

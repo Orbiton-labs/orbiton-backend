@@ -104,6 +104,7 @@ export const handleMint = async (event: MintEvent) => {
   upperTick.liquidityGross = (BigInt(upperTick.liquidityGross) + amount).toString();
   upperTick.liquidityNet = (BigInt(upperTick.liquidityNet) - amount).toString();
 
+  console.log('WAKATA');
   await db.transaction(async (_db) => {
     try {
       const [transaction, existed] = await loadTransaction(event, _db as any);
