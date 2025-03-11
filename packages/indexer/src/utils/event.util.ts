@@ -4,25 +4,12 @@ import { InitializeEvent, MintEvent, SwapEvent } from '@src/@types/core.type';
 import { tonClient } from '@src/services/ton-client';
 import { Cell } from '@ton/core';
 
-export const parseInitializeEvent = async (
-  cell: Cell,
-  traceEvent: TraceEvent,
-): Promise<InitializeEvent> => {
+export const parseInitializeEvent = (cell: Cell, traceEvent: TraceEvent): InitializeEvent => {
   const slice = cell.asSlice();
   const firstSlice = slice.loadRef().asSlice();
-  firstSlice.loadAddress();
-  let jetton0WalletAddress = firstSlice.loadAddress();
-  let jetton1WalletAddress = firstSlice.loadAddress();
-  let jetton0WalletContract = tonClient.open(
-    JettonWalletWrapper.JettonWallet.createFromAddress(jetton0WalletAddress),
-  );
-  let jetton1WalletContract = tonClient.open(
-    JettonWalletWrapper.JettonWallet.createFromAddress(jetton1WalletAddress),
-  );
-  const [jetton0Data, jetton1Data] = await Promise.all([
-    jetton0WalletContract.getWalletData(),
-    jetton1WalletContract.getWalletData(),
-  ]);
+  let jettonMasterRef = firstSlice.loadRef().asSlice();
+  let jetton0MasterAddress = jettonMasterRef.loadAddress();
+  let jetton1MasterAddress = jettonMasterRef.loadAddress();
   const secondSlice = slice.loadRef().asSlice();
   let fee = secondSlice.loadUint(24);
   let tickSpacing = secondSlice.loadInt(24);
@@ -30,8 +17,8 @@ export const parseInitializeEvent = async (
   let sqrtPriceX96 = secondSlice.loadUint(160);
   return {
     ...traceEvent,
-    jetton0: jetton0Data.jettonMasterAddress,
-    jetton1: jetton1Data.jettonMasterAddress,
+    jetton0: jetton0MasterAddress,
+    jetton1: jetton1MasterAddress,
     fee: BigInt(fee),
     tickSpacing: BigInt(tickSpacing),
     sqrtPriceX96: BigInt(sqrtPriceX96),

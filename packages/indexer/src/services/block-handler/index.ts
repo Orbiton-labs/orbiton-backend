@@ -61,7 +61,7 @@ class BlockTransactionHandler extends BaseBlockHandler {
           case RouterWrapper.Opcodes.CallbackCreatePool:
             msg = externalOutMsgs[0];
             msgBody = msg.body;
-            let initializeEvent = await parseInitializeEvent(msgBody, {
+            let initializeEvent = parseInitializeEvent(msgBody, {
               address,
               transaction: traceTx,
               block: traceBlock,
