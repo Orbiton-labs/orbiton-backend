@@ -19,6 +19,7 @@ import { BigDecimalConfig } from '../constant';
 BigDecimal.set(BigDecimalConfig);
 
 export const handleMint = async (event: MintEvent) => {
+  console.log('<handleMint> event:', event);
   let router = (await db.query.router.findFirst({})) as Router | undefined;
   if (!router) {
     return;

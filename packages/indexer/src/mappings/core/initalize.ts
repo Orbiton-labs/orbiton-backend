@@ -11,6 +11,7 @@ import BigDecimal from 'decimal.js';
 import { objectWithoutId } from '../common';
 import { BigDecimalConfig } from '../constant';
 import { loadTransaction } from '../utils';
+import env from '@src/configs/env';
 
 BigDecimal.set(BigDecimalConfig);
 function feeTierToProtocolFeeDefault(feeTier: bigint): bigint {
@@ -30,6 +31,10 @@ function feeTierToProtocolFeeDefault(feeTier: bigint): bigint {
 }
 
 export const handleInitialize = async (event: InitializeEvent) => {
+  // avoid handling redundant contract
+  if (event.address.toString() !== env.indexer.routerAddress) {
+    return;
+  }
   const tonPriceUSD = await getTonPrice();
   let router = (await db.query.router.findFirst({})) as Router | undefined;
   if (!router) {

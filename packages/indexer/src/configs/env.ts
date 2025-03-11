@@ -1,6 +1,10 @@
 import { z } from 'zod';
 import dotenv from 'dotenv';
-dotenv.config();
+
+console.log(Bun?.env?.BUN_ENV === 'testing');
+dotenv.config({
+  path: Bun?.env?.BUN_ENV === 'testing' ? '.env.test' : '.env',
+});
 
 const envSchema = z
   .object({
@@ -21,6 +25,9 @@ const envSchema = z
     TON_API_KEY: z.string({
       required_error: 'TON_API_KEY is required',
     }),
+    ROUTER_ADDRESS: z.string({
+      required_error: 'ROUTER_ADDRESS is required',
+    }),
   })
   .passthrough();
 
@@ -38,5 +45,8 @@ export default {
   },
   tonApi: {
     apiKey: envVars.TON_API_KEY,
+  },
+  indexer: {
+    routerAddress: envVars.ROUTER_ADDRESS,
   },
 };

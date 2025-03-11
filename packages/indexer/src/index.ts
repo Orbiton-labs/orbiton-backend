@@ -1,4 +1,3 @@
-import dotenv from 'dotenv';
 import compression from 'compression';
 import cors from 'cors';
 import express from 'express';
@@ -15,10 +14,8 @@ import { createYoga } from 'graphql-yoga';
 import { Meta } from './models';
 import { tonNode_blockIdExt } from '@orbiton_labs/ton-lite-client/dist/schema';
 import { updateMeta } from './mappings/utils/meta';
-dotenv.config();
 
 Database.init(DatabaseMode.NORMAL);
-
 const app = express();
 const bootstrapServer = async () => {
   app.use(morgan.successHandler);
