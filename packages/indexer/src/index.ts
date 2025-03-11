@@ -78,7 +78,7 @@ const bootstrapServer = async () => {
       console.log('seqno:', data.seqno);
       await updateMeta(data);
     });
-    await blockScanner.run(meta?.seqno);
+    await blockScanner.run(28985760);
   });
 };
 
