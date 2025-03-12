@@ -11,7 +11,7 @@ export const positionData = table('position_data', {
     .references(() => pool.id)
     .notNull(),
   positionId: t
-    .integer('position_id')
+    .text('position_id')
     .references(() => position.id)
     .notNull(),
   block: t.json().notNull(),
