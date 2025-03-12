@@ -12,7 +12,7 @@ export const tick = table('ticks', {
     })
     .notNull(),
   poolId: t
-    .integer('pool_id')
+    .text('pool_id')
     .references(() => pool.id)
     .notNull(),
   liquidityGross: t.text('liquidity_gross').notNull(),

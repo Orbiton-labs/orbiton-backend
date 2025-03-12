@@ -5,10 +5,9 @@ import { jetton } from './jetton';
 import { InferSelectModel, relations } from 'drizzle-orm';
 
 export const pool = table('pools', {
-  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
-  address: t.text().unique().notNull(),
+  id: t.text().notNull().primaryKey(),
   transactionId: t
-    .integer('transaction_id')
+    .text('transaction_id')
     .references(() => transaction.id)
     .notNull(),
   jetton0Id: t
@@ -59,10 +58,6 @@ export const pool = table('pools', {
 
 export const poolRelations = relations(pool, ({ one, many }) => {
   return {
-    transaction: one(transaction, {
-      fields: [pool.transactionId],
-      references: [transaction.id],
-    }),
     jetton0: one(jetton, {
       fields: [pool.jetton0Id],
       references: [jetton.id],

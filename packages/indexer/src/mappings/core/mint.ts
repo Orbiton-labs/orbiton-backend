@@ -27,7 +27,7 @@ export const handleMint = async (event: MintEvent) => {
 
   const poolAddress = event.transaction.from;
   let pool = await db.query.pool.findFirst({
-    where: eq(schema.pool.address, poolAddress.toString()),
+    where: eq(schema.pool.id, poolAddress.toString()),
   });
   if (!pool) {
     return;
@@ -45,7 +45,7 @@ export const handleMint = async (event: MintEvent) => {
     return;
   }
   const [jetton0MasterAddress, jetton1MasterAddress] = await getJettonsMasterOnchain(
-    Address.parse(pool.address),
+    Address.parse(pool.id),
   );
   let jetton0 = await getOrLoadJetton(jetton0MasterAddress);
   let jetton1 = await getOrLoadJetton(jetton1MasterAddress);
@@ -96,8 +96,8 @@ export const handleMint = async (event: MintEvent) => {
 
   let lowerTickIdx = event.tickLower;
   let upperTickIdx = event.tickUpper;
-  let lowerTickId = `${pool.address}#${BigInt(event.tickLower).toString()}`;
-  let upperTickId = `${pool.address}#${BigInt(event.tickUpper).toString()}`;
+  let lowerTickId = `${pool.id}#${BigInt(event.tickLower).toString()}`;
+  let upperTickId = `${pool.id}#${BigInt(event.tickUpper).toString()}`;
   let lowerTick = await db.query.tick.findFirst({
     where: eq(schema.tick.id, lowerTickId),
   });
@@ -122,7 +122,7 @@ export const handleMint = async (event: MintEvent) => {
     try {
       const [transaction, existed] = await loadTransaction(event, _db as any);
       if (existed) {
-        console.log(`<handleMint> Transaction ${transaction.hash} already handled`);
+        console.log(`<handleMint> Transaction ${transaction.id} already handled`);
         return;
       }
       let mintData = {

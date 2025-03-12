@@ -29,7 +29,7 @@ export const handleSwap = async (event: SwapEvent) => {
     return;
   }
   let pool = await db.query.pool.findFirst({
-    where: eq(schema.pool.address, event.address.toString()),
+    where: eq(schema.pool.id, event.address.toString()),
   });
   if (!pool) {
     return;
@@ -212,9 +212,7 @@ export const handleSwap = async (event: SwapEvent) => {
       };
 
       // TODO: update fee frowth
-      let poolContract = tonClient.open(
-        PoolWrapper.Pool.createFromAddress(Address.parse(pool.address)),
-      );
+      let poolContract = tonClient.open(PoolWrapper.Pool.createFromAddress(Address.parse(pool.id)));
       const [feeGrowthGlobal0X128, feeGrowthGlobal1X128, ..._dump] =
         await poolContract.getFeesGrowthGlobal();
       pool.feeGrowthGlobal0X128 = (feeGrowthGlobal0X128 as BigInt).toString();

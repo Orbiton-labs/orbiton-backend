@@ -7,11 +7,11 @@ import { transaction } from './transaction';
 export const collect = table('collects', {
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
   transactionId: t
-    .integer('transaction_id')
+    .text('transaction_id')
     .references(() => transaction.id)
     .notNull(),
   poolId: t
-    .integer('pool_id')
+    .text('pool_id')
     .references(() => pool.id)
     .notNull(),
   owner: t.text().notNull(),
@@ -36,10 +36,6 @@ export const collectRelations = relations(collect, ({ one }) => {
     pool: one(pool, {
       fields: [collect.poolId],
       references: [pool.id],
-    }),
-    transaction: one(transaction, {
-      fields: [collect.transactionId],
-      references: [transaction.id],
     }),
   };
 });

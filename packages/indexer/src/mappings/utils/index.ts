@@ -29,17 +29,17 @@ export const loadTransaction = async (
   _db: DatabaseType = db,
 ): Promise<[Transaction, boolean]> => {
   let transaction = await _db.query.transaction.findFirst({
-    where: eq(schema.transaction.hash, event.transaction.hash),
+    where: eq(schema.transaction.id, event.transaction.hash),
   });
   let existed = true;
   if (!transaction) {
     await _db.insert(schema.transaction).values({
-      hash: event.transaction.hash,
+      id: event.transaction.hash,
       block: event.block.id,
       timestamp: new Date(event.block.timestamp),
     });
     transaction = await _db.query.transaction.findFirst({
-      where: eq(schema.transaction.hash, event.transaction.hash),
+      where: eq(schema.transaction.id, event.transaction.hash),
     });
     existed = false;
   }

@@ -25,7 +25,7 @@ export const handleBurn = async (event: BurnEvent) => {
 
   const poolAddress = event.transaction.from;
   let pool = await db.query.pool.findFirst({
-    where: eq(schema.pool.address, poolAddress.toString()),
+    where: eq(schema.pool.id, poolAddress.toString()),
   });
   if (!pool) {
     return;

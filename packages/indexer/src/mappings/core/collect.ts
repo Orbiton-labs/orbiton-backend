@@ -22,7 +22,7 @@ export const handleCollect = async (event: CollectEvent) => {
 
   let poolAddress = event.address.toString();
   let pool = await db.query.pool.findFirst({
-    where: eq(schema.pool.address, poolAddress),
+    where: eq(schema.pool.id, poolAddress),
   });
   if (!pool) {
     return;

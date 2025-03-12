@@ -9,11 +9,11 @@ import { positionData } from './position-data';
 export const position = table('positions', {
   id: t.text().notNull().primaryKey(),
   poolId: t
-    .integer('pool_id')
+    .text('pool_id')
     .references(() => pool.id)
     .notNull(),
   transactionId: t
-    .integer('transaction_id')
+    .text('transaction_id')
     .references(() => transaction.id)
     .notNull(),
   owner: t.text().notNull(),
@@ -51,10 +51,6 @@ export const positionRelations = relations(position, ({ one, many }) => {
     pool: one(pool, {
       fields: [position.poolId],
       references: [pool.id],
-    }),
-    transaction: one(transaction, {
-      fields: [position.transactionId],
-      references: [transaction.id],
     }),
     jetton0: one(jetton, {
       fields: [position.jetton0Id],

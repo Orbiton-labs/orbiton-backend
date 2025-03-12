@@ -3,8 +3,7 @@ import * as t from 'drizzle-orm/pg-core';
 import { pgTable as table } from 'drizzle-orm/pg-core';
 
 export const transaction = table('transactions', {
-  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
-  hash: t.text().unique().notNull(),
+  id: t.text().primaryKey(),
   block: t.json().notNull(),
   timestamp: t.timestamp().notNull(),
 });

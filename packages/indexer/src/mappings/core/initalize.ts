@@ -74,11 +74,11 @@ export const handleInitialize = async (event: InitializeEvent) => {
     try {
       let [transaction, existed] = await loadTransaction(event, _db as any);
       if (existed) {
-        console.log(`<handleInitialize> Transaction ${transaction.hash} already existed`);
+        console.log(`<handleInitialize> Transaction ${transaction.id} already existed`);
         return;
       }
       let poolData = {
-        address: event.transaction.from.toString(), // since it is tx called from pool to router
+        id: event.transaction.from.toString(), // since it is tx called from pool to router
         jetton0Id: jetton0.id,
         jetton1Id: jetton1.id,
         feeTier,

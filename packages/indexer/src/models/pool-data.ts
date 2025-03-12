@@ -6,7 +6,7 @@ import { InferSelectModel, relations } from 'drizzle-orm';
 export const poolData = table('pool_data', {
   id: t.text().primaryKey().notNull(),
   poolId: t
-    .integer('pool_id')
+    .text('pool_id')
     .references(() => pool.id)
     .notNull(),
   liquidity: t.text().notNull(),

@@ -22,7 +22,7 @@ export function createTick(tickId: string, tickIdx: bigint, pool: Pool, event: M
     volumeJetton1: ZERO_BD,
     volumeUSD: ZERO_BD,
     feesUSD: ZERO_BD,
-    poolAddress: pool.address,
+    poolAddress: pool.id,
     poolId: pool.id,
     feeGrowthOutside0X128: ZERO_BD,
     feeGrowthOutside1X128: ZERO_BD,

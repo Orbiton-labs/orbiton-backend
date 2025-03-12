@@ -8,7 +8,7 @@ import { InferSelectModel, relations } from 'drizzle-orm';
 export const mint = table('mints', {
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
   poolId: t
-    .integer('pool_id')
+    .text('pool_id')
     .references(() => pool.id)
     .notNull(),
   jetton0Id: t
@@ -36,7 +36,7 @@ export const mint = table('mints', {
     })
     .notNull(),
   transactionId: t
-    .integer('transaction_id')
+    .text('transaction_id')
     .references(() => transaction.id)
     .notNull(),
   timestamp: t.timestamp().notNull(),
@@ -55,10 +55,6 @@ export const mintRelations = relations(mint, ({ one, many }) => {
     jetton1: one(jetton, {
       fields: [mint.jetton1Id],
       references: [jetton.id],
-    }),
-    transaction: one(transaction, {
-      fields: [mint.transactionId],
-      references: [transaction.id],
     }),
   };
 });

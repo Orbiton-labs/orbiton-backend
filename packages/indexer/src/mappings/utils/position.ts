@@ -22,7 +22,7 @@ export const getPosition = async (address: Address, event: TraceEvent, _db: Data
       Cell.fromBoc(Buffer.from(positionInformation.code))[0].asSlice(),
     );
     const pool = await _db.query.pool.findFirst({
-      where: eq(schema.pool.address, positionStorage.second_ref.pool_address.toString()),
+      where: eq(schema.pool.id, positionStorage.second_ref.pool_address.toString()),
     });
     const [transaction, _] = await loadTransaction(event, _db);
     const position: Position = {

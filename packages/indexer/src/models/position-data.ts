@@ -7,7 +7,7 @@ export const positionData = table('position_data', {
   id: t.text().primaryKey().notNull(),
   owner: t.text().notNull(),
   poolId: t
-    .integer('pool_id')
+    .text('pool_id')
     .references(() => pool.id)
     .notNull(),
   positionId: t

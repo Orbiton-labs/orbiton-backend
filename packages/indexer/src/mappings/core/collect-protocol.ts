@@ -15,7 +15,7 @@ import { loadTransaction } from '../utils';
 BigDecimal.set(BigDecimalConfig);
 export const handleCollectProtocol = async (event: CollectProtocolEvent) => {
   let pool = await db.query.pool.findFirst({
-    where: eq(schema.pool.address, event.address.toString()),
+    where: eq(schema.pool.id, event.address.toString()),
   });
   if (!pool) {
     return;
