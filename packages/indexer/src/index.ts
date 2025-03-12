@@ -54,7 +54,9 @@ const bootstrapServer = async () => {
     });
   });
 
-  const { schema } = buildSchema(db);
+  const { schema } = buildSchema(db, {
+    mutations: false,
+  });
   const yoga = createYoga({ schema });
   app.use(yoga.graphqlEndpoint, yoga);
 
