@@ -14,6 +14,7 @@ import { updatePoolDayData } from '../utils/pool';
 import { updateTickFeeVarsAndSave } from '../utils/ton';
 import { objectWithoutId } from '../common';
 import { BigDecimalConfig } from '../constant';
+import { Functions } from '@orbiton_labs/v3-contracts-sdk';
 
 BigDecimal.set(BigDecimalConfig);
 export const handleBurn = async (event: BurnEvent) => {
@@ -22,7 +23,7 @@ export const handleBurn = async (event: BurnEvent) => {
     return;
   }
 
-  let poolAddress = event.address;
+  const poolAddress = event.transaction.from;
   let pool = await db.query.pool.findFirst({
     where: eq(schema.pool.address, poolAddress.toString()),
   });
@@ -30,6 +31,17 @@ export const handleBurn = async (event: BurnEvent) => {
     return;
   }
 
+  const positionAddress = event.address;
+  const calculatedPositionAddress = Functions.computePositionAddress(
+    poolAddress,
+    event.owner,
+    event.tickLower,
+    event.tickUpper,
+  );
+  if (calculatedPositionAddress.toString() !== positionAddress.toString()) {
+    console.log('Position address not matched!');
+    return;
+  }
   let jetton0 = await getOrLoadJetton(Address.parse(pool.jetton0Id));
   let jetton1 = await getOrLoadJetton(Address.parse(pool.jetton1Id));
   let amount0 = convertJettonToDecimal(event.amount0, jetton0);

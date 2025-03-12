@@ -5,12 +5,20 @@ import {
 import BaseBlockHandler from './base-block-handler.service';
 import { LiteClient } from '@orbiton_labs/ton-lite-client';
 import { Address, Cell, loadTransaction } from '@ton/core';
-import { PoolWrapper, RouterWrapper } from '@orbiton_labs/v3-contracts-sdk';
-import { parseInitializeEvent, parseMintEvent, parseSwapEvent } from '@src/utils/event.util';
+import { PoolWrapper, RouterWrapper, PositionWrapper } from '@orbiton_labs/v3-contracts-sdk';
+import {
+  parseBurnEvent,
+  parseCollectEvent,
+  parseInitializeEvent,
+  parseMintEvent,
+  parseSwapEvent,
+} from '@src/utils/event.util';
 import { ZERO_ADDRESS } from '@src/constants';
 import { handleMint } from '@src/mappings/core/mint';
 import { handleInitialize } from '@src/mappings/core/initalize';
 import { handleSwap } from '@src/mappings/core/swap';
+import { handleBurn } from '@src/mappings/core/burn';
+import { handleCollect } from '@src/mappings/core/collect';
 
 class BlockTransactionHandler extends BaseBlockHandler {
   constructor(protected client: LiteClient) {
@@ -57,10 +65,10 @@ class BlockTransactionHandler extends BaseBlockHandler {
         }
         let msg: any;
         let msgBody: any;
+        msg = externalOutMsgs[0];
+        msgBody = msg.body;
         switch (opcode) {
           case RouterWrapper.Opcodes.CallbackCreatePool:
-            msg = externalOutMsgs[0];
-            msgBody = msg.body;
             let initializeEvent = parseInitializeEvent(msgBody, {
               address,
               transaction: traceTx,
@@ -71,8 +79,6 @@ class BlockTransactionHandler extends BaseBlockHandler {
             });
             break;
           case PoolWrapper.Opcodes.CallBackMintPosition:
-            msg = externalOutMsgs[0];
-            msgBody = msg.body;
             let mintEvent = parseMintEvent(msgBody, {
               address,
               transaction: traceTx,
@@ -83,8 +89,6 @@ class BlockTransactionHandler extends BaseBlockHandler {
             });
             break;
           case PoolWrapper.Opcodes.Swap:
-            msg = externalOutMsgs[0];
-            msgBody = msg.body;
             let swapEvent = parseSwapEvent(msgBody, {
               address,
               transaction: traceTx,
@@ -94,6 +98,27 @@ class BlockTransactionHandler extends BaseBlockHandler {
               console.log('Error:', err?.stack);
             });
             break;
+          case PositionWrapper.Opcodes.CallbackPoolBurn:
+            let burnEvent = parseBurnEvent(msgBody, {
+              address,
+              transaction: traceTx,
+              block: traceBlock,
+            });
+            await handleBurn(burnEvent).catch((err) => {
+              console.log('Error:', err?.stack);
+            });
+            break;
+          case PoolWrapper.Opcodes.CallbackCollect:
+            let collectEvent = parseCollectEvent(msgBody, {
+              address,
+              transaction: traceTx,
+              block: traceBlock,
+            });
+            await handleCollect(collectEvent).catch((err) => {
+              console.log('Error:', err?.stack);
+            });
+            break;
+
           default:
             break;
         }

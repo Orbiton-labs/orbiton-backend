@@ -268,7 +268,6 @@ describe('Test Handle Mint', () => {
             .mul(new BigDecimal(jettons[1].derivedTon))
             .mul(new BigDecimal(router.tonPriceUSD)),
         )
-
         .toString(),
     );
     expect(mint.poolId).toEqual(pool.id);

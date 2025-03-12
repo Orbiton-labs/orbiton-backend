@@ -47,7 +47,7 @@
         "@oraichain/tonbridge-contracts-sdk": "^1.3.6",
         "@orbiton_labs/ton-lite-client": "^1.0.0",
         "@orbiton_labs/ton-sdk": "^1.0.0",
-        "@orbiton_labs/v3-contracts-sdk": "^1.0.6",
+        "@orbiton_labs/v3-contracts-sdk": "^1.1.1",
         "@orbs-network/ton-access": "^2.3.3",
         "@pancakeswap/v3-sdk": "^3.9.0",
         "@ton-api/client": "^0.3.1",
@@ -859,7 +859,7 @@
 
     "@orbiton_labs/ton-sdk": ["@orbiton_labs/ton-sdk@workspace:packages/ton-sdk"],
 
-    "@orbiton_labs/v3-contracts-sdk": ["@orbiton_labs/v3-contracts-sdk@1.0.6", "", { "dependencies": { "bignumber.js": "^9.1.2", "decimal.js": "^10.4.3", "jsbi": "^4.3.0" } }, "sha512-sjbduXD+p/rVzUyXFcjpG2cnCj0LJsGiDOmpLK7SI0AEcvEzjUxGOaYwaeQjS5O1U5U2FqQn070WP2OklXidEw=="],
+    "@orbiton_labs/v3-contracts-sdk": ["@orbiton_labs/v3-contracts-sdk@1.1.1", "", { "dependencies": { "bignumber.js": "^9.1.2", "decimal.js": "^10.4.3", "jsbi": "^4.3.0" } }, "sha512-vARBbS4xsJj2Bs1uHQ+kPMVTkFjN0UTlLcfMxjn72QKa8c8qQEV0xIt1XwnxATXOldRik26O/Ne/9njvKUZXRw=="],
 
     "@orbs-network/ton-access": ["@orbs-network/ton-access@2.3.3", "", { "dependencies": { "isomorphic-fetch": "^3.0.0" } }, "sha512-b1miCPts7wBG9JKYgzXIRZQm/LMy5Uk1mNK8NzlcXHL3HRHJkkFbuYJGuj3IkWCiIicW3Ipp4sYnn3Fwo4oB0g=="],
 

@@ -1,7 +1,7 @@
 import * as t from 'drizzle-orm/pg-core';
 import { pgTable as table } from 'drizzle-orm/pg-core';
 import { jetton } from './jetton';
-import { relations, InferSelectModel } from 'drizzle-orm';
+import { InferSelectModel } from 'drizzle-orm';
 
 export const jettonData = table('jetton_data', {
   id: t.text().primaryKey().notNull(),
@@ -17,15 +17,6 @@ export const jettonData = table('jetton_data', {
   feesUSD: t.text('fees_usd').notNull(),
   protocolFeesUSD: t.text('protocol_fees_usd').notNull(),
   timestamp: t.timestamp().notNull(),
-});
-
-export const jettonDataRelations = relations(jettonData, ({ one }) => {
-  return {
-    jetton: one(jetton, {
-      fields: [jettonData.jettonId],
-      references: [jetton.id],
-    }),
-  };
 });
 
 export type JettonData = InferSelectModel<typeof jettonData>;

@@ -1,18 +1,14 @@
-import { relations, InferSelectModel } from 'drizzle-orm';
+import { InferSelectModel } from 'drizzle-orm';
 import * as t from 'drizzle-orm/pg-core';
 import { pgTable as table } from 'drizzle-orm/pg-core';
-import { pool } from './pool';
-import { jettonData } from './jetton-data';
-import { position } from './position';
-import { mint } from './mint';
-import { swap } from './swap';
-import { burn } from './burn';
 
 export const jetton = table('jettons', {
   id: t.text().primaryKey().notNull(),
   name: t.text().notNull(),
   symbol: t.text().notNull(),
   decimals: t.integer().notNull(),
+  image: t.text(),
+  description: t.text(),
   totalSupply: t.text('total_supply').notNull(),
   poolCount: t.text('pool_count').notNull(),
   txCount: t.text('tx_count').notNull(),
@@ -24,17 +20,6 @@ export const jetton = table('jettons', {
   totalValueLockedUSD: t.text('total_value_locked_usd').notNull(),
   derivedTon: t.text('derived_ton').notNull(),
   derivedUSD: t.text('derived_usd').notNull(),
-});
-
-export const jettonRelations = relations(jetton, ({ many }) => {
-  return {
-    pools: many(pool),
-    jettonData: many(jettonData),
-    position: many(position),
-    mint: many(mint),
-    swap: many(swap),
-    burn: many(burn),
-  };
 });
 
 export type Jetton = InferSelectModel<typeof jetton>;

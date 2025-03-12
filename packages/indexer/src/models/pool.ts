@@ -3,14 +3,6 @@ import { pgTable as table } from 'drizzle-orm/pg-core';
 import { transaction } from './transaction';
 import { jetton } from './jetton';
 import { InferSelectModel, relations } from 'drizzle-orm';
-import { poolData } from './pool-data';
-import { position } from './position';
-import { positionData } from './position-data';
-import { mint } from './mint';
-import { swap } from './swap';
-import { burn } from './burn';
-import { tick } from './tick';
-import { collect } from './collect';
 
 export const pool = table('pools', {
   id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
@@ -79,14 +71,6 @@ export const poolRelations = relations(pool, ({ one, many }) => {
       fields: [pool.jetton1Id],
       references: [jetton.id],
     }),
-    poolData: many(poolData),
-    position: many(position),
-    positionData: many(positionData),
-    mint: many(mint),
-    swap: many(swap),
-    burn: many(burn),
-    tick: many(tick),
-    collect: many(collect),
   };
 });
 

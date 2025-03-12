@@ -24,6 +24,8 @@ export const getOrLoadJetton = async (address: Address) => {
           name: jettonInfo.metadata.name,
           symbol: jettonInfo.metadata.symbol,
           decimals: Number(jettonInfo.metadata.decimals),
+          image: jettonInfo.metadata?.image,
+          description: jettonInfo.metadata?.description,
           totalSupply: jettonInfo.totalSupply.toString(),
           derivedTon: ZERO_BD,
           derivedUSD: ZERO_BD,
@@ -35,7 +37,7 @@ export const getOrLoadJetton = async (address: Address) => {
           totalValueLockedUSD: ZERO_BD,
           volume: ZERO_BD,
           volumeUSD: ZERO_BD,
-        })
+        } as Jetton)
         .returning()
     )[0];
   }

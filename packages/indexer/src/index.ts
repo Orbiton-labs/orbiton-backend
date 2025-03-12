@@ -14,7 +14,9 @@ import { createYoga } from 'graphql-yoga';
 import { Meta } from './models';
 import { tonNode_blockIdExt } from '@orbiton_labs/ton-lite-client/dist/schema';
 import { updateMeta } from './mappings/utils/meta';
+import { EventEmitter } from 'events';
 
+// Set max listeners to avoid memory leak warning
 Database.init(DatabaseMode.NORMAL);
 const app = express();
 const bootstrapServer = async () => {
@@ -37,7 +39,10 @@ const bootstrapServer = async () => {
     }),
   );
   app.use(express.json());
-  app.use(compression());
+
+  // Configure compression with proper cleanup
+  app.use(compression({}));
+
   app.use((err: any, req: any, res: any, next: any) => {
     const status = err.status || 500;
     const message = err.message || 'Something went wrong';
@@ -75,7 +80,7 @@ const bootstrapServer = async () => {
       console.log('seqno:', data.seqno);
       await updateMeta(data);
     });
-    await blockScanner.run(28986126);
+    await blockScanner.run(meta?.seqno);
   });
 };
 

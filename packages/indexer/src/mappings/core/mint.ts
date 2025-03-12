@@ -15,20 +15,33 @@ import { getJettonsMasterOnchain, updatePoolDayData } from '../utils/pool';
 import { updateTickFeeVarsAndSave } from '../utils/ton';
 import { objectWithoutId } from '../common';
 import { BigDecimalConfig } from '../constant';
+import { Functions } from '@orbiton_labs/v3-contracts-sdk';
 
 BigDecimal.set(BigDecimalConfig);
 
 export const handleMint = async (event: MintEvent) => {
-  console.log('<handleMint> event:', event);
   let router = (await db.query.router.findFirst({})) as Router | undefined;
   if (!router) {
     return;
   }
 
+  const poolAddress = event.transaction.from;
   let pool = await db.query.pool.findFirst({
-    where: eq(schema.pool.address, event.address.toString()),
+    where: eq(schema.pool.address, poolAddress.toString()),
   });
   if (!pool) {
+    return;
+  }
+
+  const positionAddress = event.address;
+  const calculatedPositionAddress = Functions.computePositionAddress(
+    poolAddress,
+    event.owner,
+    event.tickLower,
+    event.tickUpper,
+  );
+  if (calculatedPositionAddress.toString() !== positionAddress.toString()) {
+    console.log('Position address not matched!');
     return;
   }
   const [jetton0MasterAddress, jetton1MasterAddress] = await getJettonsMasterOnchain(

@@ -1,6 +1,12 @@
 import { JettonWalletWrapper } from '@orbiton_labs/v3-contracts-sdk';
 import { TraceEvent } from '@src/@types';
-import { InitializeEvent, MintEvent, SwapEvent } from '@src/@types/core.type';
+import {
+  BurnEvent,
+  CollectEvent,
+  InitializeEvent,
+  MintEvent,
+  SwapEvent,
+} from '@src/@types/core.type';
 import { tonClient } from '@src/services/ton-client';
 import { Cell } from '@ton/core';
 
@@ -71,5 +77,43 @@ export const parseSwapEvent = (cell: Cell, traceEvent: TraceEvent): SwapEvent =>
     sender,
     sqrtPriceX96: BigInt(sqrtPriceX96),
     tick: BigInt(tick),
+  };
+};
+
+export const parseBurnEvent = (cell: Cell, traceEvent: TraceEvent): BurnEvent => {
+  const slice = cell.asSlice();
+  const owner = slice.loadAddress();
+  const tickLower = slice.loadInt(24);
+  const tickUpper = slice.loadInt(24);
+  const liquidityDelta = slice.loadUint(128);
+  const amount0 = slice.loadUint(256);
+  const amount1 = slice.loadUint(256);
+  return {
+    ...traceEvent,
+    amount: BigInt(liquidityDelta),
+    amount0: BigInt(amount0),
+    amount1: BigInt(amount1),
+    owner,
+    tickLower: BigInt(tickLower),
+    tickUpper: BigInt(tickUpper),
+  };
+};
+
+export const parseCollectEvent = (cell: Cell, traceEvent: TraceEvent): CollectEvent => {
+  const slice = cell.asSlice();
+  const owner = slice.loadAddress();
+  const recipient = slice.loadAddress();
+  const tickLower = slice.loadInt(24);
+  const tickUpper = slice.loadInt(24);
+  const amount0 = slice.loadInt(128);
+  const amount1 = slice.loadInt(128);
+  return {
+    ...traceEvent,
+    amount0: BigInt(amount0),
+    amount1: BigInt(amount1),
+    owner,
+    recipient,
+    tickLower: BigInt(tickLower),
+    tickUpper: BigInt(tickUpper),
   };
 };

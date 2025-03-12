@@ -1,4 +1,3 @@
-import { relations } from 'drizzle-orm';
 import * as t from 'drizzle-orm/pg-core';
 import { pgTable as table } from 'drizzle-orm/pg-core';
 import { pool } from './pool';
@@ -30,17 +29,4 @@ export const positionData = table('position_data', {
   collectedFeeJetton1: t.text('collected_fee_jetton1').notNull(),
   feeGrowthInside0LastX128: t.text('fee_growth_inside_0_last_x128').notNull(),
   feeGrowthInside1LastX128: t.text('fee_growth_inside_1_last_x128').notNull(),
-});
-
-export const positionDataRelations = relations(positionData, ({ one }) => {
-  return {
-    pool: one(pool, {
-      fields: [positionData.poolId],
-      references: [pool.id],
-    }),
-    position: one(position, {
-      fields: [positionData.positionId],
-      references: [position.id],
-    }),
-  };
 });

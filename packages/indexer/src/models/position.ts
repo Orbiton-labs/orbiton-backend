@@ -3,11 +3,11 @@ import { pgTable as table } from 'drizzle-orm/pg-core';
 import { pool } from './pool';
 import { transaction } from './transaction';
 import { jetton } from './jetton';
-import { relations } from 'drizzle-orm';
+import { InferSelectModel, relations } from 'drizzle-orm';
 import { positionData } from './position-data';
 
 export const position = table('positions', {
-  id: t.integer().primaryKey().generatedAlwaysAsIdentity(),
+  id: t.text().notNull().primaryKey(),
   poolId: t
     .integer('pool_id')
     .references(() => pool.id)
@@ -67,3 +67,5 @@ export const positionRelations = relations(position, ({ one, many }) => {
     positionData: many(positionData),
   };
 });
+
+export type Position = InferSelectModel<typeof position>;

@@ -1,9 +1,11 @@
 import { z } from 'zod';
 import dotenv from 'dotenv';
 
-console.log(Bun?.env?.BUN_ENV === 'testing');
+const isBunTest = typeof Bun !== 'undefined' && process.env.BUN_ENV === 'testing';
+const envPath = isBunTest ? '.env.test' : '.env';
+
 dotenv.config({
-  path: Bun?.env?.BUN_ENV === 'testing' ? '.env.test' : '.env',
+  path: envPath,
 });
 
 const envSchema = z
