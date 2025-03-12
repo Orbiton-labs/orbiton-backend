@@ -12,6 +12,7 @@ import { ONE_BI } from '@src/constants';
 import { CollectWithoutId } from '@src/models/collect';
 import { objectWithoutId } from '../common';
 import { BigDecimalConfig } from '../constant';
+import { getPosition, savePositionSnapshot, updateFeeVars } from '../utils/position';
 
 BigDecimal.set(BigDecimalConfig);
 export const handleCollect = async (event: CollectEvent) => {
@@ -21,6 +22,7 @@ export const handleCollect = async (event: CollectEvent) => {
   }
 
   let poolAddress = event.address.toString();
+  let positionAddress = event.transaction.from.toString();
   let pool = await db.query.pool.findFirst({
     where: eq(schema.pool.id, poolAddress),
   });
@@ -74,6 +76,23 @@ export const handleCollect = async (event: CollectEvent) => {
       timestamp: new Date(event.block.timestamp),
     } as CollectWithoutId;
 
+    await _db.update(schema.pool).set(objectWithoutId(pool)).where(eq(schema.pool.id, pool.id));
+    let position = await getPosition(Address.parse(positionAddress), event, _db as any);
+    if (position) {
+      position.collectedFeeJetton0 = new BigDecimal(position.collectedFeeJetton0)
+        .add(amount0)
+        .toString();
+      position.collectedFeeJetton1 = new BigDecimal(position.collectedFeeJetton1)
+        .add(amount1)
+        .toString();
+      position = await updateFeeVars(position, _db as any);
+      await _db
+        .update(schema.position)
+        .set(objectWithoutId(position))
+        .where(eq(schema.position.id, position.id));
+      await savePositionSnapshot(position, event, _db as any);
+    }
+
     await _db
       .update(schema.router)
       .set(objectWithoutId(router))
@@ -86,7 +105,6 @@ export const handleCollect = async (event: CollectEvent) => {
       .update(schema.jetton)
       .set(objectWithoutId(jetton1))
       .where(eq(schema.jetton.id, jetton1.id));
-    await _db.update(schema.pool).set(objectWithoutId(pool)).where(eq(schema.pool.id, pool.id));
     await _db.insert(schema.collect).values(collectData);
   });
 };

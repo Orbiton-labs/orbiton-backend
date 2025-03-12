@@ -2,6 +2,7 @@ import * as t from 'drizzle-orm/pg-core';
 import { pgTable as table } from 'drizzle-orm/pg-core';
 import { pool } from './pool';
 import { position } from './position';
+import { InferSelectModel } from 'drizzle-orm';
 
 export const positionData = table('position_data', {
   id: t.text().primaryKey().notNull(),
@@ -16,11 +17,7 @@ export const positionData = table('position_data', {
     .notNull(),
   block: t.json().notNull(),
   timestamp: t.timestamp().notNull(),
-  liquidity: t
-    .bigint({
-      mode: 'bigint',
-    })
-    .notNull(),
+  liquidity: t.text().notNull(),
   depositedJetton0: t.text('deposited_jetton0').notNull(),
   depositedJetton1: t.text('deposited_jetton1').notNull(),
   withdrawnJetton0: t.text('withdrawn_jetton0').notNull(),
@@ -30,3 +27,5 @@ export const positionData = table('position_data', {
   feeGrowthInside0LastX128: t.text('fee_growth_inside_0_last_x128').notNull(),
   feeGrowthInside1LastX128: t.text('fee_growth_inside_1_last_x128').notNull(),
 });
+
+export type PositionData = InferSelectModel<typeof positionData>;

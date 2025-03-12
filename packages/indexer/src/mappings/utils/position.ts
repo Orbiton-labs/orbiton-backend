@@ -5,8 +5,7 @@ import * as schema from '@src/models';
 import { tonClient } from '@src/services/ton-client';
 import { PositionTlbs } from '@orbiton_labs/v3-contracts-sdk';
 import { Position } from '@src/models/position';
-import { Pool } from '@src/models/pool';
-import { Transaction } from '@src/models/transaction';
+import { PositionData } from '@src/models/position-data';
 import { ZERO_BD } from '@src/constants';
 import { TraceEvent } from '@src/@types';
 import { loadTransaction } from '.';
@@ -49,11 +48,46 @@ export const getPosition = async (address: Address, event: TraceEvent, _db: Data
   return positionData;
 };
 
+export const updateFeeVars = async (
+  position: Position,
+  _db: DatabaseType = db,
+): Promise<Position> => {
+  const positionInformation = await tonClient
+    .getContractState(Address.parse(position.id))
+    .catch((err) => null);
+  if (!positionInformation) return position;
+  const positionStorage = PositionTlbs.loadPositionStorage(
+    Cell.fromBoc(Buffer.from(positionInformation.code))[0].asSlice(),
+  );
+  position.feeGrowthInside0LastX128 =
+    positionStorage.first_ref.fee_growth_inside0_last_x128.toString();
+  position.feeGrowthInside1LastX128 =
+    positionStorage.first_ref.fee_growth_inside1_last_x128.toString();
+  return position;
+};
+
 export const savePositionSnapshot = async (
   position: Position,
   event: TraceEvent,
   _db: DatabaseType = db,
 ) => {
   const positionSnapshotId = `${position.id}#${encodeBlockId(event.block.id)}`;
-  const positionSnapshotData = {};
+  const positionSnapshotData: PositionData = {
+    id: positionSnapshotId,
+    owner: position.owner,
+    poolId: position.poolId,
+    block: event.block,
+    timestamp: new Date(event.block.timestamp),
+    liquidity: position.liquidity,
+    depositedJetton0: position.depositedJetton0,
+    depositedJetton1: position.depositedJetton1,
+    withdrawnJetton0: position.withdrawnJetton0,
+    withdrawnJetton1: position.withdrawnJetton1,
+    collectedFeeJetton0: position.collectedFeeJetton0,
+    collectedFeeJetton1: position.collectedFeeJetton1,
+    feeGrowthInside0LastX128: position.feeGrowthInside0LastX128,
+    feeGrowthInside1LastX128: position.feeGrowthInside1LastX128,
+    positionId: position.id,
+  };
+  await _db.insert(schema.positionData).values(positionSnapshotData);
 };

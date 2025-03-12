@@ -16,6 +16,7 @@ import { updateTickFeeVarsAndSave } from '../utils/ton';
 import { objectWithoutId } from '../common';
 import { BigDecimalConfig } from '../constant';
 import { Functions } from '@orbiton_labs/v3-contracts-sdk';
+import { getPosition, savePositionSnapshot, updateFeeVars } from '../utils/position';
 
 BigDecimal.set(BigDecimalConfig);
 
@@ -83,10 +84,6 @@ export const handleMint = async (event: MintEvent) => {
   jetton1.txCount = (BigInt(jetton1.txCount) + ONE_BI).toString();
   pool.txCount = (BigInt(pool.txCount) + ONE_BI).toString();
 
-  console.log({
-    router,
-  });
-
   // Pools liquidity tracks the currently active liquidity given pools current tick.
   // We only want to update it on mint if the new position includes the current tick.
   if (pool.tick > event.tickLower && pool.tick < event.tickUpper) {
@@ -146,6 +143,24 @@ export const handleMint = async (event: MintEvent) => {
       await updateJettonDayData(router, jetton0, event, _db as any);
       await updateJettonDayData(router, jetton1, event, _db as any);
 
+      await _db.update(schema.pool).set(objectWithoutId(pool)).where(eq(schema.pool.id, pool.id));
+      let position = await getPosition(positionAddress, event, _db as any);
+      if (position) {
+        position.liquidity = (BigInt(position.liquidity) + event.amount).toString();
+        position.depositedJetton0 = new BigDecimal(position.depositedJetton0)
+          .add(amount0)
+          .toString();
+        position.depositedJetton1 = new BigDecimal(position.depositedJetton1)
+          .add(amount1)
+          .toString();
+        position = await updateFeeVars(position, _db as any);
+        await _db
+          .update(schema.position)
+          .set(objectWithoutId(position))
+          .where(eq(schema.position.id, position.id));
+        await savePositionSnapshot(position, event, _db as any);
+      }
+
       await _db
         .update(schema.jetton)
         .set(objectWithoutId(jetton0))
@@ -154,7 +169,6 @@ export const handleMint = async (event: MintEvent) => {
         .update(schema.jetton)
         .set(objectWithoutId(jetton1))
         .where(eq(schema.jetton.id, jetton1.id));
-      await _db.update(schema.pool).set(objectWithoutId(pool)).where(eq(schema.pool.id, pool.id));
       await _db
         .update(schema.router)
         .set(objectWithoutId(router))
