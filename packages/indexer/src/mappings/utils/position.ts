@@ -16,9 +16,10 @@ export const getPosition = async (address: Address, event: TraceEvent, _db: Data
     where: eq(schema.position.id, address.toString()),
   });
   if (!positionData) {
+    console.log('position address:', address);
     const positionInformation = await tonClient.getContractState(address);
     const positionStorage = PositionTlbs.loadPositionStorage(
-      Cell.fromBoc(Buffer.from(positionInformation.code))[0].asSlice(),
+      Cell.fromBoc(Buffer.from(positionInformation.data))[0].asSlice(),
     );
     const pool = await _db.query.pool.findFirst({
       where: eq(schema.pool.id, positionStorage.second_ref.pool_address.toString()),
@@ -57,7 +58,7 @@ export const updateFeeVars = async (
     .catch((err) => null);
   if (!positionInformation) return position;
   const positionStorage = PositionTlbs.loadPositionStorage(
-    Cell.fromBoc(Buffer.from(positionInformation.code))[0].asSlice(),
+    Cell.fromBoc(Buffer.from(positionInformation.data))[0].asSlice(),
   );
   position.feeGrowthInside0LastX128 =
     positionStorage.first_ref.fee_growth_inside0_last_x128.toString();

@@ -51,7 +51,7 @@ mock.module('@src/services/ton-client', () => {
           },
         })(builder);
         return {
-          code: builder.endCell().toBoc(),
+          data: builder.endCell().toBoc(),
         };
       }),
     },

@@ -184,8 +184,8 @@ export const handleBurn = async (event: BurnEvent) => {
         .set(objectWithoutId(router))
         .where(eq(schema.router.id, router.id));
       await _db.insert(schema.burn).values(burnData);
-      await updateTickFeeVarsAndSave(lowerTick, event, _db as any);
-      await updateTickFeeVarsAndSave(upperTick, event, _db as any);
+      await updateTickFeeVarsAndSave(lowerTick, poolAddress, _db as any);
+      await updateTickFeeVarsAndSave(upperTick, poolAddress, _db as any);
     } catch (err) {
       _db.rollback();
     }

@@ -39,8 +39,9 @@ export const parseMintEvent = (cell: Cell, traceEvent: TraceEvent): MintEvent =>
   let tickLower = slice.loadInt(24);
   let tickUpper = slice.loadInt(24);
   let amount = slice.loadUint(128);
-  let amount0 = slice.loadUint(128);
-  let amount1 = slice.loadUint(128);
+  const amountSlice = slice.loadRef().asSlice();
+  let amount0 = amountSlice.loadUint(128);
+  let amount1 = amountSlice.loadUint(128);
   return {
     ...traceEvent,
     sender,

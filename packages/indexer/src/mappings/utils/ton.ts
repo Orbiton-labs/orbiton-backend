@@ -9,6 +9,7 @@ import { eq } from 'drizzle-orm';
 import { tonClient } from '@src/services/ton-client';
 import { PoolWrapper } from '@orbiton_labs/v3-contracts-sdk';
 import { objectWithoutId } from '../common';
+import { Address } from '@ton/core';
 
 export const getTonPrice = async (): Promise<number> => {
   while (true) {
@@ -34,6 +35,16 @@ export const findTonPerJetton = async (jetton: Jetton): Promise<string> => {
       if (jetton.id === ZERO_ADDRESS) {
         return ONE_BD;
       }
+      if (
+        jetton.id === Address.parse('kQCF8jfV05w00abPcvsW64XNanQ9vateIhCLSkNAQ7Qfo14c').toString()
+      ) {
+        return ONE_BD;
+      }
+      if (
+        jetton.id === Address.parse('kQCqaCb9S8wqYjPT1d18Z0f-HemRnEDm4heFyNfPKMESADNa').toString()
+      ) {
+        return '0.1';
+      }
       const tokenId = snakeToCamel(jetton.id);
       const rateData = await tonApiClient.rates.getRates({
         tokens: [jetton.id],
@@ -51,14 +62,13 @@ export const findTonPerJetton = async (jetton: Jetton): Promise<string> => {
 
 export const updateTickFeeVarsAndSave = async (
   tick: Tick,
-  event: TraceEvent,
+  poolAddress: Address,
   _db: DatabaseType = db,
 ) => {
-  let poolAddress = event.address;
   let poolContract = tonClient.open(PoolWrapper.Pool.createFromAddress(poolAddress));
-  let tickResult = poolContract.getFeesGrowthGlobalAtTick(BigInt(tick.tickIdx));
-  tick.feeGrowthOutside0X128 = tickResult[0];
-  tick.feeGrowthOutside1X128 = tickResult[1];
+  let tickResult = await poolContract.getFeesGrowthGlobalAtTick(BigInt(tick.tickIdx));
+  tick.feeGrowthOutside0X128 = tickResult[0].toString();
+  tick.feeGrowthOutside1X128 = tickResult[1].toString();
   await _db
     .insert(schema.tick)
     .values(tick)
@@ -70,13 +80,12 @@ export const updateTickFeeVarsAndSave = async (
     });
 };
 
-export const loadTickUpdateFeeVarsAndSave = async (tickId: bigint, event: TraceEvent) => {
-  const poolAddress = event.address;
+export const loadTickUpdateFeeVarsAndSave = async (tickId: bigint, poolAddress: Address) => {
   const encodeTickId = poolAddress.toString().concat('#').concat(tickId.toString());
   let tick = await db.query.tick.findFirst({
     where: eq(schema.tick.id, encodeTickId),
   });
   if (tick !== null) {
-    await updateTickFeeVarsAndSave(tick!, event);
+    await updateTickFeeVarsAndSave(tick!, poolAddress);
   }
 };

@@ -339,7 +339,7 @@ export const handleSwap = async (event: SwapEvent) => {
 
   if (modulo === 0n) {
     tickQueue.push(async () => {
-      await loadTickUpdateFeeVarsAndSave(newTick, event);
+      await loadTickUpdateFeeVarsAndSave(newTick, Address.parse(pool.id));
     });
   }
 
@@ -351,7 +351,7 @@ export const handleSwap = async (event: SwapEvent) => {
 
   for (let i = start; i <= end; i += tickSpacing) {
     tickQueue.push(async () => {
-      await loadTickUpdateFeeVarsAndSave(i, event);
+      await loadTickUpdateFeeVarsAndSave(i, Address.parse(pool.id));
     });
   }
 };

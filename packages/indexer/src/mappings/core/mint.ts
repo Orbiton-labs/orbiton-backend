@@ -19,10 +19,10 @@ import { Functions } from '@orbiton_labs/v3-contracts-sdk';
 import { getPosition, savePositionSnapshot, updateFeeVars } from '../utils/position';
 
 BigDecimal.set(BigDecimalConfig);
-
 export const handleMint = async (event: MintEvent) => {
   let router = (await db.query.router.findFirst({})) as Router | undefined;
   if (!router) {
+    console.log('Router not found!');
     return;
   }
 
@@ -31,6 +31,7 @@ export const handleMint = async (event: MintEvent) => {
     where: eq(schema.pool.id, poolAddress.toString()),
   });
   if (!pool) {
+    console.log('Pool not found!');
     return;
   }
 
@@ -179,8 +180,8 @@ export const handleMint = async (event: MintEvent) => {
         .set(objectWithoutId(router))
         .where(eq(schema.router.id, router.id));
       await _db.insert(schema.mint).values(mintData);
-      await updateTickFeeVarsAndSave(lowerTick, event, _db as any);
-      await updateTickFeeVarsAndSave(upperTick, event, _db as any);
+      await updateTickFeeVarsAndSave(lowerTick, poolAddress, _db as any);
+      await updateTickFeeVarsAndSave(upperTick, poolAddress, _db as any);
     } catch (err) {
       console.log(err);
       _db.rollback();

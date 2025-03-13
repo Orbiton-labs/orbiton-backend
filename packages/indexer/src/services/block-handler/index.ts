@@ -67,6 +67,7 @@ class BlockTransactionHandler extends BaseBlockHandler {
         let msgBody: any;
         msg = externalOutMsgs[0];
         msgBody = msg.body;
+
         switch (opcode) {
           case RouterWrapper.Opcodes.CallbackCreatePool:
             let initializeEvent = parseInitializeEvent(msgBody, {
@@ -78,7 +79,7 @@ class BlockTransactionHandler extends BaseBlockHandler {
               console.log('Error:', err?.stack);
             });
             break;
-          case PoolWrapper.Opcodes.CallBackMintPosition:
+          case PositionWrapper.Opcodes.MintPosition:
             let mintEvent = parseMintEvent(msgBody, {
               address,
               transaction: traceTx,
@@ -98,7 +99,7 @@ class BlockTransactionHandler extends BaseBlockHandler {
               console.log('Error:', err?.stack);
             });
             break;
-          case PositionWrapper.Opcodes.CallbackPoolBurn:
+          case PositionWrapper.Opcodes.CallBackPoolBurn:
             let burnEvent = parseBurnEvent(msgBody, {
               address,
               transaction: traceTx,
