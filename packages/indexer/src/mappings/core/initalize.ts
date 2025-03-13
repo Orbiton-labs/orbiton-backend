@@ -82,6 +82,7 @@ export const handleInitialize = async (event: InitializeEvent) => {
         jetton0Id: jetton0.id,
         jetton1Id: jetton1.id,
         feeTier,
+        tickSpacing: event.tickSpacing,
         collectedFeesJetton0: ZERO_BD,
         collectedFeesJetton1: ZERO_BD,
         collectedFeesUSD: ZERO_BD,

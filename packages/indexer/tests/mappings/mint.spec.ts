@@ -102,7 +102,7 @@ describe('Test Handle Mint', () => {
 
     //@ts-ignore
     let txs = (await db.query.transaction.findMany({})) as Transaction[];
-    expect(txs.filter((tx) => tx.hash === event.transaction.hash).length).toEqual(1);
+    expect(txs.filter((tx) => tx.id === event.transaction.hash).length).toEqual(1);
 
     //@ts-ignore
     let mint = (await db.query.mint.findFirst({})) as schema.Mint;
@@ -123,7 +123,7 @@ describe('Test Handle Mint', () => {
     expect(ticks[0].liquidityNet).toEqual('15000000');
     expect(ticks[0].price0).not.toEqual('0');
     expect(ticks[0].price1).not.toEqual('0');
-    expect(ticks[0].poolAddress).toEqual(event.address.toString());
+    expect(ticks[0].poolAddress).toEqual(event.transaction.from.toString());
     expect(ticks[0].feeGrowthOutside0X128).toEqual('10000');
     expect(ticks[0].feeGrowthOutside1X128).toEqual('20000');
 
@@ -131,7 +131,7 @@ describe('Test Handle Mint', () => {
     expect(ticks[1].liquidityNet).toEqual('-15000000');
     expect(ticks[1].price0).not.toEqual('0');
     expect(ticks[1].price1).not.toEqual('0');
-    expect(ticks[1].poolAddress).toEqual(event.address.toString());
+    expect(ticks[1].poolAddress).toEqual(event.transaction.from.toString());
     expect(ticks[0].feeGrowthOutside0X128).toEqual('10000');
     expect(ticks[0].feeGrowthOutside1X128).toEqual('20000');
 
@@ -288,7 +288,7 @@ describe('Test Handle Mint', () => {
 
         .toString(),
     );
-    expect(ticks[1].poolAddress).toEqual(event.address.toString());
+    expect(ticks[1].poolAddress).toEqual(event.transaction.from.toString());
 
     // this will be accumulated results since colliding tick index
     expect(ticks[2].liquidityGross).toEqual('29000000');
@@ -300,7 +300,7 @@ describe('Test Handle Mint', () => {
 
         .toString(),
     );
-    expect(ticks[2].poolAddress).toEqual(event.address.toString());
+    expect(ticks[2].poolAddress).toEqual(event.transaction.from.toString());
 
     //@ts-ignore
     let routerData = (await db.query.routerData.findFirst({})) as schema.RouterData;

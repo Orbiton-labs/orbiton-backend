@@ -51,7 +51,7 @@ describe('Test Handle Initialize', () => {
     expect(poolDayData.txCount).toEqual('1');
     //@ts-ignore
     let transaction = (await db.query.transaction.findFirst({})) as Transaction;
-    expect(transaction.hash).toEqual(event.transaction.hash);
+    expect(transaction.id).toEqual(event.transaction.hash);
     //@ts-ignore
     let jettons = (await db.query.jetton.findMany({})) as Jetton[];
     console.log(jettons);

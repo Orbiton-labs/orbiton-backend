@@ -104,7 +104,7 @@ describe('Test Handle Burn', () => {
 
     //@ts-ignore
     let transaction = (await db.query.transaction.findFirst({
-      where: eq(schema.transaction.hash, event.transaction.hash),
+      where: eq(schema.transaction.id, event.transaction.hash),
     })) as Transaction;
     //@ts-ignore
     let burn = (await db.query.burn.findFirst({})) as Burn;

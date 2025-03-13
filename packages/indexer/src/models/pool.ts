@@ -28,6 +28,11 @@ export const pool = table('pools', {
       mode: 'bigint',
     })
     .notNull(),
+  tickSpacing: t
+    .bigint('tick_spacing', {
+      mode: 'bigint',
+    })
+    .notNull(),
   liquidity: t.text().notNull(),
   sqrtPrice: t.text('sqrt_price').notNull(),
   feeGrowthGlobal0X128: t.text('fee_growth_global_0x128').notNull(),

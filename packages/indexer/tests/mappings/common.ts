@@ -9,6 +9,7 @@ import {
   MintEvent,
   SwapEvent,
 } from '../../src/@types/core.type';
+import { Functions } from '@orbiton_labs/v3-contracts-sdk';
 
 export const getMockInitializeEvent = () => {
   const sqrtPriceX96 = BigInt(encodePriceSqrt(1n, 1n).toString());
@@ -28,7 +29,7 @@ export const getMockInitializeEvent = () => {
           'hex',
         ),
         seqno: 49883755,
-        shard: 'a000000000000000',
+        shard: '0000000000000000',
         workchain: 0,
       },
     },
@@ -49,7 +50,13 @@ export const getMockInitializeEvent = () => {
 
 export const getMockMintEventInsideCurrentTick = () => {
   const event = {
-    address: Address.parse('EQC-aFP0rJXwTgKZQJPbPfTSpBFc8wxOgKHWD9cPvOl_DnaY'),
+    address: Functions.computePositionAddress(
+      Address.parse('EQC-aFP0rJXwTgKZQJPbPfTSpBFc8wxOgKHWD9cPvOl_DnaY'),
+      Address.parse('EQBDYpOew7_senlP8SzANhgeqOqGts0AySHQQ6UCQbO2NO6u'),
+      -10n,
+      10n,
+      0,
+    ),
     block: {
       timestamp: 1740671544000,
       id: {
@@ -63,7 +70,7 @@ export const getMockMintEventInsideCurrentTick = () => {
           'hex',
         ),
         seqno: 50051188,
-        shard: 'e000000000000000',
+        shard: '0000000000000000',
         workchain: 0,
       },
     },
@@ -85,7 +92,13 @@ export const getMockMintEventInsideCurrentTick = () => {
 
 export const getMockMintEventOutsideCurrentTick = () => {
   const event = {
-    address: Address.parse('EQC-aFP0rJXwTgKZQJPbPfTSpBFc8wxOgKHWD9cPvOl_DnaY'),
+    address: Functions.computePositionAddress(
+      Address.parse('EQC-aFP0rJXwTgKZQJPbPfTSpBFc8wxOgKHWD9cPvOl_DnaY'),
+      Address.parse('EQBDYpOew7_senlP8SzANhgeqOqGts0AySHQQ6UCQbO2NO6u'),
+      1n,
+      10n,
+      0,
+    ),
     block: {
       timestamp: 1740671544000,
       id: {
@@ -99,7 +112,7 @@ export const getMockMintEventOutsideCurrentTick = () => {
           'hex',
         ),
         seqno: 50051188,
-        shard: 'e000000000000000',
+        shard: '0000000000000000',
         workchain: 0,
       },
     },
@@ -121,7 +134,13 @@ export const getMockMintEventOutsideCurrentTick = () => {
 
 export const getMockBurnEvent = () => {
   const event = {
-    address: Address.parse('EQC-aFP0rJXwTgKZQJPbPfTSpBFc8wxOgKHWD9cPvOl_DnaY'),
+    address: Functions.computePositionAddress(
+      Address.parse('EQC-aFP0rJXwTgKZQJPbPfTSpBFc8wxOgKHWD9cPvOl_DnaY'),
+      Address.parse('EQBDYpOew7_senlP8SzANhgeqOqGts0AySHQQ6UCQbO2NO6u'),
+      -10n,
+      10n,
+      0,
+    ),
     block: {
       timestamp: 1740671545000,
       id: {
@@ -135,7 +154,7 @@ export const getMockBurnEvent = () => {
           'hex',
         ),
         seqno: 50051188,
-        shard: 'e000000000000000',
+        shard: '0000000000000000',
         workchain: 0,
       },
     },
@@ -171,7 +190,7 @@ export const getMockSwapEvent = () => {
           'hex',
         ),
         seqno: 50051188,
-        shard: 'e000000000000000',
+        shard: '0000000000000000',
         workchain: 0,
       },
     },
@@ -209,7 +228,7 @@ export const getSecondMockSwapEvent = () => {
           'hex',
         ),
         seqno: 50051188,
-        shard: 'e000000000000000',
+        shard: '0000000000000000',
         workchain: 0,
       },
     },
@@ -247,7 +266,7 @@ export const getMockCollectEvent = (): CollectEvent => {
           'hex',
         ),
         seqno: 50051188,
-        shard: 'e000000000000000',
+        shard: '0000000000000000',
         workchain: 0,
       },
     },

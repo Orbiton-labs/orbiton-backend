@@ -152,10 +152,18 @@ export const handleBurn = async (event: BurnEvent) => {
           .minus(amount1)
           .toString();
         position = await updateFeeVars(position, _db as any);
+        console.log({
+          position,
+        });
         await _db
-          .update(schema.position)
-          .set(objectWithoutId(position))
-          .where(eq(schema.position.id, position.id));
+          .insert(schema.position)
+          .values(position)
+          .onConflictDoUpdate({
+            target: schema.position.id,
+            set: {
+              ...objectWithoutId(position),
+            },
+          });
         await savePositionSnapshot(position, event, _db as any);
       }
 

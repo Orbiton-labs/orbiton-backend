@@ -1,6 +1,8 @@
+import { PositionTlbs } from '@orbiton_labs/v3-contracts-sdk';
 import { Jetton } from '../../src/models';
 //@ts-ignore
 import { mock, jest } from 'bun:test';
+import { Address, beginCell } from '@ton/core';
 
 mock.module('../../src/mappings/utils/ton', () => {
   const funcs = require('../../src/mappings/utils/ton');
@@ -27,6 +29,30 @@ mock.module('@src/services/ton-client', () => {
       open: () => ({
         getFeesGrowthGlobalAtTick: jest.fn(() => ['10000', '20000']),
         getFeesGrowthGlobal: jest.fn(() => ['10000', '20000']),
+      }),
+      getContractState: jest.fn().mockImplementation(async (positionAddress: Address) => {
+        const builder = beginCell();
+        PositionTlbs.storePositionStorage({
+          kind: 'PositionStorage',
+          first_ref: {
+            kind: 'PositionFirst',
+            tick_lower: -10,
+            tick_upper: 10,
+            liquidity: 1000000n,
+            fee_growth_inside0_last_x128: 500000n,
+            fee_growth_inside1_last_x128: 1500000n,
+          },
+          second_ref: {
+            kind: 'PositionSecond',
+            owner_address: Address.parse('EQBDYpOew7_senlP8SzANhgeqOqGts0AySHQQ6UCQbO2NO6u'),
+            token_owed0: 0n,
+            token_owed1: 0n,
+            pool_address: Address.parse('EQC-aFP0rJXwTgKZQJPbPfTSpBFc8wxOgKHWD9cPvOl_DnaY'),
+          },
+        })(builder);
+        return {
+          code: builder.endCell().toBoc(),
+        };
       }),
     },
   };
