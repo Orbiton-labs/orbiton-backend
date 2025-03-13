@@ -14,7 +14,7 @@ describe('Test me', () => {
       .insert(schema.transaction)
       .values([
         {
-          hash: '0x123',
+          id: '0x123',
           block: 1,
           timestamp: new Date(),
         },
@@ -22,7 +22,6 @@ describe('Test me', () => {
       .returning({
         id: schema.transaction.id,
       });
-    console.log(res);
 
     const transactions = await db.query.transaction.findMany();
     console.log(transactions);

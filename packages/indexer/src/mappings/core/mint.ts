@@ -93,8 +93,8 @@ export const handleMint = async (event: MintEvent) => {
 
   let lowerTickIdx = event.tickLower;
   let upperTickIdx = event.tickUpper;
-  let lowerTickId = `${pool.id}#${BigInt(event.tickLower).toString()}`;
-  let upperTickId = `${pool.id}#${BigInt(event.tickUpper).toString()}`;
+  let lowerTickId = `${pool.id}-${BigInt(event.tickLower).toString()}`;
+  let upperTickId = `${pool.id}-${BigInt(event.tickUpper).toString()}`;
   let lowerTick = await db.query.tick.findFirst({
     where: eq(schema.tick.id, lowerTickId),
   });

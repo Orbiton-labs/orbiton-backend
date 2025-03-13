@@ -94,8 +94,8 @@ export const handleBurn = async (event: BurnEvent) => {
     pool.liquidity = (BigInt(pool.liquidity) - event.amount).toString();
   }
 
-  let lowerTickId = `${poolAddress}#${event.tickLower.toString()}`;
-  let lowerUpperId = `${poolAddress}#${event.tickUpper.toString()}`;
+  let lowerTickId = `${poolAddress}-${event.tickLower.toString()}`;
+  let lowerUpperId = `${poolAddress}-${event.tickUpper.toString()}`;
   let lowerTick = await db.query.tick.findFirst({
     where: eq(schema.tick.id, lowerTickId),
   });
@@ -144,17 +144,20 @@ export const handleBurn = async (event: BurnEvent) => {
       await _db.update(schema.pool).set(objectWithoutId(pool)).where(eq(schema.pool.id, pool.id));
       let position = await getPosition(positionAddress, event, _db as any);
       if (position) {
-        position.liquidity = (BigInt(position.liquidity) + event.amount).toString();
+        position.liquidity = (BigInt(position.liquidity) - event.amount).toString();
         position.depositedJetton0 = new BigDecimal(position.depositedJetton0)
           .minus(amount0)
           .toString();
         position.depositedJetton1 = new BigDecimal(position.depositedJetton1)
           .minus(amount1)
           .toString();
+        position.withdrawnJetton0 = new BigDecimal(position.withdrawnJetton0)
+          .add(amount0)
+          .toString();
+        position.withdrawnJetton1 = new BigDecimal(position.withdrawnJetton1)
+          .add(amount1)
+          .toString();
         position = await updateFeeVars(position, _db as any);
-        console.log({
-          position,
-        });
         await _db
           .insert(schema.position)
           .values(position)

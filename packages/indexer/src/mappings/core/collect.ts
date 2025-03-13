@@ -38,14 +38,8 @@ export const handleCollect = async (event: CollectEvent) => {
   let amount1 = convertJettonToDecimal(event.amount1, jetton1);
   let amounts = getAdjustedAmounts(router, amount0, jetton0, amount1, jetton1);
 
-  pool.collectedFeesJetton0 = new BigDecimal(pool.collectedFeesJetton0)
-    .add(amount0)
-
-    .toString();
-  pool.collectedFeesJetton1 = new BigDecimal(pool.collectedFeesJetton1)
-    .add(amount1)
-
-    .toString();
+  pool.collectedFeesJetton0 = new BigDecimal(pool.collectedFeesJetton0).add(amount0).toString();
+  pool.collectedFeesJetton1 = new BigDecimal(pool.collectedFeesJetton1).add(amount1).toString();
   pool.collectedFeesUSD = new BigDecimal(pool.collectedFeesUSD)
     .add(amounts.usd)
 
@@ -87,9 +81,14 @@ export const handleCollect = async (event: CollectEvent) => {
         .toString();
       position = await updateFeeVars(position, _db as any);
       await _db
-        .update(schema.position)
-        .set(objectWithoutId(position))
-        .where(eq(schema.position.id, position.id));
+        .insert(schema.position)
+        .values(position)
+        .onConflictDoUpdate({
+          target: schema.position.id,
+          set: {
+            ...objectWithoutId(position),
+          },
+        });
       await savePositionSnapshot(position, event, _db as any);
     }
 

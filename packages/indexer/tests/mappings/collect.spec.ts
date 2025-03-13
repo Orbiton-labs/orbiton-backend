@@ -1,7 +1,7 @@
 import { handleMint } from '../../src/mappings/core/mint';
 import { Database, DatabaseMode, db } from '../../src/db';
 import { migrate } from 'drizzle-orm/pglite/migrator';
-import { Collect, Jetton, Pool, Router } from '../../src/models';
+import { Collect, Jetton, Pool, Router, Position } from '../../src/models';
 import {
   getMockCollectEvent,
   getMockInitializeEvent,
@@ -59,5 +59,10 @@ describe('Test Handle Collect', () => {
     expect(collect.amountUSD).toEqual(amounts.usd.toString());
     expect(collect.tickLower).toEqual(event.tickLower);
     expect(collect.tickUpper).toEqual(event.tickUpper);
+
+    //@ts-ignore
+    let position = (await db.query.position.findFirst({})) as Position;
+    expect(position.collectedFeeJetton0).toEqual(amount0.toString());
+    expect(position.collectedFeeJetton1).toEqual(amount1.toString());
   });
 });

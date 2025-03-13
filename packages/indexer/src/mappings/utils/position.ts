@@ -71,7 +71,7 @@ export const savePositionSnapshot = async (
   event: TraceEvent,
   _db: DatabaseType = db,
 ) => {
-  const positionSnapshotId = `${position.id}#${encodeBlockId(event.block.id)}`;
+  const positionSnapshotId = `${position.id}-${encodeBlockId(event.block.id)}`;
   const positionSnapshotData: PositionData = {
     id: positionSnapshotId,
     owner: position.owner,

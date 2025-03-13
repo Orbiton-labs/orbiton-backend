@@ -144,7 +144,7 @@ describe('Test Handle Burn', () => {
 
         .toString(),
     );
-    expect(ticks[0].poolAddress).toEqual(event.address.toString());
+    expect(ticks[0].poolAddress).toEqual(event.transaction.from.toString());
     expect(ticks[0].feeGrowthOutside0X128).toEqual('10000');
     expect(ticks[0].feeGrowthOutside1X128).toEqual('20000');
 
@@ -158,7 +158,7 @@ describe('Test Handle Burn', () => {
 
         .toString(),
     );
-    expect(ticks[1].poolAddress).toEqual(event.address.toString());
+    expect(ticks[1].poolAddress).toEqual(event.transaction.from.toString());
     expect(ticks[1].feeGrowthOutside0X128).toEqual('10000');
     expect(ticks[1].feeGrowthOutside1X128).toEqual('20000');
 
@@ -209,5 +209,27 @@ describe('Test Handle Burn', () => {
     );
     expect(jetton1DayData.totalValueLocked).toEqual(jettons[1].totalValueLocked);
     expect(jetton1DayData.totalValueLockedUSD).toEqual(jettons[1].totalValueLockedUSD);
+
+    const positionAddress = event.address;
+    const position = await db.query.position.findFirst({
+      where: eq(schema.position.id, positionAddress.toString()),
+    });
+    expect(position.depositedJetton0).toEqual(
+      convertJettonToDecimal(10000000n, jettons[0]).toString(),
+    );
+    expect(position.depositedJetton1).toEqual(
+      convertJettonToDecimal(6000000n, jettons[1]).toString(),
+    );
+    expect(position.withdrawnJetton0).toEqual(
+      convertJettonToDecimal(7000000n, jettons[0]).toString(),
+    );
+    expect(position.withdrawnJetton1).toEqual(
+      convertJettonToDecimal(3000000n, jettons[0]).toString(),
+    );
+    expect(position.collectedFeeJetton0).toEqual('0');
+    expect(position.collectedFeeJetton1).toEqual('0');
+    expect(position.feeGrowthInside0LastX128).toEqual('500000');
+    expect(position.feeGrowthInside1LastX128).toEqual('1500000');
+    expect(position.liquidity).toEqual((BigInt(16000000) - BigInt(event.amount)).toString());
   });
 });
