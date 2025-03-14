@@ -60,21 +60,13 @@ export const handleBurn = async (event: BurnEvent) => {
 
   // update TVL values.
   let oldPoolTotalValueLockedTon = pool.totalValueLockedTon;
-  jetton0.totalValueLocked = new BigDecimal(jetton0.totalValueLocked)
-    .sub(amount0)
-
-    .toString();
-  jetton1.totalValueLocked = new BigDecimal(jetton1.totalValueLocked)
-    .sub(amount1)
-
-    .toString();
+  jetton0.totalValueLocked = new BigDecimal(jetton0.totalValueLocked).sub(amount0).toString();
+  jetton1.totalValueLocked = new BigDecimal(jetton1.totalValueLocked).sub(amount1).toString();
   pool.totalValueLockedJetton0 = new BigDecimal(pool.totalValueLockedJetton0)
     .sub(amount0)
-
     .toString();
   pool.totalValueLockedJetton1 = new BigDecimal(pool.totalValueLockedJetton1)
     .sub(amount1)
-
     .toString();
   const data = await updateDerivedTVLAmounts(
     router,

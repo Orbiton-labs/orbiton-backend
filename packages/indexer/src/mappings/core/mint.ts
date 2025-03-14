@@ -166,7 +166,6 @@ export const handleMint = async (event: MintEvent) => {
           });
         await savePositionSnapshot(position, event, _db as any);
       }
-
       await _db
         .update(schema.jetton)
         .set(objectWithoutId(jetton0))

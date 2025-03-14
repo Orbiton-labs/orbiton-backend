@@ -50,6 +50,7 @@ export const handleCollectProtocol = async (event: CollectProtocolEvent) => {
     .sub(amount1)
 
     .toString();
+
   const data = await updateDerivedTVLAmounts(
     router,
     pool,

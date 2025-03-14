@@ -66,7 +66,7 @@ export const updateTickFeeVarsAndSave = async (
   _db: DatabaseType = db,
 ) => {
   let poolContract = tonClient.open(PoolWrapper.Pool.createFromAddress(poolAddress));
-  let tickResult = await poolContract.getFeesGrowthGlobalAtTick(BigInt(tick.tickIdx));
+  let tickResult = await poolContract.getFeesGrowthOutsideAtTick(BigInt(tick.tickIdx));
   tick.feeGrowthOutside0X128 = tickResult[0].toString();
   tick.feeGrowthOutside1X128 = tickResult[1].toString();
   await _db

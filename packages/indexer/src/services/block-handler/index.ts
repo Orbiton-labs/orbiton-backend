@@ -75,6 +75,7 @@ class BlockTransactionHandler extends BaseBlockHandler {
               transaction: traceTx,
               block: traceBlock,
             });
+            console.log('initializeEvent', initializeEvent);
             await handleInitialize(initializeEvent).catch((err) => {
               console.log('Error:', err?.stack);
             });
@@ -85,6 +86,7 @@ class BlockTransactionHandler extends BaseBlockHandler {
               transaction: traceTx,
               block: traceBlock,
             });
+            console.log('mintEvent', mintEvent);
             await handleMint(mintEvent).catch((err) => {
               console.log('Error:', err?.stack);
             });
@@ -95,6 +97,7 @@ class BlockTransactionHandler extends BaseBlockHandler {
               transaction: traceTx,
               block: traceBlock,
             });
+            console.log('swapEvent', swapEvent);
             await handleSwap(swapEvent).catch((err) => {
               console.log('Error:', err?.stack);
             });
@@ -105,6 +108,7 @@ class BlockTransactionHandler extends BaseBlockHandler {
               transaction: traceTx,
               block: traceBlock,
             });
+            console.log('burnEvent', burnEvent);
             await handleBurn(burnEvent).catch((err) => {
               console.log('Error:', err?.stack);
             });
@@ -115,6 +119,7 @@ class BlockTransactionHandler extends BaseBlockHandler {
               transaction: traceTx,
               block: traceBlock,
             });
+            console.log('collectEvent', collectEvent);
             await handleCollect(collectEvent).catch((err) => {
               console.log('Error:', err?.stack);
             });

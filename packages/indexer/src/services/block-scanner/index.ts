@@ -61,6 +61,7 @@ class BlockScanner extends EventEmitter {
   }
 
   async processShards(seqno: number) {
+    console.log('seqno:', seqno);
     const shards = (await this.client.getFullBlock(seqno)).shards;
     await Promise.all(
       shards.map(async (shard) => {
@@ -80,6 +81,7 @@ class BlockScanner extends EventEmitter {
             parsedBlock.info.gen_utime,
           );
         });
+        console.log(this.blockQueue.length);
       }),
     );
   }

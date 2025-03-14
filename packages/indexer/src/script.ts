@@ -7,14 +7,17 @@ import {
 import { tonClient } from './services/ton-client';
 import { Address, beginCell, Cell } from '@ton/core';
 import { LiteClientService } from './services/ton-lite-client';
+import BlockTransactionHandler from './services/block-handler';
+import BlockScanner from './services/block-scanner';
+import { Database, DatabaseMode } from './db';
 
 const main = async () => {
-  const pool = tonClient.open(
-    PoolWrapper.Pool.createFromAddress(
-      Address.parse('EQAOHbHlJDVheYtNHjpYrFiBblXG-42y5UHUy_QhQO4jNVQd'),
-    ),
-  );
-  console.log(await pool.getPoolInfo());
+  // const pool = tonClient.open(
+  //   PoolWrapper.Pool.createFromAddress(
+  //     Address.parse('EQAOHbHlJDVheYtNHjpYrFiBblXG-42y5UHUy_QhQO4jNVQd'),
+  //   ),
+  // );
+  // console.log(await pool.getPoolInfo());
 
   // const slice = Cell.fromBoc(
   //   Buffer.from(
@@ -24,12 +27,13 @@ const main = async () => {
   // )[0].asSlice();
   // console.log(slice.remainingBits, slice.remainingRefs);
   // console.time('ok');
-  // const liteClient = await LiteClientService.init();
-  // const data = await liteClient.getFullBlock(28949647);
-  // const shards = data.shards;
-  // shards.forEach((shard) => {
-  //   console.log(shard);
-  // });
+  Database.init(DatabaseMode.NORMAL);
+  const liteClient = await LiteClientService.init();
+  const blockHandler = new BlockTransactionHandler(liteClient);
+  const blockScanner = new BlockScanner(liteClient, blockHandler);
+  // 29084284
+  // 29084392
+  await blockScanner.run(29084284);
   // console.timeEnd('ok');
   // const jetton0Contract = tonClient.open(
   //   JettonMinterWrapper.JettonMinter.createFromAddress(

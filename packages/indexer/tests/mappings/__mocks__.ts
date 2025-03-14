@@ -27,7 +27,7 @@ mock.module('@src/services/ton-client', () => {
   return {
     tonClient: {
       open: () => ({
-        getFeesGrowthGlobalAtTick: jest.fn(() => ['10000', '20000']),
+        getFeesGrowthOutsideAtTick: jest.fn(() => ['10000', '20000', true]),
         getFeesGrowthGlobal: jest.fn(() => ['10000', '20000']),
       }),
       getContractState: jest.fn().mockImplementation(async (positionAddress: Address) => {

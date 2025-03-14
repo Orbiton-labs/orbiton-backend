@@ -22,7 +22,6 @@ export async function updateDerivedTVLAmounts(
   jetton0: Jetton,
   jetton1: Jetton,
   oldPoolTotalValueLockedTon: BigDecimal,
-  _db: DatabaseType = db,
 ): Promise<{
   router: Router;
   pool: Pool;
@@ -63,15 +62,6 @@ export async function updateDerivedTVLAmounts(
     .mul(new BigDecimal(router.tonPriceUSD))
 
     .toString();
-
-  const { id: jetton0Id, ...jetton0Data } = jetton0;
-  await _db.update(schema.jetton).set(jetton0Data).where(eq(schema.jetton.id, jetton0.id));
-  const { id: jetton1Id, ...jetton1Data } = jetton1;
-  await _db.update(schema.jetton).set(jetton1Data).where(eq(schema.jetton.id, jetton1.id));
-  const { id: routerId, ...routerData } = router;
-  await _db.update(schema.router).set(routerData).where(eq(schema.router.id, router.id));
-  const { id: poolId, ...poolData } = pool;
-  await _db.update(schema.pool).set(poolData).where(eq(schema.pool.id, pool.id));
   return {
     router,
     pool,
