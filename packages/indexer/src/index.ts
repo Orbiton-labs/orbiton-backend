@@ -80,12 +80,16 @@ const bootstrapServer = async () => {
     const blockScanner = new BlockScanner(liteClient, blockHandler);
     const meta = (await db.query.meta.findFirst({})) as Meta | undefined;
     blockScanner.on('mc_block', async (data: tonNode_blockIdExt) => {
-      console.log('seqno:', data.seqno);
+      console.log('Seqno:', data.seqno);
       await updateMeta(data);
     });
-    // 29084284
-    // 29084392
-    await blockScanner.run(29084392);
+    // 29084284 - create pool
+    // 29084392 - add position
+    // 29087147 - swap
+    // 29087409 - add position
+    // 29087528 - swap
+    // 29087943 - swap
+    await blockScanner.run(meta?.seqno);
   });
 };
 bootstrapServer();

@@ -61,29 +61,28 @@ class BlockScanner extends EventEmitter {
   }
 
   async processShards(seqno: number) {
-    console.log('seqno:', seqno);
     const shards = (await this.client.getFullBlock(seqno)).shards;
-    await Promise.all(
-      shards.map(async (shard) => {
-        const { transactions, ...block } = shard;
-        const blockData = await this.client.engine.query(Functions.liteServer_getBlock, {
-          kind: 'liteServer.getBlock',
-          id: {
-            kind: 'tonNode.blockIdExt',
-            ...block,
-          },
-        });
-        const parsedBlock = await this.parseBlock(blockData);
-        this.blockQueue.push(async () => {
+    this.blockQueue.push(async () => {
+      await Promise.all(
+        shards.map(async (shard) => {
+          const { transactions, ...block } = shard;
+          const blockData = await this.client.engine.query(Functions.liteServer_getBlock, {
+            kind: 'liteServer.getBlock',
+            id: {
+              kind: 'tonNode.blockIdExt',
+              ...block,
+            },
+          });
+          const parsedBlock = await this.parseBlock(blockData);
           await this.blockHandler.execBlock(
             block as tonNode_blockIdExt,
             transactions as liteServer_TransactionId[],
             parsedBlock.info.gen_utime,
           );
-        });
-        console.log(this.blockQueue.length);
-      }),
-    );
+        }),
+      );
+    });
+    console.log('Queue size:', this.blockQueue.length);
   }
 
   getShardId(workchain: string, shard: string) {
