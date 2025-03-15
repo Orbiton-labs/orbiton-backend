@@ -38,12 +38,22 @@ export const findTonPerJetton = async (jetton: Jetton): Promise<string> => {
       if (
         jetton.id === Address.parse('kQCF8jfV05w00abPcvsW64XNanQ9vateIhCLSkNAQ7Qfo14c').toString()
       ) {
-        return ONE_BD;
+        return '0.1';
       }
       if (
         jetton.id === Address.parse('kQCqaCb9S8wqYjPT1d18Z0f-HemRnEDm4heFyNfPKMESADNa').toString()
       ) {
+        return ONE_BD;
+      }
+      if (
+        jetton.id === Address.parse('kQBMX7QVmqvs5Gtx5_eSGm1FF88YPTOou1yKEz8CRX8QTNP0').toString()
+      ) {
         return '0.1';
+      }
+      if (
+        jetton.id === Address.parse('kQBXJHKfXkPHxs8Ex9yy8gu6DWm9_FgoPCMJfx-tZlDIm0tu').toString()
+      ) {
+        return '0.118';
       }
       const tokenId = snakeToCamel(jetton.id);
       const rateData = await tonApiClient.rates.getRates({

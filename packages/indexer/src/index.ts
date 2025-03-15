@@ -14,7 +14,6 @@ import { createYoga } from 'graphql-yoga';
 import { Meta } from './models';
 import { tonNode_blockIdExt } from '@orbiton_labs/ton-lite-client/dist/schema';
 import { updateMeta } from './mappings/utils/meta';
-import { EventEmitter } from 'events';
 
 // Set max listeners to avoid memory leak warning
 Database.init(DatabaseMode.NORMAL);
@@ -83,12 +82,18 @@ const bootstrapServer = async () => {
       console.log('Seqno:', data.seqno);
       await updateMeta(data);
     });
+
     // 29084284 - create pool
     // 29084392 - add position
     // 29087147 - swap
     // 29087409 - add position
     // 29087528 - swap
     // 29087943 - swap
+    // 29088829 - swap
+    // 29110403 - create pool
+    // 29110585 - add position
+    // 29110748 - swap
+    // 29110878 - swap
     await blockScanner.run(meta?.seqno);
   });
 };
