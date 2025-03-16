@@ -6,7 +6,7 @@ import { tonClient } from '@src/services/ton-client';
 import { PositionTlbs } from '@orbiton_labs/v3-contracts-sdk';
 import { Position } from '@src/models/position';
 import { PositionData } from '@src/models/position-data';
-import { ZERO_BD } from '@src/constants';
+import { ZERO_BD, ZERO_BI } from '@src/constants';
 import { TraceEvent } from '@src/@types';
 import { loadTransaction } from '.';
 import { encodeBlockId } from './block';
@@ -31,7 +31,7 @@ export const getPosition = async (address: Address, event: TraceEvent, _db: Data
       transactionId: transaction.id,
       jetton0Id: pool.jetton0Id,
       jetton1Id: pool.jetton1Id,
-      liquidity: positionStorage.first_ref.liquidity.toString(),
+      liquidity: ZERO_BD,
       collectedFeeJetton0: ZERO_BD,
       collectedFeeJetton1: ZERO_BD,
       depositedJetton0: ZERO_BD,

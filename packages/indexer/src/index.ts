@@ -14,6 +14,8 @@ import { createYoga } from 'graphql-yoga';
 import { Meta } from './models';
 import { tonNode_blockIdExt } from '@orbiton_labs/ton-lite-client/dist/schema';
 import { updateMeta } from './mappings/utils/meta';
+import swapRouter from './apis/routers/swap.router';
+import { syncTonSandbox, TonSandboxBlockchainService } from './services/ton-sandbox';
 
 // Set max listeners to avoid memory leak warning
 Database.init(DatabaseMode.NORMAL);
@@ -59,7 +61,7 @@ const bootstrapServer = async () => {
   });
   const yoga = createYoga({ schema });
   app.use(yoga.graphqlEndpoint, yoga);
-
+  app.use('/api/swap', swapRouter);
   app.use((err: any, req: any, res: any, next: any) => {
     const status = err.status || 500;
     const message = err.message || 'Something went wrong';
@@ -75,6 +77,7 @@ const bootstrapServer = async () => {
   const PORT = env.server.port;
   server.listen(PORT, async () => {
     const liteClient = await LiteClientService.init();
+    await TonSandboxBlockchainService.init(liteClient);
     const blockHandler = new BlockTransactionHandler(liteClient);
     const blockScanner = new BlockScanner(liteClient, blockHandler);
     const meta = (await db.query.meta.findFirst({})) as Meta | undefined;
@@ -84,7 +87,7 @@ const bootstrapServer = async () => {
     });
 
     // 29154128 - create pool -> wait till swap
-    await blockScanner.run(meta?.seqno);
+    await Promise.all([blockScanner.run(meta.seqno), syncTonSandbox(liteClient)]);
   });
 };
 bootstrapServer();
