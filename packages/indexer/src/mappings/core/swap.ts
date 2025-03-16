@@ -111,6 +111,7 @@ export const handleSwap = async (event: SwapEvent) => {
   pool.liquidity = event.liquidity.toString();
   pool.tick = event.tick;
   pool.sqrtPrice = event.sqrtPriceX96.toString();
+  console.log('[NOTICE] pool.sqrtPrice', pool.sqrtPrice);
 
   // update jetton0 data
   jetton0.volume = new BigDecimal(jetton0.volume).add(amount0Abs).toString();

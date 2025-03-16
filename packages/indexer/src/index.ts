@@ -83,17 +83,7 @@ const bootstrapServer = async () => {
       await updateMeta(data);
     });
 
-    // 29084284 - create pool
-    // 29084392 - add position
-    // 29087147 - swap
-    // 29087409 - add position
-    // 29087528 - swap
-    // 29087943 - swap
-    // 29088829 - swap
-    // 29110403 - create pool
-    // 29110585 - add position
-    // 29110748 - swap
-    // 29110878 - swap
+    // 29154128 - create pool -> wait till swap
     await blockScanner.run(meta?.seqno);
   });
 };

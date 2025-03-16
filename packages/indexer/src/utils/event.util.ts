@@ -20,14 +20,14 @@ export const parseInitializeEvent = (cell: Cell, traceEvent: TraceEvent): Initia
   let fee = secondSlice.loadUint(24);
   let tickSpacing = secondSlice.loadInt(24);
   let tick = secondSlice.loadInt(24);
-  let sqrtPriceX96 = secondSlice.loadUint(160);
+  let sqrtPriceX96 = secondSlice.loadUintBig(160);
   return {
     ...traceEvent,
     jetton0: jetton0MasterAddress,
     jetton1: jetton1MasterAddress,
     fee: BigInt(fee),
     tickSpacing: BigInt(tickSpacing),
-    sqrtPriceX96: BigInt(sqrtPriceX96),
+    sqrtPriceX96,
     tick: BigInt(tick),
   };
 };
@@ -38,19 +38,19 @@ export const parseMintEvent = (cell: Cell, traceEvent: TraceEvent): MintEvent =>
   let owner = slice.loadAddress();
   let tickLower = slice.loadInt(24);
   let tickUpper = slice.loadInt(24);
-  let amount = slice.loadUint(128);
+  let amount = slice.loadUintBig(128);
   const amountSlice = slice.loadRef().asSlice();
-  let amount0 = amountSlice.loadUint(128);
-  let amount1 = amountSlice.loadUint(128);
+  let amount0 = amountSlice.loadUintBig(128);
+  let amount1 = amountSlice.loadUintBig(128);
   return {
     ...traceEvent,
     sender,
     owner,
     tickLower: BigInt(tickLower),
     tickUpper: BigInt(tickUpper),
-    amount: BigInt(amount),
-    amount0: BigInt(amount0),
-    amount1: BigInt(amount1),
+    amount,
+    amount0,
+    amount1,
   };
 };
 
@@ -59,24 +59,24 @@ export const parseSwapEvent = (cell: Cell, traceEvent: TraceEvent): SwapEvent =>
   const sender = slice.loadAddress();
   const recipient = slice.loadAddress();
   const firstSlice = slice.loadRef().asSlice();
-  const amount0 = firstSlice.loadInt(256);
-  const amount1 = firstSlice.loadInt(256);
-  const sqrtPriceX96 = firstSlice.loadUint(160);
-  const liquidity = firstSlice.loadUint(128);
+  const amount0 = firstSlice.loadIntBig(256);
+  const amount1 = firstSlice.loadIntBig(256);
+  const sqrtPriceX96 = firstSlice.loadUintBig(160);
+  const liquidity = firstSlice.loadUintBig(128);
   const tick = firstSlice.loadInt(24);
   const secondSlice = slice.loadRef().asSlice();
-  const protocolFeesJetton0 = secondSlice.loadInt(160);
-  const protocolFeesJetton1 = secondSlice.loadInt(160);
+  const protocolFeesJetton0 = secondSlice.loadIntBig(160);
+  const protocolFeesJetton1 = secondSlice.loadIntBig(160);
   return {
     ...traceEvent,
-    amount0: BigInt(amount0),
-    amount1: BigInt(amount1),
-    liquidity: BigInt(liquidity),
-    protocolFeesJetton0: BigInt(protocolFeesJetton0),
-    protocolFeesJetton1: BigInt(protocolFeesJetton1),
+    amount0,
+    amount1,
+    liquidity,
+    protocolFeesJetton0,
+    protocolFeesJetton1,
     recipient,
     sender,
-    sqrtPriceX96: BigInt(sqrtPriceX96),
+    sqrtPriceX96,
     tick: BigInt(tick),
   };
 };
@@ -86,14 +86,14 @@ export const parseBurnEvent = (cell: Cell, traceEvent: TraceEvent): BurnEvent =>
   const owner = slice.loadAddress();
   const tickLower = slice.loadInt(24);
   const tickUpper = slice.loadInt(24);
-  const liquidityDelta = slice.loadUint(128);
-  const amount0 = slice.loadUint(256);
-  const amount1 = slice.loadUint(256);
+  const liquidityDelta = slice.loadUintBig(128);
+  const amount0 = slice.loadUintBig(256);
+  const amount1 = slice.loadUintBig(256);
   return {
     ...traceEvent,
-    amount: BigInt(liquidityDelta),
-    amount0: BigInt(amount0),
-    amount1: BigInt(amount1),
+    amount: liquidityDelta,
+    amount0: amount0,
+    amount1: amount1,
     owner,
     tickLower: BigInt(tickLower),
     tickUpper: BigInt(tickUpper),
@@ -106,12 +106,12 @@ export const parseCollectEvent = (cell: Cell, traceEvent: TraceEvent): CollectEv
   const recipient = slice.loadAddress();
   const tickLower = slice.loadInt(24);
   const tickUpper = slice.loadInt(24);
-  const amount0 = slice.loadInt(128);
-  const amount1 = slice.loadInt(128);
+  const amount0 = slice.loadIntBig(128);
+  const amount1 = slice.loadIntBig(128);
   return {
     ...traceEvent,
-    amount0: BigInt(amount0),
-    amount1: BigInt(amount1),
+    amount0,
+    amount1,
     owner,
     recipient,
     tickLower: BigInt(tickLower),
