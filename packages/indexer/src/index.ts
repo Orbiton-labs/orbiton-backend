@@ -75,9 +75,10 @@ const bootstrapServer = async () => {
 
   const server = http.createServer(app);
   const PORT = env.server.port;
+
+  const liteClient = await LiteClientService.init();
+  await TonSandboxBlockchainService.init(liteClient);
   server.listen(PORT, async () => {
-    const liteClient = await LiteClientService.init();
-    await TonSandboxBlockchainService.init(liteClient);
     const blockHandler = new BlockTransactionHandler(liteClient);
     const blockScanner = new BlockScanner(liteClient, blockHandler);
     const meta = (await db.query.meta.findFirst({})) as Meta | undefined;
