@@ -1,5 +1,4 @@
 import { Address } from '@ton/core';
-import env from './configs/env';
 import { Database, DatabaseMode } from './db';
 import { getOrLoadJetton } from './mappings/utils/jetton';
 

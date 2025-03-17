@@ -15,7 +15,6 @@ import { Meta } from './models';
 import { tonNode_blockIdExt } from '@orbiton_labs/ton-lite-client/dist/schema';
 import { updateMeta } from './mappings/utils/meta';
 import swapRouter from './apis/routers/swap.router';
-import { syncTonSandbox, TonSandboxBlockchainService } from './services/ton-sandbox';
 
 // Set max listeners to avoid memory leak warning
 Database.init(DatabaseMode.NORMAL);
@@ -76,9 +75,8 @@ const bootstrapServer = async () => {
   const server = http.createServer(app);
   const PORT = env.server.port;
 
-  const liteClient = await LiteClientService.init();
-  await TonSandboxBlockchainService.init(liteClient);
   server.listen(PORT, async () => {
+    const liteClient = await LiteClientService.init();
     const blockHandler = new BlockTransactionHandler(liteClient);
     const blockScanner = new BlockScanner(liteClient, blockHandler);
     const meta = (await db.query.meta.findFirst({})) as Meta | undefined;
@@ -87,8 +85,7 @@ const bootstrapServer = async () => {
       await updateMeta(data);
     });
 
-    // 29154128 - create pool -> wait till swap
-    await Promise.all([blockScanner.run(meta.seqno), syncTonSandbox(liteClient)]);
+    await Promise.all([blockScanner.run(meta?.seqno)]);
   });
 };
 bootstrapServer();

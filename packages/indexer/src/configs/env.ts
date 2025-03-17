@@ -30,8 +30,8 @@ const envSchema = z
     ROUTER_ADDRESS: z.string({
       required_error: 'ROUTER_ADDRESS is required',
     }),
-    PTON_ADDRESS: z.string({
-      required_error: 'PTON_ADDRESS is required',
+    PTON_ROUTER_ADDRESS: z.string({
+      required_error: 'PTON_ROUTER_ADDRESS is required',
     }),
   })
   .passthrough();
@@ -53,6 +53,6 @@ export default {
   },
   indexer: {
     routerAddress: envVars.ROUTER_ADDRESS,
-    ptonAddress: envVars.PTON_ADDRESS,
+    pTonRouterAddress: envVars.PTON_ROUTER_ADDRESS,
   },
 };
