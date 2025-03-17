@@ -32,6 +32,7 @@ export const getTonPrice = async (): Promise<number> => {
 export const findTonPerJetton = async (jetton: Jetton): Promise<string> => {
   while (true) {
     const tonPrice = await getTonPrice();
+    const usdtPerTon = 1 / tonPrice;
     try {
       if (jetton.id === ZERO_ADDRESS) {
         return ONE_BD;
@@ -39,22 +40,22 @@ export const findTonPerJetton = async (jetton: Jetton): Promise<string> => {
       if (
         jetton.id === Address.parse('kQCF8jfV05w00abPcvsW64XNanQ9vateIhCLSkNAQ7Qfo14c').toString()
       ) {
-        return tonPrice.toString();
+        return usdtPerTon.toString();
       }
       if (
         jetton.id === Address.parse('kQCqaCb9S8wqYjPT1d18Z0f-HemRnEDm4heFyNfPKMESADNa').toString()
       ) {
-        return (tonPrice / 10).toString();
+        return (usdtPerTon / 10).toString();
       }
       if (
         jetton.id === Address.parse('kQBMX7QVmqvs5Gtx5_eSGm1FF88YPTOou1yKEz8CRX8QTNP0').toString()
       ) {
-        return tonPrice.toString();
+        return usdtPerTon.toString();
       }
       if (
         jetton.id === Address.parse('kQBXJHKfXkPHxs8Ex9yy8gu6DWm9_FgoPCMJfx-tZlDIm0tu').toString()
       ) {
-        return (tonPrice * 1.18).toString();
+        return (usdtPerTon * 1.18).toString();
       }
 
       const tokenId = snakeToCamel(jetton.id);

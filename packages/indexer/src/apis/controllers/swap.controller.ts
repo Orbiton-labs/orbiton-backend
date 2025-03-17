@@ -14,8 +14,6 @@ import {
 } from '@orbiton_labs/v3-contracts-sdk';
 import { MAX_SQRT_RATIO, MIN_SQRT_RATIO } from '@src/constants';
 import { Chain } from '@orbiton_labs/v3-contracts-sdk/build/constants';
-import { tonApiClient } from '@src/services/ton-api';
-import { WalletVersion } from '@orbiton_labs/v3-contracts-sdk/build/@types';
 
 export const simulateSwap = async (req: Request, res: Response) => {
   const { offerJettonAddress, askJettonAddress, offerAmount, senderAddress } = req.query as SwapDto;
