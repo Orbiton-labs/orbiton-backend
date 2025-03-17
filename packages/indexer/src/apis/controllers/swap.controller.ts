@@ -83,7 +83,7 @@ export const simulateSwap = async (req: Request, res: Response) => {
         askJettonEntity,
         Number(pool.tickSpacing),
         Number(pool.feeTier),
-        BigInt(pool.sqrtPrice),
+        zeroForOne ? MIN_SQRT_RATIO + 1n : MAX_SQRT_RATIO - 1n,
         Address.parse(senderAddress),
         Number(zeroForOne ? -1 : 0),
         env.server.network === 'mainnet' ? Chain.Mainnet : Chain.Testnet,
