@@ -78,13 +78,14 @@ export const simulateSwap = async (req: Request, res: Response) => {
         askJettonEntity.setWalletAddress(tonClient, Address.parse(env.indexer.routerAddress)),
       ]);
       const offerJettonAmount = JettonAmount.fromRawAmount(offerJettonEntity, BigInt(offerAmount));
-      const swapMessages = await PoolMessageBuilder.createExactInSwapMessage(
+      const swapMessages = PoolMessageBuilder.createExactInSwapMessage(
         offerJettonAmount,
         askJettonEntity,
         Number(pool.tickSpacing),
         Number(pool.feeTier),
         BigInt(pool.sqrtPrice),
         Address.parse(senderAddress),
+        Number(zeroForOne ? -1 : 0),
         env.server.network === 'mainnet' ? Chain.Mainnet : Chain.Testnet,
         {
           ROUTER: env.indexer.routerAddress,
