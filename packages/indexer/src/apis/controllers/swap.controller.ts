@@ -48,6 +48,7 @@ export const simulateSwap = async (req: Request, res: Response) => {
 
   const sender = Address.parse(senderAddress);
   let blockchain = TonSandboxBlockchainService.instance;
+  const senderContract = blockchain.getContract(sender);
   let senderSigner = blockchain.sender(sender);
 
   // <BEGIN> SET UP
@@ -75,7 +76,6 @@ export const simulateSwap = async (req: Request, res: Response) => {
   let returnAmount = 0n;
   let paths = [];
   for (const pool of pools) {
-    console.log('Yeii??');
     const zeroForOne = pool.jetton0Id === offerJettonAddress && pool.jetton1Id === askJettonAddress;
     const isPton = offerJettonAddress === env.indexer.ptonAddress;
     let userAskBeforeBalance = 0n;
@@ -103,18 +103,15 @@ export const simulateSwap = async (req: Request, res: Response) => {
       const pTonWalletContract = blockchain.openContract(
         PTonWalletWrapper.PTonWalletV2.createFromAddress(pTonMinterWalletAddress),
       );
+      console.log({ pTonMinterWalletAddress });
       const swapCell = beginCell();
       storeSwapParams(swapParams as SwapParams)(swapCell);
-      const tx = await pTonWalletContract.sendTonTransfer(
-        senderSigner,
-        {
-          tonAmount: BigInt(offerAmount),
-          refundAddress: sender,
-          fwdPayload: swapCell.endCell(),
-          gas: toNano(1.2) + BigInt(offerAmount),
-        },
-        toNano(1.2) + BigInt(offerAmount),
-      );
+      const tx = await pTonWalletContract.sendTonTransfer(senderSigner, {
+        tonAmount: BigInt(offerAmount),
+        refundAddress: sender,
+        fwdPayload: swapCell.endCell(),
+        gas: BigInt(offerAmount),
+      });
       printTransactionFees(tx.transactions);
     } else {
       await offerJettonWalletContract.sendTransferSwap(
@@ -147,7 +144,6 @@ export const simulateSwap = async (req: Request, res: Response) => {
       paths = [pool].map((item) => encodeResponseObject(item));
     }
   }
-
   res.status(200).json({
     data: {
       returnAmount: returnAmount.toString(),
