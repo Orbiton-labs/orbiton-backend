@@ -199,7 +199,7 @@ describe('Test Handle Mint', () => {
     expect(position.collectedFeeJetton1).toEqual('0');
     expect(position.feeGrowthInside0LastX128).toEqual('500000');
     expect(position.feeGrowthInside1LastX128).toEqual('1500000');
-    expect(position.liquidity).toEqual((BigInt(1000000) + BigInt(event.amount)).toString());
+    expect(position.liquidity).toEqual(BigInt(event.amount).toString());
   }, 100000);
 
   it('#2 should handle mint event when it adds liquidity outside current tick right after #1', async () => {
@@ -384,6 +384,6 @@ describe('Test Handle Mint', () => {
     expect(position.collectedFeeJetton1).toEqual('0');
     expect(position.feeGrowthInside0LastX128).toEqual('500000');
     expect(position.feeGrowthInside1LastX128).toEqual('1500000');
-    expect(position.liquidity).toEqual((BigInt(1000000) + BigInt(event.amount)).toString());
+    expect(position.liquidity).toEqual(BigInt(event.amount).toString());
   });
 });

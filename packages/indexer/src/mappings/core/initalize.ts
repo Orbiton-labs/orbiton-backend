@@ -2,7 +2,7 @@ import { InitializeEvent } from '@src/@types/core.type';
 import { db } from '@src/db';
 import { eq } from 'drizzle-orm';
 import * as schema from '@src/models/index';
-import { getOrLoadJetton } from '../utils/jetton';
+import { getJettonMinterAddress, getOrLoadJetton } from '../utils/jetton';
 import { Router } from '@src/models/router';
 import { findTonPerJetton, getTonPrice } from '../utils/ton';
 import { updatePoolDayData } from '../utils/pool';
@@ -55,8 +55,17 @@ export const handleInitialize = async (event: InitializeEvent) => {
   }
   router.poolCount = (BigInt(router.poolCount) + 1n).toString();
 
-  let jetton0 = await getOrLoadJetton(event.jetton0);
-  let jetton1 = await getOrLoadJetton(event.jetton1);
+  const [jetton0MasterAddress, jetton1MasterAddress] = await Promise.all([
+    getJettonMinterAddress(event.jetton0),
+    getJettonMinterAddress(event.jetton1),
+  ]);
+  if (!jetton0MasterAddress || !jetton1MasterAddress) {
+    console.log(`<handleInitialize> Jetton master address not found`);
+    return;
+  }
+
+  let jetton0 = await getOrLoadJetton(jetton0MasterAddress);
+  let jetton1 = await getOrLoadJetton(jetton1MasterAddress);
   let feeTier = event.fee;
 
   jetton0.derivedTon = await findTonPerJetton(jetton0);

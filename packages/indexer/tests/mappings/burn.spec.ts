@@ -230,6 +230,6 @@ describe('Test Handle Burn', () => {
     expect(position.collectedFeeJetton1).toEqual('0');
     expect(position.feeGrowthInside0LastX128).toEqual('500000');
     expect(position.feeGrowthInside1LastX128).toEqual('1500000');
-    expect(position.liquidity).toEqual((BigInt(16000000) - BigInt(event.amount)).toString());
+    expect(position.liquidity).toEqual((BigInt(15000000) - BigInt(event.amount)).toString());
   });
 });

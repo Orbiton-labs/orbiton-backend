@@ -7,15 +7,16 @@ import {
   MintEvent,
   SwapEvent,
 } from '@src/@types/core.type';
-import { tonClient } from '@src/services/ton-client';
+import { sortAddress } from '@src/mappings/utils/address';
 import { Cell } from '@ton/core';
 
 export const parseInitializeEvent = (cell: Cell, traceEvent: TraceEvent): InitializeEvent => {
   const slice = cell.asSlice();
   const firstSlice = slice.loadRef().asSlice();
-  let jettonMasterRef = firstSlice.loadRef().asSlice();
-  let jetton0MasterAddress = jettonMasterRef.loadAddress();
-  let jetton1MasterAddress = jettonMasterRef.loadAddress();
+  firstSlice.loadAddress();
+  let jetton0 = firstSlice.loadAddress();
+  let jetton1 = firstSlice.loadAddress();
+  const [jetton0WalletAddress, jetton1WalletAddress] = sortAddress(jetton0, jetton1);
   const secondSlice = slice.loadRef().asSlice();
   let fee = secondSlice.loadUint(24);
   let tickSpacing = secondSlice.loadInt(24);
@@ -23,8 +24,8 @@ export const parseInitializeEvent = (cell: Cell, traceEvent: TraceEvent): Initia
   let sqrtPriceX96 = secondSlice.loadUintBig(160);
   return {
     ...traceEvent,
-    jetton0: jetton0MasterAddress,
-    jetton1: jetton1MasterAddress,
+    jetton0: jetton0WalletAddress,
+    jetton1: jetton1WalletAddress,
     fee: BigInt(fee),
     tickSpacing: BigInt(tickSpacing),
     sqrtPriceX96,

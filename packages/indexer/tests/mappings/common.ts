@@ -11,6 +11,8 @@ import {
 } from '../../src/@types/core.type';
 import { Functions } from '@orbiton_labs/v3-contracts-sdk';
 
+// jetton0: Address.parse('EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs'),
+// jetton1: Address.parse('EQB-MPwrd1G6WKNkLz_VnV6WqBDd142KMQv-g1O-8QUA3728'),
 export const getMockInitializeEvent = () => {
   const sqrtPriceX96 = BigInt(encodePriceSqrt(1n, 1n).toString());
   const tick = BigInt(TickMath.getTickAtSqrtRatio(sqrtPriceX96));

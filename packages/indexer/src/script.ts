@@ -1,6 +1,7 @@
 import { Address } from '@ton/core';
 import { Database, DatabaseMode } from './db';
 import { getOrLoadJetton } from './mappings/utils/jetton';
+import { LiteClientService } from './services/ton-lite-client';
 
 const main = async () => {
   Database.init(DatabaseMode.NORMAL);

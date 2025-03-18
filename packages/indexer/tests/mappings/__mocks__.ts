@@ -23,6 +23,29 @@ mock.module('../../src/mappings/utils/ton', () => {
   };
 });
 
+mock.module('../../src/mappings/utils/jetton', () => {
+  const funcs = require('../../src/mappings/utils/jetton');
+  return {
+    ...funcs,
+    getJettonMinterAddress: jest.fn().mockImplementation((address: Address) => {
+      console.log({
+        address,
+      });
+      return address;
+    }),
+  };
+});
+
+mock.module('../../src/mappings/utils/address', () => {
+  const funcs = require('../../src/mappings/utils/address');
+  return {
+    ...funcs,
+    sortAddress: jest.fn().mockImplementation((addr1: Address, addr2: Address) => {
+      return [addr1, addr2];
+    }),
+  };
+});
+
 mock.module('@src/services/ton-client', () => {
   return {
     tonClient: {

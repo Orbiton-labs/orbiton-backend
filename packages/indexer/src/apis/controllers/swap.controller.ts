@@ -17,15 +17,17 @@ import { Chain } from '@orbiton_labs/v3-contracts-sdk/build/constants';
 
 export const simulateSwap = async (req: Request, res: Response) => {
   const { offerJettonAddress, askJettonAddress, offerAmount, senderAddress } = req.query as SwapDto;
+  const rawOfferJettonAddress = Address.parse(offerJettonAddress).toString();
+  const rawAskJettonAddress = Address.parse(askJettonAddress).toString();
   const pools = await db.query.pool.findMany({
     where: or(
       and(
-        eq(schema.pool.jetton0Id, Address.parse(offerJettonAddress).toString()),
-        eq(schema.pool.jetton1Id, Address.parse(askJettonAddress).toString()),
+        eq(schema.pool.jetton0Id, rawOfferJettonAddress),
+        eq(schema.pool.jetton1Id, rawAskJettonAddress),
       ),
       and(
-        eq(schema.pool.jetton0Id, Address.parse(askJettonAddress).toString()),
-        eq(schema.pool.jetton1Id, Address.parse(offerJettonAddress).toString()),
+        eq(schema.pool.jetton0Id, rawAskJettonAddress),
+        eq(schema.pool.jetton1Id, rawOfferJettonAddress),
       ),
     ),
     with: {
@@ -51,7 +53,9 @@ export const simulateSwap = async (req: Request, res: Response) => {
   let returnAmount = 0n;
   let messages;
   for (const pool of pools) {
-    const zeroForOne = pool.jetton0Id === offerJettonAddress && pool.jetton1Id === askJettonAddress;
+    const zeroForOne =
+      pool.jetton0Id === rawOfferJettonAddress && pool.jetton1Id === rawAskJettonAddress;
+    const isTonToJetton = pool.jetton0.id === env.indexer.pTonAddress;
     const poolContract = tonClient.open(PoolWrapper.Pool.createFromAddress(Address.parse(pool.id)));
     const result = await poolContract.getSimulateSwap(
       BigInt(offerAmount),
@@ -86,6 +90,7 @@ export const simulateSwap = async (req: Request, res: Response) => {
         zeroForOne ? MIN_SQRT_RATIO + 1n : MAX_SQRT_RATIO - 1n,
         Address.parse(senderAddress),
         Number(zeroForOne ? -1 : 0),
+        isTonToJetton,
         env.server.network === 'mainnet' ? Chain.Mainnet : Chain.Testnet,
         {
           ROUTER: env.indexer.routerAddress,
