@@ -13,6 +13,7 @@ import {
   PoolWrapper,
 } from '@orbiton_labs/v3-contracts-sdk';
 import { MAX_SQRT_RATIO, MIN_SQRT_RATIO } from '@src/constants';
+import { encodeResponseObject } from '@src/utils/object';
 import { Chain } from '@orbiton_labs/v3-contracts-sdk/build/constants';
 
 export const simulateSwap = async (req: Request, res: Response) => {
@@ -52,6 +53,7 @@ export const simulateSwap = async (req: Request, res: Response) => {
 
   let returnAmount = 0n;
   let messages;
+
   for (const pool of pools) {
     const zeroForOne =
       pool.jetton0Id === rawOfferJettonAddress && pool.jetton1Id === rawAskJettonAddress;
