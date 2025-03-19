@@ -64,6 +64,7 @@ const bootstrapServer = async () => {
   app.use((err: any, req: any, res: any, next: any) => {
     const status = err.status || 500;
     const message = err.message || 'Something went wrong';
+    console.log('API Error:', err);
     return res.status(status).json({
       status,
       message,

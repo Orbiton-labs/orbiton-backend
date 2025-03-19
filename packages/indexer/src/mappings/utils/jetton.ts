@@ -9,7 +9,7 @@ import { TraceEvent } from '@src/@types';
 import { eq } from 'drizzle-orm';
 import env from '@src/configs/env';
 import { tonClient } from '@src/services/ton-client';
-import { JettonWalletWrapper } from '@orbiton_labs/v3-contracts-sdk';
+import { JettonMinterWrapper, JettonWalletWrapper } from '@orbiton_labs/v3-contracts-sdk';
 
 export const getJettonMinterAddress = async (jettonWalletAddress: Address) => {
   const jettonWalletContract = tonClient.open(
@@ -20,6 +20,19 @@ export const getJettonMinterAddress = async (jettonWalletAddress: Address) => {
     .then((res) => res.jettonMasterAddress)
     .catch((_) => null);
   return jettonMasterAddress;
+};
+
+export const getJettonWalletAddress = async (
+  jettonMasterAddress: Address,
+  targetAddress: Address,
+) => {
+  const jettonWalletContract = tonClient.open(
+    JettonMinterWrapper.JettonMinter.createFromAddress(jettonMasterAddress),
+  );
+  const jettonWalletAddress = await jettonWalletContract
+    .getWalletAddress(targetAddress)
+    .catch((err) => null);
+  return jettonWalletAddress;
 };
 
 export const getOrLoadJetton = async (address: Address) => {

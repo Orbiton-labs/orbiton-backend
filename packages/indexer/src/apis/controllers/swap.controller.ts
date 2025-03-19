@@ -13,7 +13,6 @@ import {
   PoolWrapper,
 } from '@orbiton_labs/v3-contracts-sdk';
 import { MAX_SQRT_RATIO, MIN_SQRT_RATIO } from '@src/constants';
-import { encodeResponseObject } from '@src/utils/object';
 import { Chain } from '@orbiton_labs/v3-contracts-sdk/build/constants';
 
 export const simulateSwap = async (req: Request, res: Response) => {
@@ -57,7 +56,7 @@ export const simulateSwap = async (req: Request, res: Response) => {
   for (const pool of pools) {
     const zeroForOne =
       pool.jetton0Id === rawOfferJettonAddress && pool.jetton1Id === rawAskJettonAddress;
-    const isTonToJetton = pool.jetton0.id === env.indexer.pTonAddress;
+    const isTonToJetton = rawOfferJettonAddress === env.indexer.pTonAddress;
     const poolContract = tonClient.open(PoolWrapper.Pool.createFromAddress(Address.parse(pool.id)));
     const result = await poolContract.getSimulateSwap(
       BigInt(offerAmount),
@@ -80,7 +79,10 @@ export const simulateSwap = async (req: Request, res: Response) => {
       );
       const askJettonEntity = new Jetton(askJetton.id, askJetton.decimals, askJetton.symbol);
       await Promise.all([
-        offerJettonEntity.setWalletAddress(tonClient, Address.parse(senderAddress)),
+        offerJettonEntity.setWalletAddress(
+          tonClient,
+          isTonToJetton ? Address.parse(env.indexer.routerAddress) : Address.parse(senderAddress),
+        ),
         askJettonEntity.setWalletAddress(tonClient, Address.parse(env.indexer.routerAddress)),
       ]);
       const offerJettonAmount = JettonAmount.fromRawAmount(offerJettonEntity, BigInt(offerAmount));
@@ -99,6 +101,7 @@ export const simulateSwap = async (req: Request, res: Response) => {
           PTON_ROUTER_WALLET: env.indexer.pTonRouterAddress,
         },
       );
+
       messages = swapMessages.map((message) => ({
         to: message.to.toString(),
         value: message.value.toString(),

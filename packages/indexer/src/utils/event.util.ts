@@ -1,4 +1,3 @@
-import { JettonWalletWrapper } from '@orbiton_labs/v3-contracts-sdk';
 import { TraceEvent } from '@src/@types';
 import {
   BurnEvent,
@@ -7,16 +6,14 @@ import {
   MintEvent,
   SwapEvent,
 } from '@src/@types/core.type';
-import { sortAddress } from '@src/mappings/utils/address';
 import { Cell } from '@ton/core';
 
 export const parseInitializeEvent = (cell: Cell, traceEvent: TraceEvent): InitializeEvent => {
   const slice = cell.asSlice();
   const firstSlice = slice.loadRef().asSlice();
-  firstSlice.loadAddress();
-  let jetton0 = firstSlice.loadAddress();
-  let jetton1 = firstSlice.loadAddress();
-  const [jetton0WalletAddress, jetton1WalletAddress] = sortAddress(jetton0, jetton1);
+  const jettonMasterRef = firstSlice.loadRef().asSlice();
+  const jetton0 = jettonMasterRef.loadAddress();
+  const jetton1 = jettonMasterRef.loadAddress();
   const secondSlice = slice.loadRef().asSlice();
   let fee = secondSlice.loadUint(24);
   let tickSpacing = secondSlice.loadInt(24);
@@ -24,8 +21,8 @@ export const parseInitializeEvent = (cell: Cell, traceEvent: TraceEvent): Initia
   let sqrtPriceX96 = secondSlice.loadUintBig(160);
   return {
     ...traceEvent,
-    jetton0: jetton0WalletAddress,
-    jetton1: jetton1WalletAddress,
+    jetton0,
+    jetton1,
     fee: BigInt(fee),
     tickSpacing: BigInt(tickSpacing),
     sqrtPriceX96,

@@ -2,7 +2,7 @@ import { InitializeEvent } from '@src/@types/core.type';
 import { db } from '@src/db';
 import { eq } from 'drizzle-orm';
 import * as schema from '@src/models/index';
-import { getJettonMinterAddress, getOrLoadJetton } from '../utils/jetton';
+import { getJettonMinterAddress, getJettonWalletAddress, getOrLoadJetton } from '../utils/jetton';
 import { Router } from '@src/models/router';
 import { findTonPerJetton, getTonPrice } from '../utils/ton';
 import { updatePoolDayData } from '../utils/pool';
@@ -12,6 +12,8 @@ import { objectWithoutId } from '../common';
 import { BigDecimalConfig } from '../constant';
 import { loadTransaction } from '../utils';
 import env from '@src/configs/env';
+import { Address } from '@ton/core';
+import { sortBefore } from '../utils/address';
 
 BigDecimal.set(BigDecimalConfig);
 function feeTierToProtocolFeeDefault(feeTier: bigint): bigint {
@@ -55,17 +57,18 @@ export const handleInitialize = async (event: InitializeEvent) => {
   }
   router.poolCount = (BigInt(router.poolCount) + 1n).toString();
 
-  const [jetton0MasterAddress, jetton1MasterAddress] = await Promise.all([
-    getJettonMinterAddress(event.jetton0),
-    getJettonMinterAddress(event.jetton1),
+  const [jetton0WalletAddress, jetton1WalletAddress] = await Promise.all([
+    getJettonWalletAddress(event.jetton0, Address.parse(env.indexer.routerAddress)),
+    getJettonWalletAddress(event.jetton1, Address.parse(env.indexer.routerAddress)),
   ]);
-  if (!jetton0MasterAddress || !jetton1MasterAddress) {
-    console.log(`<handleInitialize> Jetton master address not found`);
+  if (!jetton0WalletAddress || !jetton1WalletAddress) {
+    console.log(`<handleInitialize> Jetton wallet address not found`);
     return;
   }
 
-  let jetton0 = await getOrLoadJetton(jetton0MasterAddress);
-  let jetton1 = await getOrLoadJetton(jetton1MasterAddress);
+  const isSorted = sortBefore(jetton0WalletAddress, jetton1WalletAddress);
+  let jetton0 = await getOrLoadJetton(isSorted ? event.jetton0 : event.jetton1);
+  let jetton1 = await getOrLoadJetton(isSorted ? event.jetton1 : event.jetton0);
   let feeTier = event.fee;
 
   jetton0.derivedTon = await findTonPerJetton(jetton0);
