@@ -7,6 +7,8 @@ import env from '@src/configs/env';
 import { Address } from '@ton/core';
 import { tonClient } from '@src/services/ton-client';
 import {
+  calculatePriceImpact,
+  decodeSqrtRatioX96,
   Jetton,
   JettonAmount,
   Pool,
@@ -16,6 +18,7 @@ import {
 import { MAX_SQRT_RATIO, MIN_SQRT_RATIO } from '@src/constants';
 import { Chain } from '@orbiton_labs/v3-contracts-sdk/build/constants';
 import { FeeAmount } from '@orbiton_labs/v3-contracts-sdk/build/@types';
+import Decimal from 'decimal.js';
 
 export const simulateSwap = async (req: Request, res: Response) => {
   const { offerJettonAddress, askJettonAddress, offerAmount, senderAddress } = req.query as SwapDto;
@@ -54,6 +57,7 @@ export const simulateSwap = async (req: Request, res: Response) => {
 
   let returnAmount = 0n;
   let messages: any;
+  let midPrice: Decimal;
   let chosenOfferJettonEntity: Jetton;
   let chosenAskJettonEntity: Jetton;
   let chosenPool: schema.Pool;
@@ -64,7 +68,6 @@ export const simulateSwap = async (req: Request, res: Response) => {
     const zeroForOne =
       pool.jetton0Id === rawOfferJettonAddress && pool.jetton1Id === rawAskJettonAddress;
     const isTonToJetton = rawOfferJettonAddress === env.indexer.pTonAddress;
-
     const [offerJetton, askJetton] = zeroForOne
       ? [pool.jetton0, pool.jetton1]
       : [pool.jetton1, pool.jetton0];
@@ -105,6 +108,8 @@ export const simulateSwap = async (req: Request, res: Response) => {
 
     if (expectedReturnAmount > returnAmount) {
       returnAmount = expectedReturnAmount;
+      const price = decodeSqrtRatioX96(BigInt(pool.sqrtPrice));
+      midPrice = zeroForOne ? price : new Decimal(1).div(price);
       chosenOfferJettonEntity = offerJettonEntity;
       chosenAskJettonEntity = askJettonEntity;
       chosenPool = pool;
@@ -113,6 +118,7 @@ export const simulateSwap = async (req: Request, res: Response) => {
     }
   }
 
+  let priceImpact: Decimal;
   if (chosenOfferJettonEntity && chosenAskJettonEntity && chosenPool) {
     await Promise.all([
       chosenOfferJettonEntity.setWalletAddress(
@@ -127,6 +133,12 @@ export const simulateSwap = async (req: Request, res: Response) => {
       chosenOfferJettonEntity,
       BigInt(offerAmount),
     );
+    console.log({
+      midPrice: midPrice.toString(),
+      offerAmount: offerAmount.toString(),
+      returnAmount: returnAmount.toString(),
+    });
+    priceImpact = calculatePriceImpact(midPrice, BigInt(offerAmount), returnAmount);
     const swapMessages = PoolMessageBuilder.createExactInSwapMessage(
       offerJettonAmount,
       chosenAskJettonEntity,
@@ -152,6 +164,7 @@ export const simulateSwap = async (req: Request, res: Response) => {
   res.status(200).json({
     data: {
       returnAmount: returnAmount.toString(),
+      priceImpact: priceImpact.toString(),
       messages,
     },
   });
